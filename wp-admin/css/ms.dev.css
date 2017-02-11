@@ -1,0 +1,33 @@
+/* Dashboard: MS Specific Data */
+#dashboard_right_now p.musub {
+	margin-top: 12px;
+	border-top: 1px solid #ececec;
+	padding-left: 16px;
+	position: static;
+}
+
+#dashboard_right_now td.b a.musublink {
+	font-size: 16px;
+}
+
+#dashboard_right_now div.musubtable {
+	border-top: none;
+}
+
+#dashboard_right_now div.musubtable .t {
+	white-space: normal;
+}
+
+/* Background Color for Site Status */
+.site-deleted {
+	background: #ff8573;
+}
+.site-spammed {
+	background: #faafaa;
+}
+.site-archived {
+	background: #ffebe8;
+}
+.site-mature {
+	background: #fecac2;
+}
