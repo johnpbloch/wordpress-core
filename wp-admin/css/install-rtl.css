@@ -1,0 +1,19 @@
+body {
+	font-size: 11px;;
+}
+ul, ol {
+	padding: 5px 22px 5px 5px;
+}
+.form-table th {
+	text-align: right;
+}
+input {
+	padding: 1px
+}
+#logo {
+	text-align: left;
+}
+#admin_email {
+	direction: ltr;
+	text-align: left;
+}
