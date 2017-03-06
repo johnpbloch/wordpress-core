@@ -154,7 +154,7 @@ body {
 }
 
 #customize-theme-controls .accordion-section-title:after {
-	content: "\f345";
+	content: "\f341";
 }
 
 #customize-theme-controls .accordion-section-content {
@@ -392,7 +392,7 @@ h3.customize-section-title {
 .customize-panel-back:before,
 .customize-section-back:before {
 	font: normal 20px/69px dashicons;
-	content: "\f341";
+	content: "\f345";
 	position: relative;
 	right: 13px;
 }

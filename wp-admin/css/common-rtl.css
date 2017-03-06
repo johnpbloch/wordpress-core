@@ -395,9 +395,13 @@ ul.ul-square > li,
 ol.ol-decimal > li {
 	margin: 0 0 0.5em;
 }
+
+/* rtl:ignore */
 .ltr {
 	direction: ltr;
 }
+
+/* rtl:ignore */
 .code,
 code {
 	font-family: Consolas, Monaco, monospace;
@@ -2446,9 +2450,13 @@ div.action-links {
 	border-top: 1px solid #ddd;
 	background: #f3f3f3;
 }
+
+/* rtl:ignore */
 #plugin-information .section {
 	direction: ltr;
 }
+
+/* rtl:ignore */
 #plugin-information .section ul,
 #plugin-information .section ol {
 	list-style-type: disc;
@@ -2475,6 +2483,8 @@ div.action-links {
 	-webkit-box-shadow: 0 1px 2px rgba( 0, 0, 0, 0.3 );
 	box-shadow: 0 1px 2px rgba( 0, 0, 0, 0.3 );
 }
+
+/* rtl:ignore */
 #plugin-information #section-screenshots li p {
 	font-style: italic;
 	padding-left: 20px;
@@ -2485,6 +2495,8 @@ div.action-links {
 	overflow: auto;
 	border: 1px solid #ccc;
 }
+
+/* rtl:ignore */
 #plugin-information .review {
 	overflow: hidden; /* clearfix */
 	width: 100%;
@@ -2495,6 +2507,8 @@ div.action-links {
 #plugin-information .review-title-section {
 	overflow: hidden; /* clearfix */
 }
+
+/* rtl:ignore */
 #plugin-information .review-title-section h4 {
 	display: inline-block;
 	float: left;
@@ -2506,17 +2520,25 @@ div.action-links {
 	margin: 0;
 	padding-top: 2px;
 }
+
+/* rtl:ignore */
 #plugin-information .reviewer-info .avatar {
 	float: left;
 	margin: 4px 6px 0 0;
 }
+
+/* rtl:ignore */
 #plugin-information .reviewer-info .star-rating {
 	float: left;
 }
+
+/* rtl:ignore */
 #plugin-information .review-meta {
 	float: left;
 	margin-left: 0.75em;
 }
+
+/* rtl:ignore */
 #plugin-information .review-body {
 	float: left;
 	width: 100%;
@@ -2763,6 +2785,8 @@ img {
 	background: #f9f9f9;
 	outline: none;
 }
+
+/* rtl:ignore */
 #template textarea,
 #docs-list {
 	direction: ltr;

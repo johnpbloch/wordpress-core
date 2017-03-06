@@ -109,9 +109,12 @@
 	margin-top: -13px;
 	padding-bottom: 13px;
 }
+
+/* rtl:ignore */
 .wp-pointer-left {
 	padding-left: 13px;
 }
+/* rtl:ignore */
 .wp-pointer-right {
 	margin-left: -13px;
 	padding-right: 13px;
@@ -164,11 +167,15 @@
 	display: block;
 	content: ' ';
 }
+
+/* rtl:ignore */
 .wp-pointer-left .wp-pointer-arrow {
 	left: 0;
 	border-width: 13px 13px 13px 0;
 	border-right-color: #ccc;
 }
+
+/* rtl:ignore */
 .wp-pointer-left .wp-pointer-arrow-inner {
 	left: 1px;
 	margin-left: -13px;
@@ -178,11 +185,15 @@
 	display: block;
 	content: ' ';
 }
+
+/* rtl:ignore */
 .wp-pointer-right .wp-pointer-arrow {
 	right: 0;
 	border-width: 13px 0 13px 13px;
 	border-left-color: #ccc;
 }
+
+/* rtl:ignore */
 .wp-pointer-right .wp-pointer-arrow-inner {
 	right: 1px;
 	margin-right: -13px;
