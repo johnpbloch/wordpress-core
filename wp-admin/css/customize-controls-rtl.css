@@ -155,7 +155,7 @@ body {
 }
 
 .control-section.control-panel > .accordion-section-title:after {
-	content: "\f345";
+	content: "\f341";
 	background: #f5f5f5;
 	color: #555;
 	width: 38px;
@@ -278,7 +278,7 @@ body {
 
 .control-panel-back:before {
 	font: normal 20px/45px dashicons;
-	content: "\f341";
+	content: "\f345";
 	position: relative;
 	top: 1px;
 	right: 13px;

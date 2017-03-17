@@ -236,6 +236,8 @@ submit {
 	margin: 5px 0 15px;
 	background-color: #ffebe8;
 }
+
+/* rtl:ignore */
 #dbname,
 #uname,
 #pwd,

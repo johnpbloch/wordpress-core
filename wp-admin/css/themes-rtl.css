@@ -505,11 +505,11 @@
 }
 
 .theme-overlay .theme-header .left:before {
-	content: "\f341";
+	content: "\f345";
 }
 
 .theme-overlay .theme-header .right:before {
-	content: "\f345";
+	content: "\f341";
 }
 
 
@@ -1450,7 +1450,7 @@ body.full-overlay-active {
 
 .theme-install-overlay .previous-theme:before {
 	font: normal 20px/1 dashicons;
-	content: "\f341";
+	content: "\f345";
 	position: relative;
 	top: 6px;
 	right: 14px;
@@ -1458,7 +1458,7 @@ body.full-overlay-active {
 
 .theme-install-overlay .next-theme:before {
 	font: normal 20px/1 dashicons;
-	content: "\f345";
+	content: "\f341";
 	position: relative;
 	top: 6px;
 	right: 13px;
@@ -1529,6 +1529,8 @@ body.full-overlay-active {
 	-moz-osx-font-smoothing: grayscale;
 	text-decoration: none !important;
 }
+
+/* rtl:ignore */
 .wp-full-overlay.collapsed .collapse-sidebar-arrow:before,
 .rtl .wp-full-overlay .collapse-sidebar-arrow:before {
 	-webkit-transform: rotate(180deg);

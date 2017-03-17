@@ -2116,9 +2116,13 @@ i.mce-i-wp_code:before {
 .rtl .quicktags-toolbar input {
 	font-family: Tahoma, sans-serif;
 }
+
+/* rtl:ignore */
 .mce-rtl .mce-flow-layout .mce-flow-layout-item > div {
 	direction: rtl;
 }
+
+/* rtl:ignore */
 .mce-rtl .mce-listbox i.mce-caret {
 	left: 6px;
 }
