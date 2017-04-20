@@ -2274,10 +2274,13 @@ function wp_schedule_update_network_counts() {
  * Update the network-wide counts for the current network.
  *
  * @since 3.1.0
+ * @since 4.8.0 The $network_id parameter has been added.
+ *
+ * @param int|null $network_id ID of the network. Default is the current network.
  */
-function wp_update_network_counts() {
-	wp_update_network_user_counts();
-	wp_update_network_site_counts();
+function wp_update_network_counts( $network_id = null ) {
+	wp_update_network_user_counts( $network_id );
+	wp_update_network_site_counts( $network_id );
 }
 
 /**
@@ -2354,14 +2357,17 @@ function wp_update_network_site_counts( $network_id = null ) {
  * Update the network-wide user count.
  *
  * @since 3.7.0
+ * @since 4.8.0 The $network_id parameter has been added.
  *
  * @global wpdb $wpdb WordPress database abstraction object.
+ *
+ * @param int|null $network_id ID of the network. Default is the current network.
  */
-function wp_update_network_user_counts() {
+function wp_update_network_user_counts( $network_id = null ) {
 	global $wpdb;
 
 	$count = $wpdb->get_var( "SELECT COUNT(ID) as c FROM $wpdb->users WHERE spam = '0' AND deleted = '0'" );
-	update_site_option( 'user_count', $count );
+	update_network_option( $network_id, 'user_count', $count );
 }
 
 /**
