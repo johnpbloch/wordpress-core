@@ -3003,11 +3003,7 @@ function clean_term_cache($ids, $taxonomy = '', $clean_taxonomy = true) {
 
 	foreach ( $taxonomies as $taxonomy ) {
 		if ( $clean_taxonomy ) {
-			wp_cache_delete('all_ids', $taxonomy);
-			wp_cache_delete('get', $taxonomy);
-			delete_option("{$taxonomy}_children");
-			// Regenerate {$taxonomy}_children
-			_get_term_hierarchy($taxonomy);
+			clean_taxonomy_cache( $taxonomy );
 		}
 
 		/**
@@ -3024,6 +3020,31 @@ function clean_term_cache($ids, $taxonomy = '', $clean_taxonomy = true) {
 	}
 
 	wp_cache_set( 'last_changed', microtime(), 'terms' );
+}
+
+/**
+ * Clean the caches for a taxonomy.
+ *
+ * @since 4.9.0
+ *
+ * @param string $taxonomy Taxonomy slug.
+ */
+function clean_taxonomy_cache( $taxonomy ) {
+	wp_cache_delete( 'all_ids', $taxonomy );
+	wp_cache_delete( 'get', $taxonomy );
+
+	// Regenerate cached hierarchy.
+	delete_option( "{$taxonomy}_children" );
+	_get_term_hierarchy( $taxonomy );
+
+	/**
+	 * Fires after a taxonomy's caches have been cleaned.
+	 *
+	 * @since 4.9.0
+	 *
+	 * @param string $taxonomy Taxonomy slug.
+	 */
+	do_action( 'clean_taxonomy_cache', $taxonomy );
 }
 
 /**
@@ -3527,19 +3548,27 @@ function _split_shared_term( $term_id, $term_taxonomy_id, $record = true ) {
 				array( 'parent' => $new_term_id ),
 				array( 'term_taxonomy_id' => $child_tt_id )
 			);
-			clean_term_cache( $term_id, $term_taxonomy->taxonomy );
+			clean_term_cache( (int) $child_tt_id, '', false );
 		}
 	} else {
 		// If the term has no children, we must force its taxonomy cache to be rebuilt separately.
-		clean_term_cache( $new_term_id, $term_taxonomy->taxonomy );
+		clean_term_cache( $new_term_id, $term_taxonomy->taxonomy, false );
 	}
 
+	clean_term_cache( $term_id, $term_taxonomy->taxonomy, false );
+
+	/*
+	 * Taxonomy cache clearing is delayed to avoid race conditions that may occur when
+	 * regenerating the taxonomy's hierarchy tree.
+	 */
+	$taxonomies_to_clean = array( $term_taxonomy->taxonomy );
+
 	// Clean the cache for term taxonomies formerly shared with the current term.
-	$shared_term_taxonomies = $wpdb->get_row( $wpdb->prepare( "SELECT taxonomy FROM $wpdb->term_taxonomy WHERE term_id = %d", $term_id ) );
-	if ( $shared_term_taxonomies ) {
-		foreach ( $shared_term_taxonomies as $shared_term_taxonomy ) {
-			clean_term_cache( $term_id, $shared_term_taxonomy );
-		}
+	$shared_term_taxonomies = $wpdb->get_col( $wpdb->prepare( "SELECT taxonomy FROM $wpdb->term_taxonomy WHERE term_id = %d", $term_id ) );
+	$taxonomies_to_clean = array_merge( $taxonomies_to_clean, $shared_term_taxonomies );
+
+	foreach ( $taxonomies_to_clean as $taxonomy_to_clean ) {
+		clean_taxonomy_cache( $taxonomy_to_clean );
 	}
 
 	// Keep a record of term_ids that have been split, keyed by old term_id. See wp_get_split_term().
