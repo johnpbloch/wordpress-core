@@ -30,6 +30,7 @@ class WP_Upgrader_Skin {
 	public $options = array();
 
 	/**
+	 * @access public
 	 *
 	 * @param array $args
 	 */
@@ -119,6 +120,7 @@ class WP_Upgrader_Skin {
 	}
 
 	/**
+	 * @access public
 	 *
 	 * @param string|WP_Error $errors
 	 */
@@ -138,6 +140,7 @@ class WP_Upgrader_Skin {
 	}
 
 	/**
+	 * @access public
 	 *
 	 * @param string $string
 	 */
