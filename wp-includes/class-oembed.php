@@ -81,7 +81,7 @@ class WP_oEmbed {
 			'#https?://(.+\.)?imgur\.com/.*#i'                                    => array( 'https://api.imgur.com/oembed',                          true  ),
 			'#https?://(www\.)?meetu(\.ps|p\.com)/.*#i'                           => array( 'https://api.meetup.com/oembed',                         true  ),
 			'#https?://(www\.)?issuu\.com/.+/docs/.+#i'                           => array( 'https://issuu.com/oembed_wp',                           true  ),
-			'#https?://(www\.)?collegehumor\.com/video/.*#i'                      => array( 'http://www.collegehumor.com/oembed.{format}',           true  ),
+			'#https?://(www\.)?collegehumor\.com/video/.*#i'                      => array( 'https://www.collegehumor.com/oembed.{format}',          true  ),
 			'#https?://(www\.)?mixcloud\.com/.*#i'                                => array( 'https://www.mixcloud.com/oembed',                       true  ),
 			'#https?://(www\.|embed\.)?ted\.com/talks/.*#i'                       => array( 'https://www.ted.com/services/v1/oembed.{format}',       true  ),
 			'#https?://(www\.)?(animoto|video214)\.com/play/.*#i'                 => array( 'https://animoto.com/oembeds/create',                    true  ),
@@ -114,6 +114,9 @@ class WP_oEmbed {
 			'#https?://(www\.)?amzn\.in/.*#i'                                     => array( 'https://read.amazon.in/kp/api/oembed',                  true  ),
 			'#https?://(www\.)?amzn\.asia/.*#i'                                   => array( 'https://read.amazon.com.au/kp/api/oembed',              true  ),
 			'#https?://(www\.)?z\.cn/.*#i'                                        => array( 'https://read.amazon.cn/kp/api/oembed',                  true  ),
+			'#https?://www\.someecards\.com/.+-cards/.+#i'                        => array( 'https://www.someecards.com/v2/oembed/',                 true  ),
+			'#https?://www\.someecards\.com/usercards/viewcard/.+#i'              => array( 'https://www.someecards.com/v2/oembed/',                 true  ),
+			'#https?://some\.ly\/.+#i'                                            => array( 'https://www.someecards.com/v2/oembed/',                 true  ),
 		);
 
 		if ( ! empty( self::$early_providers['add'] ) ) {
@@ -194,6 +197,8 @@ class WP_oEmbed {
 		 * | Amazon       | a.co                              |      Yes       | 4.9.0   |
 		 * | Amazon       | amzn.to|eu|in|asia                |      Yes       | 4.9.0   |
 		 * | Amazon       | z.cn                              |      Yes       | 4.9.0   |
+		 * | Someecards   | someecards.com                    |      Yes       | 4.9.0   |
+		 * | Someecards   | some.ly                           |      Yes       | 4.9.0   |
 		 *
 		 * No longer supported providers:
 		 *
