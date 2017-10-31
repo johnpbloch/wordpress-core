@@ -317,6 +317,7 @@ final class WP_Customize_Manager {
 		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-nav-menu-name-control.php' );
 		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-nav-menu-locations-control.php' );
 		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-nav-menu-auto-add-control.php' );
+		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-new-menu-control.php' ); // @todo Remove in 5.0. See #42364.
 
 		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-nav-menus-panel.php' );
 
@@ -324,6 +325,7 @@ final class WP_Customize_Manager {
 		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-themes-section.php' );
 		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-sidebar-section.php' );
 		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-nav-menu-section.php' );
+		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-new-menu-section.php' ); // @todo Remove in 5.0. See #42364.
 
 		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-custom-css-setting.php' );
 		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-filter-setting.php' );
@@ -890,6 +892,24 @@ final class WP_Customize_Manager {
 	 * @since 3.4.0
 	 */
 	public function wp_loaded() {
+
+		// Unconditionally register core types for panels, sections, and controls in case plugin unhooks all customize_register actions.
+		$this->register_panel_type( 'WP_Customize_Panel' );
+		$this->register_panel_type( 'WP_Customize_Themes_Panel' );
+		$this->register_section_type( 'WP_Customize_Section' );
+		$this->register_section_type( 'WP_Customize_Sidebar_Section' );
+		$this->register_section_type( 'WP_Customize_Themes_Section' );
+		$this->register_control_type( 'WP_Customize_Color_Control' );
+		$this->register_control_type( 'WP_Customize_Media_Control' );
+		$this->register_control_type( 'WP_Customize_Upload_Control' );
+		$this->register_control_type( 'WP_Customize_Image_Control' );
+		$this->register_control_type( 'WP_Customize_Background_Image_Control' );
+		$this->register_control_type( 'WP_Customize_Background_Position_Control' );
+		$this->register_control_type( 'WP_Customize_Cropped_Image_Control' );
+		$this->register_control_type( 'WP_Customize_Site_Icon_Control' );
+		$this->register_control_type( 'WP_Customize_Theme_Control' );
+		$this->register_control_type( 'WP_Customize_Code_Editor_Control' );
+		$this->register_control_type( 'WP_Customize_Date_Time_Control' );
 
 		/**
 		 * Fires once WordPress has loaded, allowing scripts and styles to be initialized.
@@ -1708,8 +1728,8 @@ final class WP_Customize_Manager {
 	 * @since 4.6.0 `$default` is now returned early when the setting post value is invalid.
 	 *
 	 * @see WP_REST_Server::dispatch()
-	 * @see WP_Rest_Request::sanitize_params()
-	 * @see WP_Rest_Request::has_valid_params()
+	 * @see WP_REST_Request::sanitize_params()
+	 * @see WP_REST_Request::has_valid_params()
 	 *
 	 * @param WP_Customize_Setting $setting A WP_Customize_Setting derived object.
 	 * @param mixed                $default Value returned $setting has no post value (added in 4.2.0)
@@ -3745,17 +3765,17 @@ final class WP_Customize_Manager {
 	 *
 	 * @param WP_Customize_Section|string $id   Customize Section object, or Section ID.
 	 * @param array                     $args {
-	 *  Optional. Array of properties for the new Panel object. Default empty array.
-	 *  @type int          $priority              Priority of the panel, defining the display order of panels and sections.
+	 *  Optional. Array of properties for the new Section object. Default empty array.
+	 *  @type int          $priority              Priority of the section, defining the display order of panels and sections.
 	 *                                            Default 160.
-	 *  @type string       $panel                 Priority of the panel, defining the display order of panels and sections.
-	 *  @type string       $capability            Capability required for the panel. Default 'edit_theme_options'
-	 *  @type string|array $theme_supports        Theme features required to support the panel.
-	 *  @type string       $title                 Title of the panel to show in UI.
+	 *  @type string       $panel                 The panel this section belongs to (if any). Default empty.
+	 *  @type string       $capability            Capability required for the section. Default 'edit_theme_options'
+	 *  @type string|array $theme_supports        Theme features required to support the section.
+	 *  @type string       $title                 Title of the section to show in UI.
 	 *  @type string       $description           Description to show in the UI.
-	 *  @type string       $type                  Type of the panel.
+	 *  @type string       $type                  Type of the section.
 	 *  @type callable     $active_callback       Active callback.
-	 *  @type bool         $description_hidden    Hide the description behind a help icon, instead of . Default false.
+	 *  @type bool         $description_hidden    Hide the description behind a help icon, instead of inline above the first control. Default false.
 	 * }
 	 * @return WP_Customize_Section             The instance of the section that was added.
 	 */
@@ -4256,6 +4276,9 @@ final class WP_Customize_Manager {
 
 		if ( ! is_multisite() && ( current_user_can( 'install_themes' ) || current_user_can( 'update_themes' ) || current_user_can( 'delete_themes' ) ) ) {
 			wp_enqueue_script( 'updates' );
+			wp_localize_script( 'updates', '_wpUpdatesItemCounts', array(
+				'totals' => wp_get_update_data(),
+			) );
 		}
 	}
 
@@ -4609,14 +4632,23 @@ final class WP_Customize_Manager {
 			'previewableDevices' => $this->get_previewable_devices(),
 			'l10n' => array(
 				'confirmDeleteTheme' => __( 'Are you sure you want to delete this theme?' ),
-				/* translators: %d is the number of theme search results, which cannot currently consider singular vs. plural forms */
+				/* translators: %d: number of theme search results, which cannot currently consider singular vs. plural forms */
 				'themeSearchResults' => __( '%d themes found' ),
-				/* translators: %d is the number of themes being displayed, which cannot currently consider singular vs. plural forms */
+				/* translators: %d: number of themes being displayed, which cannot currently consider singular vs. plural forms */
 				'announceThemeCount' => __( 'Displaying %d themes' ),
-				/* translators: %s is the theme name */
+				/* translators: %s: theme name */
 				'announceThemeDetails' => __( 'Showing details for theme: %s' ),
 			),
 		);
+
+		// Temporarily disable installation in Customizer. See #42184.
+		$filesystem_method = get_filesystem_method();
+		ob_start();
+		$filesystem_credentials_are_stored = request_filesystem_credentials( self_admin_url() );
+		ob_end_clean();
+		if ( 'direct' !== $filesystem_method && ! $filesystem_credentials_are_stored ) {
+			$settings['theme']['_filesystemCredentialsNeeded'] = true;
+		}
 
 		// Prepare Customize Section objects to pass to JavaScript.
 		foreach ( $this->sections() as $id => $section ) {
@@ -4716,35 +4748,6 @@ final class WP_Customize_Manager {
 	 * @since 3.4.0
 	 */
 	public function register_controls() {
-
-		/* Panel, Section, and Control Types */
-		$this->register_panel_type( 'WP_Customize_Panel' );
-		$this->register_panel_type( 'WP_Customize_Themes_Panel' );
-		$this->register_section_type( 'WP_Customize_Section' );
-		$this->register_section_type( 'WP_Customize_Sidebar_Section' );
-		$this->register_section_type( 'WP_Customize_Themes_Section' );
-		$this->register_control_type( 'WP_Customize_Color_Control' );
-		$this->register_control_type( 'WP_Customize_Media_Control' );
-		$this->register_control_type( 'WP_Customize_Upload_Control' );
-		$this->register_control_type( 'WP_Customize_Image_Control' );
-		$this->register_control_type( 'WP_Customize_Background_Image_Control' );
-		$this->register_control_type( 'WP_Customize_Background_Position_Control' );
-		$this->register_control_type( 'WP_Customize_Cropped_Image_Control' );
-		$this->register_control_type( 'WP_Customize_Site_Icon_Control' );
-		$this->register_control_type( 'WP_Customize_Theme_Control' );
-		$this->register_control_type( 'WP_Customize_Code_Editor_Control' );
-		$this->register_control_type( 'WP_Customize_Date_Time_Control' );
-
-		/* Publish Settings */
-
-		// Note the controls for this section are added via JS.
-		$this->add_section( 'publish_settings', array(
-			'title' => __( 'Publish Settings' ),
-			'priority' => 0,
-			'capability' => 'customize',
-			'type' => 'outer',
-			'active_callback' => array( $this, 'is_theme_active' ),
-		) );
 
 		/* Themes (controls are loaded via ajax) */
 

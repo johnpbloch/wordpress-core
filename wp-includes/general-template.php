@@ -3157,6 +3157,7 @@ function wp_enqueue_code_editor( $args ) {
 				'Alt-F' => 'findPersistent',
 			),
 			'direction' => 'ltr', // Code is shown in LTR even in RTL languages.
+			'gutters' => array(),
 		),
 		'csslint' => array(
 			'errors' => true, // Parsing errors.
@@ -3311,6 +3312,7 @@ function wp_enqueue_code_editor( $args ) {
 	} elseif ( 'text/x-scss' === $type || 'text/x-less' === $type || 'text/x-sass' === $type ) {
 		$settings['codemirror'] = array_merge( $settings['codemirror'], array(
 			'mode' => $type,
+			'lint' => false,
 			'autoCloseBrackets' => true,
 			'matchBrackets' => true,
 		) );

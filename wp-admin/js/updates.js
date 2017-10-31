@@ -585,17 +585,9 @@
 
 		$message
 			.removeClass( 'updating-message' )
-			.addClass( 'updated-message installed' )
+			.addClass( 'updated-message installed button-disabled' )
 			.attr( 'aria-label', wp.updates.l10n.pluginInstalledLabel.replace( '%s', response.pluginName ) )
 			.text( wp.updates.l10n.pluginInstalled );
-
-		if ( $message.hasClass( 'button-primary' ) ) {
-			$message.addClass( 'button-primary-disabled' );
-		} else if ( $message.hasClass( 'button-secondary' ) ) {
-			$message.addClass( 'button-secondary-disabled' );
-		} else {
-			$message.addClass( 'button-disabled' );
-		}
 
 		wp.a11y.speak( wp.updates.l10n.installedMsg, 'polite' );
 
@@ -605,8 +597,7 @@
 			setTimeout( function() {
 
 				// Transform the 'Install' button into an 'Activate' button.
-				$message.removeClass( 'install-now installed button-primary-disabled button-secondary-disabled button-disabled updated-message' )
-					.addClass( 'activate-now button-primary' )
+				$message.removeClass( 'install-now installed button-disabled updated-message' ).addClass( 'activate-now button-primary' )
 					.attr( 'href', response.activateUrl )
 					.attr( 'aria-label', wp.updates.l10n.activatePluginLabel.replace( '%s', response.pluginName ) )
 					.text( wp.updates.l10n.activatePlugin );
@@ -946,12 +937,12 @@
 		} else if ( 'customize' === pagenow ) {
 
 			// Update the theme details UI.
-			$notice = $( '#update-theme' ).closest( '.notice' ).removeClass( 'notice-large' );
+			$notice = $( '[data-slug="' + args.slug + '"].notice' ).removeClass( 'notice-large' );
 
 			$notice.find( 'h3' ).remove();
 
 			// Add the top-level UI, and update both.
-			$notice = $notice.add( $( '#customize-control-theme-installed_' + args.slug ).find( '.update-message' ) );
+			$notice = $notice.add( $( '#customize-control-installed_theme_' + args.slug ).find( '.update-message' ) );
 			$notice = $notice.addClass( 'updating-message' ).find( 'p' );
 
 		} else {
@@ -997,10 +988,17 @@
 			$notice, newText;
 
 		if ( 'customize' === pagenow ) {
-			$theme = wp.customize.control( 'installed_theme_' + response.slug ).container;
-		}
+			$theme = $( '.updating-message' ).siblings( '.theme-name' );
 
-		if ( 'themes-network' === pagenow ) {
+			if ( $theme.length ) {
+
+				// Update the version number in the row.
+				newText = $theme.html().replace( response.oldVersion, response.newVersion );
+				$theme.html( newText );
+			}
+
+			$notice = $( '.theme-info .notice' ).add( wp.customize.control( 'installed_theme_' + response.slug ).container.find( '.theme' ).find( '.update-message' ) );
+		} else if ( 'themes-network' === pagenow ) {
 			$notice = $theme.find( '.update-message' );
 
 			// Update the version number in the row.
@@ -1025,7 +1023,7 @@
 		$document.trigger( 'wp-theme-update-success', response );
 
 		// Show updated message after modal re-rendered.
-		if ( isModalOpen ) {
+		if ( isModalOpen && 'customize' !== pagenow ) {
 			$( '.theme-info .theme-author' ).after( wp.updates.adminNotice( updatedMessage ) );
 		}
 	};
@@ -1055,7 +1053,7 @@
 		}
 
 		if ( 'customize' === pagenow ) {
-			$theme = wp.customize.control( 'installed_theme_' + response.slug ).container;
+			$theme = wp.customize.control( 'installed_theme_' + response.slug ).container.find( '.theme' );
 		}
 
 		if ( 'themes-network' === pagenow ) {
@@ -1202,7 +1200,7 @@
 				$button = $( '.theme-install[data-slug="' + response.slug + '"]' );
 				$card   = $button.closest( '.theme' ).addClass( 'theme-install-failed' ).append( $message );
 			}
-			$( '.wp-full-overlay' ).removeClass( 'customize-loading' );
+			wp.customize.notifications.remove( 'theme_installing' );
 		} else {
 			if ( $document.find( 'body' ).hasClass( 'full-overlay-active' ) ) {
 				$button = $( '.theme-install[data-slug="' + response.slug + '"]' );

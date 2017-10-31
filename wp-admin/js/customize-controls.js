@@ -348,24 +348,48 @@
 	 *
 	 * @see PHP class WP_Customize_Setting.
 	 *
+	 * @since 3.4.0
 	 * @class
 	 * @augments wp.customize.Value
 	 * @augments wp.customize.Class
-	 *
-	 * @param {object} id                The Setting ID.
-	 * @param {object} value             The initial value of the setting.
-	 * @param {object} options.previewer The Previewer instance to sync with.
-	 * @param {object} options.transport The transport to use for previewing. Supports 'refresh' and 'postMessage'.
-	 * @param {object} options.dirty
 	 */
 	api.Setting = api.Value.extend({
+
+		/**
+		 * Default params.
+		 *
+		 * @since 4.9.0
+		 * @var {object}
+		 */
+		defaults: {
+			transport: 'refresh',
+			dirty: false
+		},
+
+		/**
+		 * Initialize.
+		 *
+		 * @since 3.4.0
+		 *
+		 * @param {string}  id                          - The setting ID.
+		 * @param {*}       value                       - The initial value of the setting.
+		 * @param {object}  [options={}]                - Options.
+		 * @param {string}  [options.transport=refresh] - The transport to use for previewing. Supports 'refresh' and 'postMessage'.
+		 * @param {boolean} [options.dirty=false]       - Whether the setting should be considered initially dirty.
+		 * @param {object}  [options.previewer]         - The Previewer instance to sync with. Defaults to wp.customize.previewer.
+		 */
 		initialize: function( id, value, options ) {
-			var setting = this;
-			api.Value.prototype.initialize.call( setting, value, options );
+			var setting = this, params;
+			params = _.extend(
+				{ previewer: api.previewer },
+				setting.defaults,
+				options || {}
+			);
+
+			api.Value.prototype.initialize.call( setting, value, params );
 
 			setting.id = id;
-			setting.transport = setting.transport || 'refresh';
-			setting._dirty = options.dirty || false;
+			setting._dirty = params.dirty; // The _dirty property is what the Customizer reads from.
 			setting.notifications = new api.Notifications();
 
 			// Whenever the setting's value changes, refresh the preview.
@@ -1302,7 +1326,10 @@
 				template = wp.template( 'customize-' + container.containerType + '-default' );
 			}
 			if ( template && container.container ) {
-				return $.trim( template( container.params ) );
+				return $.trim( template( _.extend(
+					{ id: container.id },
+					container.params
+				) ) );
 			}
 
 			return '<li></li>';
@@ -1653,6 +1680,7 @@
 		nextTags: '',
 		filtersHeight: 0,
 		headerContainer: null,
+		updateCountDebounced: null,
 
 		/**
 		 * Initialize.
@@ -1669,6 +1697,7 @@
 			section.$window = $( window );
 			section.$body = $( document.body );
 			api.Section.prototype.initialize.call( section, id, options );
+			section.updateCountDebounced = _.debounce( section.updateCount, 500 );
 		},
 
 		/**
@@ -1842,7 +1871,6 @@
 					if ( ! section.expanded() ) {
 						section.expand();
 					}
-					section.checkTerm( section );
 				});
 
 				// Feature filters.
@@ -1887,6 +1915,17 @@
 				api.section( 'wporg_themes' ).focus();
 			});
 
+			function updateSelectedState() {
+				var el = section.headerContainer.find( '.customize-themes-section-title' );
+				el.toggleClass( 'selected', section.expanded() );
+				el.attr( 'aria-expanded', section.expanded() ? 'true' : 'false' );
+				if ( ! section.expanded() ) {
+					el.removeClass( 'details-open' );
+				}
+			}
+			section.expanded.bind( updateSelectedState );
+			updateSelectedState();
+
 			// Move section controls to the themes area.
 			api.bind( 'ready', function () {
 				section.contentContainer = section.container.find( '.customize-themes-section' );
@@ -1920,7 +1959,7 @@
 				return;
 			}
 
-			if ( expanded ) {
+			function expand() {
 
 				// Try to load controls if none are loaded yet.
 				if ( 0 === section.loaded ) {
@@ -1949,14 +1988,13 @@
 									section.filterSearch( searchTerm );
 								}
 							}
+							otherSection.collapse( { duration: args.duration } );
 						}
-						otherSection.collapse( { duration: args.duration } );
 					}
 				});
 
 				section.contentContainer.addClass( 'current-section' );
 				container.scrollTop();
-				section.headerContainer.find( '.customize-themes-section-title' ).addClass( 'selected' ).attr( 'aria-expanded', 'true' );
 
 				container.on( 'scroll', _.throttle( section.renderScreenshots, 300 ) );
 				container.on( 'scroll', _.throttle( section.loadMore, 300 ) );
@@ -1965,11 +2003,21 @@
 					args.completeCallback();
 				}
 				section.updateCount(); // Show this section's count.
+			}
+
+			if ( expanded ) {
+				if ( section.panel() && api.panel.has( section.panel() ) ) {
+					api.panel( section.panel() ).expand({
+						duration: args.duration,
+						completeCallback: expand
+					});
+				} else {
+					expand();
+				}
 			} else {
 				section.contentContainer.removeClass( 'current-section' );
 
 				// Always hide, even if they don't exist or are already hidden.
-				section.headerContainer.find( '.customize-themes-section-title' ).removeClass( 'selected details-open' ).attr( 'aria-expanded', 'false' );
 				section.headerContainer.find( '.filter-details' ).slideUp( 180 );
 
 				container.off( 'scroll' );
@@ -2193,7 +2241,7 @@
 			api.reflowPaneContents();
 
 			// Update theme count.
-			section.updateCount( count );
+			section.updateCountDebounced( count );
 		},
 
 		/**
@@ -2208,7 +2256,7 @@
 			var newTerm;
 			if ( 'remote' === section.params.filter_type ) {
 				newTerm = section.contentContainer.find( '.wp-filter-search' ).val();
-				if ( section.term !== newTerm ) {
+				if ( section.term !== newTerm.trim() ) {
 					section.initializeNewQuery( newTerm, section.tags );
 				}
 			}
@@ -2948,7 +2996,10 @@
 				template = wp.template( 'customize-panel-default-content' );
 			}
 			if ( template && panel.headContainer ) {
-				panel.contentContainer.html( template( panel.params ) );
+				panel.contentContainer.html( template( _.extend(
+					{ id: panel.id },
+					panel.params
+				) ) );
 			}
 		}
 	});
@@ -2986,12 +3037,21 @@
 		 * @returns {void}
 		 */
 		attachEvents: function() {
-			var panel = this, toggleDisabledNotification;
+			var panel = this;
 
 			// Attach regular panel events.
 			api.Panel.prototype.attachEvents.apply( panel );
 
-			toggleDisabledNotification = function() {
+			// Temporary since supplying SFTP credentials does not work yet. See #42184
+			if ( api.settings.theme._filesystemCredentialsNeeded ) {
+				panel.notifications.add( new api.Notification( 'theme_install_unavailable', {
+					message: api.l10n.themeInstallUnavailable,
+					type: 'info',
+					dismissible: true
+				} ) );
+			}
+
+			function toggleDisabledNotifications() {
 				if ( 'publish' === api.state( 'selectedChangesetStatus' ).get() ) {
 					panel.notifications.remove( 'theme_switch_unavailable' );
 				} else {
@@ -3000,9 +3060,9 @@
 						type: 'warning'
 					} ) );
 				}
-			};
-			toggleDisabledNotification();
-			api.state( 'selectedChangesetStatus' ).bind( toggleDisabledNotification );
+			}
+			toggleDisabledNotifications();
+			api.state( 'selectedChangesetStatus' ).bind( toggleDisabledNotifications );
 
 			// Collapse panel to customize the current theme.
 			panel.contentContainer.on( 'click', '.customize-theme', function() {
@@ -3049,7 +3109,7 @@
 		 * @returns {void}
 		 */
 		onChangeExpanded: function( expanded, args ) {
-			var panel = this, overlay;
+			var panel = this, overlay, sections, hasExpandedSection = false;
 
 			// Expand/collapse the panel normally.
 			api.Panel.prototype.onChangeExpanded.apply( this, [ expanded, args ] );
@@ -3073,9 +3133,17 @@
 					overlay.addClass( 'themes-panel-expanded' );
 				}, 200 );
 
-				// Automatically open the installed themes section (except on small screens).
+				// Automatically open the first section (except on small screens), if one isn't already expanded.
 				if ( 600 < window.innerWidth ) {
-					api.section( 'installed_themes' ).expand();
+					sections = panel.sections();
+					_.each( sections, function( section ) {
+						if ( section.expanded() ) {
+							hasExpandedSection = true;
+						}
+					} );
+					if ( ! hasExpandedSection && sections.length > 0 ) {
+						sections[0].expand();
+					}
 				}
 			} else {
 				overlay
@@ -3095,6 +3163,14 @@
 		installTheme: function( event ) {
 			var panel = this, preview, onInstallSuccess, slug = $( event.target ).data( 'slug' ), deferred = $.Deferred(), request;
 			preview = $( event.target ).hasClass( 'preview' );
+
+			// Temporary since supplying SFTP credentials does not work yet. See #42184.
+			if ( api.settings.theme._filesystemCredentialsNeeded ) {
+				deferred.reject({
+					errorCode: 'theme_install_unavailable'
+				});
+				return deferred.promise();
+			}
 
 			// Prevent loading a non-active theme preview when there is a drafted/scheduled changeset.
 			if ( 'publish' !== api.state( 'selectedChangesetStatus' ).get() && slug !== api.settings.theme.stylesheet ) {
@@ -3271,7 +3347,10 @@
 				api.control.each( function( control ) {
 					if ( 'theme' === control.params.type && control.params.theme.id === response.slug ) {
 						control.params.theme.hasUpdate = false;
-						control.rerenderAsInstalled( true );
+						control.params.theme.version = response.newVersion;
+						setTimeout( function() {
+							control.rerenderAsInstalled( true );
+						}, 2000 );
 					}
 				});
 			} );
@@ -3295,6 +3374,11 @@
 			section = api.section( 'installed_themes' );
 
 			event.preventDefault();
+
+			// Temporary since supplying SFTP credentials does not work yet. See #42184.
+			if ( api.settings.theme._filesystemCredentialsNeeded ) {
+				return;
+			}
 
 			// Confirmation dialog for deleting a theme.
 			if ( ! window.confirm( api.settings.l10n.confirmDeleteTheme ) ) {
@@ -3345,6 +3429,12 @@
 	api.Control = api.Class.extend({
 		defaultActiveArguments: { duration: 'fast', completeCallback: $.noop },
 
+		/**
+		 * Default params.
+		 *
+		 * @since 4.9.0
+		 * @var {object}
+		 */
 		defaults: {
 			label: '',
 			description: '',
@@ -3376,7 +3466,12 @@
 		initialize: function( id, options ) {
 			var control = this, deferredSettingIds = [], settings, gatherSettings;
 
-			control.params = _.extend( {}, control.defaults );
+			control.params = _.extend(
+				{},
+				control.defaults,
+				control.params || {}, // In case sub-class already defines.
+				options.params || options || {} // The options.params property is deprecated, but it is checked first for back-compat.
+			);
 
 			if ( ! api.Control.instanceCounter ) {
 				api.Control.instanceCounter = 0;
@@ -3397,7 +3492,6 @@
 				} );
 			}
 
-			_.extend( control.params, options.params || options );
 			if ( ! control.params.content ) {
 				control.params.content = $( '<li></li>', {
 					id: 'customize-control-' + id.replace( /]/g, '' ).replace( /\[/g, '-' ),
@@ -3452,12 +3546,18 @@
 			}
 			_.extend( settings, control.params.settings );
 
-			// Note: Settings can be an array or an object.
-			_.each( settings, function( setting, key ) {
-				if ( _.isObject( setting ) ) { // @todo Or check if instance of api.Setting?
-					control.settings[ key ] = setting;
-				} else {
-					deferredSettingIds.push( setting );
+			// Note: Settings can be an array or an object, with values being either setting IDs or Setting (or Value) objects.
+			_.each( settings, function( value, key ) {
+				var setting;
+				if ( _.isObject( value ) && _.isFunction( value.extended ) && value.extended( api.Value ) ) {
+					control.settings[ key ] = value;
+				} else if ( _.isString( value ) ) {
+					setting = api( value );
+					if ( setting ) {
+						control.settings[ key ] = setting;
+					} else {
+						deferredSettingIds.push( value );
+					}
 				}
 			} );
 
@@ -3478,6 +3578,7 @@
 				// Identify the main setting.
 				control.setting = control.settings['default'] || null;
 
+				control.linkElements(); // Link initial elements present in server-rendered content.
 				control.embed();
 			};
 
@@ -3489,7 +3590,7 @@
 
 			// After the control is embedded on the page, invoke the "ready" method.
 			control.deferred.embedded.done( function () {
-				control.linkElements();
+				control.linkElements(); // Link any additional elements after template is rendered by renderContent().
 				control.setupNotifications();
 				control.ready();
 			});
@@ -3663,8 +3764,6 @@
 					control.notifications.remove( setting.id + ':' + settingNotification.code );
 				} );
 			} );
-
-			control.notifications.container = control.getNotificationsContainerElement();
 
 			renderNotificationsIfVisible = function() {
 				var sectionId = control.section();
@@ -3876,7 +3975,7 @@
 		 * @since 4.1.0
 		 */
 		renderContent: function () {
-			var control = this, template, standardTypes, templateId;
+			var control = this, template, standardTypes, templateId, sectionId;
 
 			standardTypes = [
 				'button',
@@ -3916,6 +4015,13 @@
 				if ( template && control.container ) {
 					control.container.html( template( control.params ) );
 				}
+			}
+
+			// Re-render notifications after content has been re-rendered.
+			control.notifications.container = control.getNotificationsContainerElement();
+			sectionId = control.section();
+			if ( ! sectionId || ( api.section.has( sectionId ) && api.section( sectionId ).expanded() ) ) {
+				control.notifications.render();
 			}
 		},
 
@@ -4983,16 +5089,25 @@
 		 * @since 4.2.0
 		 */
 		ready: function() {
-			var control = this, disableSwitchButtons, updateButtons;
+			var control = this;
 
-			disableSwitchButtons = function() {
+			function disableSwitchButtons() {
 				return 'publish' !== api.state( 'selectedChangesetStatus' ).get() && control.params.theme.id !== api.settings.theme.stylesheet;
-			};
-			updateButtons = function() {
-				control.container.find( 'button' ).toggleClass( 'disabled', disableSwitchButtons() );
-			};
+			}
 
-			api.state( 'selectedChangesetStatus' ).bind( updateButtons );
+			// Temporary special function since supplying SFTP credentials does not work yet. See #42184.
+			function disableInstallButtons() {
+				return disableSwitchButtons() || true === api.settings.theme._filesystemCredentialsNeeded;
+			}
+			function updateButtons( container ) {
+				var _container = container || control.container;
+				_container.find( 'button.preview, button.preview-theme' ).toggleClass( 'disabled', disableSwitchButtons() );
+				_container.find( 'button.theme-install' ).toggleClass( 'disabled', disableInstallButtons() );
+			}
+
+			api.state( 'selectedChangesetStatus' ).bind( function() {
+				updateButtons();
+			});
 			updateButtons();
 
 			control.container.on( 'touchmove', '.theme', function() {
@@ -5019,7 +5134,12 @@
 				event.preventDefault(); // Keep this AFTER the key filter above
 				section = api.section( control.section() );
 				section.showDetails( control.params.theme, function() {
-					section.overlay.find( '.theme-actions button' ).toggleClass( 'disabled', disableSwitchButtons() );
+					updateButtons( section.overlay.find( '.theme-actions' ) );
+
+					// Temporary special function since supplying SFTP credentials does not work yet. See #42184.
+					if ( api.settings.theme._filesystemCredentialsNeeded ) {
+						section.overlay.find( '.theme-actions .delete-theme' ).remove();
+					}
 				} );
 			});
 
@@ -5429,7 +5549,7 @@
 			control.inputElements = {};
 			control.invalidDate = false;
 
-			_.bindAll( control, 'populateSetting', 'updateDaysForMonth', 'updateMinutesForHour', 'populateDateInputs' );
+			_.bindAll( control, 'populateSetting', 'updateDaysForMonth', 'populateDateInputs' );
 
 			if ( ! control.setting ) {
 				throw new Error( 'Missing setting' );
@@ -5439,34 +5559,35 @@
 				var input = $( this ), component, element;
 				component = input.data( 'component' );
 				element = new api.Element( input );
-				if ( 'meridian' === component ) {
-					element.validate = function( value ) {
-						if ( 'am' !== value && 'pm' !== value ) {
-							return null;
-						}
-						return value;
-					};
-				} else {
-					element.validate = function( value ) {
-						var val = parseInt( value, 10 );
-						if ( isNaN( val ) ) {
-							return null;
-						}
-						return val;
-					};
-				}
-				element.bind( control.populateSetting );
 				control.inputElements[ component ] = element;
 				control.elements.push( element );
+
+				// Add invalid date error once user changes (and has blurred the input).
+				input.on( 'change', function() {
+					if ( control.invalidDate ) {
+						control.notifications.add( new api.Notification( 'invalid_date', {
+							message: api.l10n.invalidDate
+						} ) );
+					}
+				} );
+
+				// Remove the error immediately after validity change.
+				input.on( 'input', _.debounce( function() {
+					if ( ! control.invalidDate ) {
+						control.notifications.remove( 'invalid_date' );
+					}
+				} ) );
 			} );
 
 			control.inputElements.month.bind( control.updateDaysForMonth );
 			control.inputElements.year.bind( control.updateDaysForMonth );
-			if ( control.params.includeTime ) {
-				control.inputElements.hour.bind( control.updateMinutesForHour );
-			}
 			control.populateDateInputs();
 			control.setting.bind( control.populateDateInputs );
+
+			// Start populating setting after inputs have been populated.
+			_.each( control.inputElements, function( element ) {
+				element.bind( control.populateSetting );
+			} );
 		},
 
 		/**
@@ -5516,7 +5637,7 @@
 		 * @return {boolean} If date input fields has error.
 		 */
 		validateInputs: function validateInputs() {
-			var control = this, errorMessage, components;
+			var control = this, components, validityInput;
 
 			control.invalidDate = false;
 
@@ -5525,24 +5646,40 @@
 				components.push( 'hour', 'minute' );
 			}
 
-			_.each( components, function( component ) {
-				var element, el, max, min, value;
+			_.find( components, function( component ) {
+				var element, max, min, value;
+
+				element = control.inputElements[ component ];
+				validityInput = element.element.get( 0 );
+				max = parseInt( element.element.attr( 'max' ), 10 );
+				min = parseInt( element.element.attr( 'min' ), 10 );
+				value = parseInt( element(), 10 );
+				control.invalidDate = isNaN( value ) || value > max || value < min;
 
 				if ( ! control.invalidDate ) {
-					element = control.inputElements[ component ];
-					el = element.element.get( 0 );
-					max = parseInt( element.element.attr( 'max' ), 10 );
-					min = parseInt( element.element.attr( 'min' ), 10 );
-					value = element();
-					control.invalidDate = value > max || value < min;
-					errorMessage = control.invalidDate ? api.l10n.invalid + ' ' + component : '';
-
-					el.setCustomValidity( errorMessage );
-					if ( ! control.section() || api.section.has( control.section() ) && api.section( control.section() ).expanded() ) {
-						_.result( el, 'reportValidity' );
-					}
+					validityInput.setCustomValidity( '' );
 				}
+
+				return control.invalidDate;
 			} );
+
+			if ( control.inputElements.meridian && ! control.invalidDate ) {
+				validityInput = control.inputElements.meridian.element.get( 0 );
+				if ( 'am' !== control.inputElements.meridian.get() && 'pm' !== control.inputElements.meridian.get() ) {
+					control.invalidDate = true;
+				} else {
+					validityInput.setCustomValidity( '' );
+				}
+			}
+
+			if ( control.invalidDate ) {
+				validityInput.setCustomValidity( api.l10n.invalidValue );
+			} else {
+				validityInput.setCustomValidity( '' );
+			}
+			if ( ! control.section() || api.section.has( control.section() ) && api.section( control.section() ).expanded() ) {
+				_.result( validityInput, 'reportValidity' );
+			}
 
 			return control.invalidDate;
 		},
@@ -5556,41 +5693,17 @@
 		updateDaysForMonth: function updateDaysForMonth() {
 			var control = this, daysInMonth, year, month, day;
 
-			month = control.inputElements.month();
-			year = control.inputElements.year();
-			day = control.inputElements.day();
+			month = parseInt( control.inputElements.month(), 10 );
+			year = parseInt( control.inputElements.year(), 10 );
+			day = parseInt( control.inputElements.day(), 10 );
 
 			if ( month && year ) {
 				daysInMonth = new Date( year, month, 0 ).getDate();
 				control.inputElements.day.element.attr( 'max', daysInMonth );
 
 				if ( day > daysInMonth ) {
-					control.inputElements.day( daysInMonth );
+					control.inputElements.day( String( daysInMonth ) );
 				}
-			}
-		},
-
-		/**
-		 * Updates number of minutes according to the hour selected.
-		 *
-		 * @since 4.9.0
-		 * @return {void}
-		 */
-		updateMinutesForHour: function updateMinutesForHour() {
-			var control = this, maxHours = 24, minuteEl;
-
-			if ( control.inputElements.meridian ) {
-				return;
-			}
-
-			minuteEl = control.inputElements.minute.element;
-
-			if ( maxHours === control.inputElements.hour() ) {
-				control.inputElements.minute( 0 );
-				minuteEl.data( 'default-max', minuteEl.attr( 'max' ) );
-				minuteEl.attr( 'max', '0' );
-			} else if ( minuteEl.data( 'default-max' ) ) {
-				minuteEl.attr( 'max', minuteEl.data( 'default-max' ) );
 			}
 		},
 
@@ -5632,7 +5745,7 @@
 			};
 
 			getElementValue = function( component ) {
-				var value = control.inputElements[ component ].get();
+				var value = parseInt( control.inputElements[ component ].get(), 10 );
 
 				if ( _.contains( [ 'month', 'day', 'hour', 'minute' ], component ) ) {
 					value = pad( value, 2 );
@@ -5709,7 +5822,9 @@
 			}
 
 			_.each( control.inputElements, function( element, component ) {
-				element.set( parsed[ component ] );
+				if ( 'meridian' === component || parseInt( parsed[ component ], 10 ) !== parseInt( element(), 10 ) ) {
+					element.set( parsed[ component ] );
+				}
 			} );
 
 			return true;
@@ -6957,6 +7072,15 @@
 			btnWrapper = $( '#customize-save-button-wrapper' ),
 			publishSettingsBtn = $( '#publish-settings' ),
 			footerActions = $( '#customize-footer-actions' );
+
+		// Add publish settings section in JS instead of PHP since the Customizer depends on it to function.
+		api.bind( 'ready', function() {
+			api.section.add( new api.OuterSection( 'publish_settings', {
+				title: api.l10n.publishSettings,
+				priority: 0,
+				active: api.settings.theme.active
+			} ) );
+		} );
 
 		// Set up publish settings section and its controls.
 		api.section( 'publish_settings', function( section ) {

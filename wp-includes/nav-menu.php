@@ -663,7 +663,7 @@ function wp_get_nav_menu_items( $menu, $args = array() ) {
 	}
 
 	// Get all posts and terms at once to prime the caches
-	if ( empty( $fetched[$menu->term_id] ) || wp_using_ext_object_cache() ) {
+	if ( empty( $fetched[ $menu->term_id ] ) && ! wp_using_ext_object_cache() ) {
 		$fetched[$menu->term_id] = true;
 		$posts = array();
 		$terms = array();
@@ -1124,8 +1124,8 @@ function wp_map_nav_menu_locations( $new_nav_menu_locations, $old_nav_menu_locat
 	 * from within the same group, make an educated guess and map it.
 	 */
 	$common_slug_groups = array(
-		array( 'header', 'main', 'navigation', 'primary', 'top' ),
-		array( 'bottom', 'footer', 'secondary', 'subsidiary' ),
+		array( 'primary', 'menu-1', 'main', 'header', 'navigation', 'top' ),
+		array( 'secondary', 'menu-2', 'footer', 'subsidiary', 'bottom' ),
 		array( 'social' ),
 	);
 

@@ -1100,6 +1100,11 @@ function wp_ajax_replyto_comment( $action ) {
 	}
 
 	$comment_id = wp_new_comment( $commentdata );
+
+	if ( is_wp_error( $comment_id ) ) {
+		wp_die( $comment_id->get_error_message() );
+	}
+
 	$comment = get_comment($comment_id);
 	if ( ! $comment ) wp_die( 1 );
 
@@ -1475,19 +1480,6 @@ function wp_ajax_update_welcome_panel() {
 		wp_die( -1 );
 
 	update_user_meta( get_current_user_id(), 'show_welcome_panel', empty( $_POST['visible'] ) ? 0 : 1 );
-
-	wp_die( 1 );
-}
-
-/**
- * Ajax handler for updating whether to display the Try Gutenberg panel.
- *
- * @since 4.9.0
- */
-function wp_ajax_update_try_gutenberg_panel() {
-	check_ajax_referer( 'try-gutenberg-panel-nonce', 'trygutenbergpanelnonce' );
-
-	update_user_meta( get_current_user_id(), 'show_try_gutenberg_panel', empty( $_POST['visible'] ) ? 0 : 1 );
 
 	wp_die( 1 );
 }
@@ -3001,9 +2993,10 @@ function wp_ajax_query_themes() {
  * @global WP_Post    $post       Global $post.
  * @global WP_Embed   $wp_embed   Embed API instance.
  * @global WP_Scripts $wp_scripts
+ * @global int        $content_width
  */
 function wp_ajax_parse_embed() {
-	global $post, $wp_embed;
+	global $post, $wp_embed, $content_width;
 
 	if ( empty( $_POST['shortcode'] ) ) {
 		wp_send_json_error();
@@ -3034,6 +3027,15 @@ function wp_ajax_parse_embed() {
 	$parsed = false;
 	$wp_embed->return_false_on_fail = true;
 
+	if ( 0 === $post_id ) {
+		/*
+		 * Refresh oEmbeds cached outside of posts that are past their TTL.
+		 * Posts are excluded because they have separate logic for refreshing
+		 * their post meta caches. See WP_Embed::cache_oembed().
+		 */
+		$wp_embed->usecache = false;
+	}
+
 	if ( is_ssl() && 0 === strpos( $url, 'http://' ) ) {
 		// Admin is ssl and the user pasted non-ssl URL.
 		// Check if the provider supports ssl embeds and use that for the preview.
@@ -3042,6 +3044,15 @@ function wp_ajax_parse_embed() {
 
 		if ( ! $parsed ) {
 			$no_ssl_support = true;
+		}
+	}
+
+	// Set $content_width so any embeds fit in the destination iframe.
+	if ( isset( $_POST['maxwidth'] ) && is_numeric( $_POST['maxwidth'] ) && $_POST['maxwidth'] > 0 ) {
+		if ( ! isset( $content_width ) ) {
+			$content_width = intval( $_POST['maxwidth'] );
+		} else {
+			$content_width = min( $content_width, intval( $_POST['maxwidth'] ) );
 		}
 	}
 
