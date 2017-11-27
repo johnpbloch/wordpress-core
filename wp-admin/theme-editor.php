@@ -114,7 +114,7 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] ) {
 	$r = wp_edit_theme_plugin_file( wp_unslash( $_POST ) );
 	if ( is_wp_error( $r ) ) {
 		$edit_error = $r;
-		if ( check_ajax_referer( 'edit-theme_' . $file . $stylesheet, 'nonce', false ) && isset( $_POST['newcontent'] ) ) {
+		if ( check_ajax_referer( 'edit-theme_' . $stylesheet . '_' . $relative_file, 'nonce', false ) && isset( $_POST['newcontent'] ) ) {
 			$posted_content = wp_unslash( $_POST['newcontent'] );
 		}
 	} else {
@@ -255,7 +255,7 @@ if ( $theme->errors() )
 	echo '<div class="error"><p>' . __('Oops, no such file exists! Double check the name and try again, merci.') . '</p></div>';
 else : ?>
 	<form name="template" id="template" action="theme-editor.php" method="post">
-		<?php wp_nonce_field( 'edit-theme_' . $file . $stylesheet, 'nonce' ); ?>
+		<?php wp_nonce_field( 'edit-theme_' . $stylesheet . '_' . $relative_file, 'nonce' ); ?>
 		<div>
 			<label for="newcontent" id="theme-plugin-editor-label"><?php _e( 'Selected file content:' ); ?></label>
 			<textarea cols="70" rows="30" name="newcontent" id="newcontent" aria-describedby="editor-keyboard-trap-help-1 editor-keyboard-trap-help-2 editor-keyboard-trap-help-3 editor-keyboard-trap-help-4"><?php echo $content; ?></textarea>
@@ -322,7 +322,7 @@ if ( ! in_array( 'theme_editor_notice', $dismissed_pointers, true ) ) :
 					echo sprintf(
 						/* translators: %s: Codex URL */
 						__( 'You appear to be making direct edits to your theme in the WordPress dashboard. We recommend that you don&#8217;t! Editing your theme directly could break your site and your changes may be lost in future updates. If you need to tweak more than your theme&#8217;s CSS, you might want to try <a href="%s">making a child theme</a>.' ),
-						esc_url( 'https://codex.wordpress.org/Child_Themes' )
+						esc_url( __( 'https://codex.wordpress.org/Child_Themes' ) )
 					);
 					?>
 				</p>
