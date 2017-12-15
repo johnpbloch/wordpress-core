@@ -651,7 +651,7 @@ function get_post_ancestors( $post ) {
  * @see sanitize_post_field()
  *
  * @param string      $field   Post field name.
- * @param int|WP_Post $post    Optional. Post ID or post object. Defaults to current post.
+ * @param int|WP_Post $post    Optional. Post ID or post object. Defaults to global $post.
  * @param string      $context Optional. How to filter the field. Accepts 'raw', 'edit', 'db',
  *                             or 'display'. Default 'display'.
  * @return string The value of the post field on success, empty string on failure.
@@ -678,11 +678,11 @@ function get_post_field( $field, $post = null, $context = 'display' ) {
  *
  * @since 2.0.0
  *
- * @param int|WP_Post $ID Optional. Post ID or post object. Default empty.
+ * @param int|WP_Post $post Optional. Post ID or post object. Defaults to global $post.
  * @return string|false The mime type on success, false on failure.
  */
-function get_post_mime_type( $ID = '' ) {
-	$post = get_post( $ID );
+function get_post_mime_type( $post = null ) {
+	$post = get_post( $post );
 
 	if ( is_object( $post ) ) {
 		return $post->post_mime_type;
@@ -692,18 +692,18 @@ function get_post_mime_type( $ID = '' ) {
 }
 
 /**
- * Retrieve the post status based on the Post ID.
+ * Retrieve the post status based on the post ID.
  *
  * If the post ID is of an attachment, then the parent post status will be given
  * instead.
  *
  * @since 2.0.0
  *
- * @param int|WP_Post $ID Optional. Post ID or post object. Default empty.
+ * @param int|WP_Post $post Optional. Post ID or post object. Defaults to global $post..
  * @return string|false Post status on success, false on failure.
  */
-function get_post_status( $ID = '' ) {
-	$post = get_post( $ID );
+function get_post_status( $post = null ) {
+	$post = get_post( $post );
 
 	if ( ! is_object( $post ) ) {
 		return false;
@@ -6251,16 +6251,15 @@ function _publish_post_hook( $post_id ) {
 }
 
 /**
- * Return the post's parent's post_ID
+ * Return the post's parent post ID.
  *
  * @since 3.1.0
  *
- * @param int $post_ID
- *
+ * @param int|WP_Post $post Post ID or post object. Defaults to global $post.
  * @return int|false Post parent ID, otherwise false.
  */
-function wp_get_post_parent_id( $post_ID ) {
-	$post = get_post( $post_ID );
+function wp_get_post_parent_id( $post ) {
+	$post = get_post( $post );
 	if ( ! $post || is_wp_error( $post ) ) {
 		return false;
 	}
