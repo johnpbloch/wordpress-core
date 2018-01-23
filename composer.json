@@ -8,7 +8,7 @@
   ],
   "type": "wordpress-core",
   "homepage": "http://wordpress.org/",
-  "license": "GPL-2.0+",
+  "license": "GPL-2.0-or-later",
   "authors": [
     {
       "name": "WordPress Community",
