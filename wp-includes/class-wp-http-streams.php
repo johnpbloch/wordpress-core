@@ -102,13 +102,7 @@ class WP_Http_Streams {
 			 */
 			$ssl_verify = apply_filters( 'https_local_ssl_verify', $ssl_verify );
 		} elseif ( ! $is_local ) {
-			/**
-			 * Filters whether SSL should be verified for non-local requests.
-			 *
-			 * @since 2.8.0
-			 *
-			 * @param bool $ssl_verify Whether to verify the SSL connection. Default true.
-			 */
+			/** This filter is documented in wp-includes/class-http.php */
 			$ssl_verify = apply_filters( 'https_ssl_verify', $ssl_verify );
 		}
 
