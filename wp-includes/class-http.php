@@ -546,8 +546,6 @@ class WP_Http {
 	 *
 	 * @since 3.2.0
 	 *
-	 * @static
-	 *
 	 * @param string $url URL to Request
 	 * @param array $args Request arguments
 	 * @return array|WP_Error Array containing 'headers', 'body', 'response', 'cookies', 'filename'. A WP_Error instance upon error
@@ -574,15 +572,7 @@ class WP_Http {
 			return $response;
 		}
 
-		/**
-		 * Filters the HTTP API response immediately before the response is returned.
-		 *
-		 * @since 2.9.0
-		 *
-		 * @param array  $response HTTP response.
-		 * @param array  $args     HTTP request arguments.
-		 * @param string $url      The request URL.
-		 */
+		/** This action is documented in wp-includes/class-http.php */
 		return apply_filters( 'http_response', $response, $args, $url );
 	}
 
