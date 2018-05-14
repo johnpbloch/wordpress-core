@@ -1637,15 +1637,17 @@ final class WP_Privacy_Policy_Content {
 	 *
 	 * @since 4.9.6
 	 *
-	 * @param bool $descr Whether to include the descriptions undet the section headings. Default false.
+	 * @param bool $descr Whether to include the descriptions under the section headings. Default false.
 	 * @return string The default policy content.
 	 */
 	public static function get_default_content( $descr = false ) {
 		$suggested_text = $descr ? '<strong class="privacy-policy-tutorial">' . __( 'Suggested text:' ) . ' </strong>' : '';
+		$content = '';
 
 		// Start of the suggested privacy policy text.
-		$content =
-			'<div class="wp-suggested-text">' .
+		$descr && $content .=
+			'<div class="wp-suggested-text">';
+		$content .=
 			'<h2>' . __( 'Who we are' ) . '</h2>';
 		$descr && $content .=
 			'<p class="privacy-policy-tutorial">' . __( 'In this section you should note your site URL, as well as the name of the company, organization, or individual behind it, and some accurate contact information.' ) . '</p>' .
@@ -1724,7 +1726,7 @@ final class WP_Privacy_Policy_Content {
 			'<p class="privacy-policy-tutorial">' . __( 'In this section you should list all transfers of your site data outside the European Union and describe the means by which that data is safeguarded to European data protection standards. This could include your web hosting, cloud storage, or other third party services.' ) . '</p>' .
 			'<p class="privacy-policy-tutorial">' . __( 'European data protection law requires data about European residents which is transferred outside the European Union to be safeguarded to the same standards as if the data was in Europe. So in addition to listing where data goes, you should describe how you ensure that these standards are met either by yourself or by your third party providers, whether that is through an agreement such as Privacy Shield, model clauses in your contracts, or binding corporate rules.' ) . '</p>';
 		$content .=
-			'<p>' . $suggested_text . __( 'Visitor comments may be checked through an automated spam detection service.' ) . '</p>';
+			'<p>' . $suggested_text . __( 'Visitor comments may be checked through an automated spam detection service.' ) . '</p>' .
 
 			'<h2>' . __( 'Your contact information' ) . '</h2>';
 		$descr && $content .=
@@ -1758,8 +1760,7 @@ final class WP_Privacy_Policy_Content {
 		$content .=
 			'<h3>' . __( 'Industry regulatory disclosure requirements' ) . '</h3>';
 		$descr && $content .=
-			'<p class="privacy-policy-tutorial">' . __( 'If you are a member of a regulated industry, or if you are subject to additional privacy laws, you may be required to disclose that information here.' ) . '</p>';
-		$content .=
+			'<p class="privacy-policy-tutorial">' . __( 'If you are a member of a regulated industry, or if you are subject to additional privacy laws, you may be required to disclose that information here.' ) . '</p>' .
 			'</div>';
 		// End of the suggested privacy policy text.
 
