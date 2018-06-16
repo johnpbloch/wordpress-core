@@ -196,6 +196,8 @@ function insert_with_markers( $filename, $marker, $insertion ) {
  * @since 1.5.0
  *
  * @global WP_Rewrite $wp_rewrite
+ *
+ * @return bool|null True on write success, false on failure. Null in multisite.
  */
 function save_mod_rewrite_rules() {
 	if ( is_multisite() ) {
@@ -203,6 +205,9 @@ function save_mod_rewrite_rules() {
 	}
 
 	global $wp_rewrite;
+
+	// Ensure get_home_path() is declared.
+	require_once( ABSPATH . 'wp-admin/includes/file.php' );
 
 	$home_path     = get_home_path();
 	$htaccess_file = $home_path . '.htaccess';
@@ -229,7 +234,7 @@ function save_mod_rewrite_rules() {
  *
  * @global WP_Rewrite $wp_rewrite
  *
- * @return bool True if web.config was updated successfully
+ * @return bool|null True on write success, false on failure. Null in multisite.
  */
 function iis7_save_url_rewrite_rules() {
 	if ( is_multisite() ) {
@@ -237,6 +242,9 @@ function iis7_save_url_rewrite_rules() {
 	}
 
 	global $wp_rewrite;
+
+	// Ensure get_home_path() is declared.
+	require_once( ABSPATH . 'wp-admin/includes/file.php' );
 
 	$home_path       = get_home_path();
 	$web_config_file = $home_path . 'web.config';
