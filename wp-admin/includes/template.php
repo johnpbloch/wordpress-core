@@ -1051,8 +1051,33 @@ function do_meta_boxes( $screen, $context, $object ) {
 				foreach ( (array) $wp_meta_boxes[ $page ][ $context ][ $priority ] as $box ) {
 					if ( false == $box || ! $box['title'] )
 						continue;
+
+					$block_compatible = true;
+					if ( is_array( $box[ 'args' ] ) ) {
+						// If a meta box is just here for back compat, don't show it in the block editor.
+						if ( $screen->is_block_editor() && isset( $box['args']['__back_compat_meta_box'] ) && $box['args']['__back_compat_meta_box'] ) {
+							continue;
+						}
+
+						// If a meta box doesn't work in the block editor, don't show it in the block editor.
+						if ( $screen->is_block_editor() && isset( $box['args']['__block_editor_compatible_meta_box'] ) && ! $box['args']['__block_editor_compatible_meta_box'] ) {
+							continue;
+						}
+
+						if ( isset( $box['args']['__block_editor_compatible_meta_box'] ) ) {
+							$block_compatible = (bool) $box['args']['__block_editor_compatible_meta_box'];
+							unset( $box['args']['__block_editor_compatible_meta_box'] );
+						}
+
+						if ( isset( $box['args']['__back_compat_meta_box'] ) ) {
+							$block_compatible = $block_compatible || (bool) $box['args']['__back_compat_meta_box'];
+							unset( $box['args']['__back_compat_meta_box'] );
+						}
+					}
+
 					$i++;
-					$hidden_class = in_array($box['id'], $hidden) ? ' hide-if-js' : '';
+					// get_hidden_meta_boxes() doesn't apply in the block editor.
+					$hidden_class = ( ! $screen->is_block_editor() && in_array( $box['id'], $hidden ) ) ? ' hide-if-js' : '';
 					echo '<div id="' . $box['id'] . '" class="postbox ' . postbox_classes($box['id'], $page) . $hidden_class . '" ' . '>' . "\n";
 					if ( 'dashboard_browser_nag' != $box['id'] ) {
 						$widget_title = $box[ 'title' ];
@@ -1070,6 +1095,44 @@ function do_meta_boxes( $screen, $context, $object ) {
 					}
 					echo "<h2 class='hndle'><span>{$box['title']}</span></h2>\n";
 					echo '<div class="inside">' . "\n";
+
+					if ( WP_DEBUG && ! $block_compatible && 'edit' === $screen->parent_base && ! $screen->is_block_editor() && ! isset( $_GET['meta-box-loader'] ) ) {
+						if ( is_array( $box['callback'] ) ) {
+							$reflection = new ReflectionMethod( $box['callback'][0], $box['callback'][1] );
+						} elseif ( false !== strpos( $box['callback'], '::' ) ) {
+							$reflection = new ReflectionMethod( $box['callback'] );
+						} else {
+							$reflection = new ReflectionFunction( $box['callback'] );
+						}
+
+						// Don't show an error if it's an internal PHP function.
+						if ( ! $reflection->isInternal() ) {
+
+							// Only show errors if the meta box was registered by a plugin.
+							$filename = $reflection->getFileName();
+							if ( strpos( $filename, WP_PLUGIN_DIR ) === 0 ) {
+								$filename = str_replace( WP_PLUGIN_DIR, '', $filename );
+								$filename = preg_replace( '|^/([^/]*/).*$|', '\\1', $filename );
+
+								$plugins = get_plugins();
+								foreach ( $plugins as $name => $plugin ) {
+									if ( strpos( $name, $filename ) === 0 ) {
+										?>
+											<div class="error inline">
+												<p>
+													<?php
+														/* translators: %s: the name of the plugin that generated this meta box. */
+														printf( __( "This meta box, from the %s plugin, isn't compatible with the block editor." ), "<strong>{$plugin['Name']}</strong>" );
+													?>
+												</p>
+											</div>
+										<?php
+									}
+								}
+							}
+						}
+					}
+
 					call_user_func($box['callback'], $object, $box);
 					echo "</div>\n";
 					echo "</div>\n";

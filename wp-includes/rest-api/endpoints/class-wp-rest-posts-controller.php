@@ -600,6 +600,19 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 
 		$request->set_param( 'context', 'edit' );
 
+		/**
+		 * Fires after a single post is completely created or updated via the REST API.
+		 *
+		 * The dynamic portion of the hook name, `$this->post_type`, refers to the post type slug.
+		 *
+		 * @since 5.0.0
+		 *
+		 * @param WP_Post         $post     Inserted or updated post object.
+		 * @param WP_REST_Request $request  Request object.
+		 * @param bool            $creating True when creating a post, false when updating.
+		 */
+		do_action( "rest_after_insert_{$this->post_type}", $post, $request, true );
+
 		$response = $this->prepare_item_for_response( $post, $request );
 		$response = rest_ensure_response( $response );
 
@@ -725,6 +738,15 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 		}
 
 		$request->set_param( 'context', 'edit' );
+
+		// Filter is fired in WP_REST_Attachments_Controller subclass.
+		if ( 'attachment' === $this->post_type ) {
+			$response = $this->prepare_item_for_response( $post, $request );
+			return rest_ensure_response( $response );
+		}
+
+		/** This action is documented in wp-includes/rest-api/endpoints/class-wp-rest-posts-controller.php */
+		do_action( "rest_after_insert_{$this->post_type}", $post, $request, false );
 
 		$response = $this->prepare_item_for_response( $post, $request );
 
@@ -1493,10 +1515,11 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 
 		if ( in_array( 'content', $fields, true ) ) {
 			$data['content'] = array(
-				'raw'       => $post->post_content,
+				'raw'           => $post->post_content,
 				/** This filter is documented in wp-includes/post-template.php */
-				'rendered'  => post_password_required( $post ) ? '' : apply_filters( 'the_content', $post->post_content ),
-				'protected' => (bool) $post->post_password,
+				'rendered'      => post_password_required( $post ) ? '' : apply_filters( 'the_content', $post->post_content ),
+				'protected'     => (bool) $post->post_password,
+				'block_version' => block_version( $post->post_content ),
 			);
 		}
 
@@ -1572,6 +1595,23 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 			if ( in_array( $base, $fields, true ) ) {
 				$terms = get_the_terms( $post, $taxonomy->name );
 				$data[ $base ] = $terms ? array_values( wp_list_pluck( $terms, 'term_id' ) ) : array();
+			}
+		}
+
+		$post_type_obj = get_post_type_object( $post->post_type );
+		if ( is_post_type_viewable( $post_type_obj ) && $post_type_obj->public  ) {
+
+			if ( ! function_exists( 'get_sample_permalink' ) ) {
+				require_once ABSPATH . '/wp-admin/includes/post.php';
+			}
+
+			$sample_permalink = get_sample_permalink( $post->ID, $post->post_title, '' );
+
+			if ( in_array( 'permalink_template', $fields, true ) ) {
+				$data['permalink_template'] = $sample_permalink[0];
+			}
+			if ( in_array( 'generated_slug', $fields, true ) ) {
+				$data['generated_slug'] = $sample_permalink[1];
 			}
 		}
 
@@ -1907,6 +1947,21 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 		);
 
 		$post_type_obj = get_post_type_object( $this->post_type );
+		if ( is_post_type_viewable( $post_type_obj ) && $post_type_obj->public ) {
+			$schema['properties']['permalink_template'] = array(
+				'description' => __( 'Permalink template for the object.' ),
+				'type'        => 'string',
+				'context'     => array( 'edit' ),
+				'readonly'    => true,
+			);
+
+			$schema['properties']['generated_slug'] = array(
+				'description' => __( 'Slug automatically generated from the object title.' ),
+				'type'        => 'string',
+				'context'     => array( 'edit' ),
+				'readonly'    => true,
+			);
+		}
 
 		if ( $post_type_obj->hierarchical ) {
 			$schema['properties']['parent'] = array(
@@ -2012,6 +2067,12 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 								'description' => __( 'HTML content for the object, transformed for display.' ),
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
+								'readonly'    => true,
+							),
+							'block_version' => array(
+								'description' => __( 'Version of the content block format used by the object.' ),
+								'type'        => 'integer',
+								'context'     => array( 'edit' ),
 								'readonly'    => true,
 							),
 							'protected'       => array(

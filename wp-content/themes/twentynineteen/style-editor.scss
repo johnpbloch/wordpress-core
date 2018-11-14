@@ -1,0 +1,729 @@
+/*!
+Twenty Nineteen Editor Styles
+*/
+
+/** === Includes === */
+
+@import "sass/variables-site/variables-site";
+@import "sass/variables-site/colors";
+@import "sass/mixins/mixins-master";
+
+/*
+ * Chrome renders extra-wide &nbsp; characters for the Hoefler Text font.
+ * This results in a jumping cursor when typing in both the Classic and block
+ * editors. The following font-face override fixes the issue by manually inserting
+ * a custom font that includes just a Hoefler Text space replacement for that
+ * character instead.
+ */
+@font-face {
+	font-family: 'NonBreakingSpaceOverride';
+	src: url(data:application/font-woff2;charset=utf-8;base64,d09GMgABAAAAAAMoAA0AAAAACDQAAALTAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP0ZGVE0cGh4GYACCahEICjx3CywAATYCJANUBCAFhiEHgWwbXQfILgpsY+rQRRARwyAs6uL7pxzYhxEE+32b3aeHmifR6tklkS9hiZA0ewkqGRJE+H7/+6378ASViK/PGeavqJyOzsceKi1s3BCiQsiOdn1r/RBgIJYEgCUhbm/8/8/h4saPssnTNkkiWUBrTRtjmQSajw3Ui3pZ3LYDPD+XG2C3JA/yKAS8/rU5eNfuGqRf4eNNgV4YAlIIgxglEkWe6FYpq10+wi3g+/nUgvgPFczNrz/RsTgVm/zfbPuHZlsuQECxuyqBcQwKFBjFgKO8AqP4bAN9tFJtnM9xPcbNjeXS/x1wY/xU52f5W/X1+9cnH4YwKIaoRRAkUkj/YlAAeF/624foiIDBgBmgQBeGAyhBljUPZUm/l2dTvmpqcBDUOHdbPZWd8JsBAsGr4w8/EDn82/bUPx4eh0YNrQTBuHO2FjQEAGBwK0DeI37DpQVqdERS4gZBhpeUhWCfLFz7J99aEBgsJCHvUGAdAPp4IADDCAPCEFMGpMZ9AQpTfQtQGhLbGVBZFV8BaqNyP68oTZgHNj3M8kBPfXTTC9t90UuzYhy9ciH0grVlOcqyCytisvbsERsEYztiznR0WCrmTksJwbSNK6fd1Rvr25I9oLvctUoEbNOmXJbqgYgPXEHJ82IUsrCnpkxh23F1rfZ2zcRnJYoXtauB3VTFkFXQg3uoZYD5qE0kdjDtoDoF1h2bulGmev5HbYhbrjtohQSRI4aNOkffIcT+d3v6atpaYh3JvPoQsztCcqvaBkppDSPcQ3bw3KaCBo1f5CJWTZEgW3LjLofYg51MaVezrx8xZitYbQ9KYeoRaqQdVLwSEfrKXLK1otCWOKNdR/YwYAfon5Yk8O2MJfSD10dPGA5PIJJQMkah0ugMJiv6x4Dm7LEa8xnrRGGGLAg4sAlbsA07sAt76DOsXKO3hIjtIlpnnFrt1qW4kh6NhS83P/6HB/fl1SMAAA==) format('woff2'),
+		 url(data:application/font-woff;charset=utf-8;base64,d09GRgABAAAAAAUQAA0AAAAACDQAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABGRlRNAAAE9AAAABwAAAAchf5yU0dERUYAAATYAAAAHAAAAB4AJwAbT1MvMgAAAaAAAABJAAAAYJAcgU5jbWFwAAACIAAAAF4AAAFqUUxBZ2dhc3AAAATQAAAACAAAAAgAAAAQZ2x5ZgAAApAAAAAyAAAAPL0n8y9oZWFkAAABMAAAADAAAAA2Fi93Z2hoZWEAAAFgAAAAHQAAACQOSgWaaG10eAAAAewAAAAzAAAAVC7TAQBsb2NhAAACgAAAABAAAAAsAOQBAm1heHAAAAGAAAAAHQAAACAAWQALbmFtZQAAAsQAAAF6AAADIYvD/Adwb3N0AAAEQAAAAI4AAADsapk2o3jaY2BkYGAA4ov5mwzj+W2+MnCzXwCKMNzgCBSB0LfbQDQ7AxuI4mBgAlEAFKQIRHjaY2BkYGD3+NvCwMDBAALsDAyMDKhAFAA3+wH3AAAAeNpjYGRgYBBl4GBgYgABEMnIABJzAPMZAAVmAGUAAAB42mNgZlJhnMDAysDCKsKygYGBYRqEZtrDYMT4D8gHSmEHjgUFOQwODAqqf9g9/rYwMLB7MNUAhRlBcsxBrMlASoGBEQAj8QtyAAAAeNrjYGBkAAGmWQwMjO8gmBnIZ2NA0ExAzNjAAFYJVn0ASBsD6VAIDZb7AtELAgANIgb9AHjaY2BgYGaAYBkGRgYQSAHyGMF8FgYPIM3HwMHAxMDGoMCwQIFLQV8hXvXP//9AcRCfAcb///h/ygPW+w/vb7olBjUHCTCyMcAFGZmABBO6AogThgZgIUsXAEDcEzcAAHjaY2BgECMCyoEgACZaAed42mNgYmRgYGBnYGNgYAZSDJqMgorCgoqCjECRXwwNrCAKSP5mAAFGBiRgyAAAi/YFBQAAeNqtkc1OwkAUhU/5M25cEhcsZick0AwlBJq6MWwgJkAgYV/KAA2lJeUn+hY+gktXvpKv4dLTMqKycGHsTZNv7px7z50ZAFd4hYHjdw1Ls4EiHjVncIFnzVnc4F1zDkWjrzmPW+NNcwGlzIRKI3fJlUyrEjZQxb3mDH2fNGfRx4vmHKqG0JzHg6E0F9DOlFBGBxUI1GEzLNT4S0aLuTtsGAEUuYcQHkyg3KmIum1bNUvKlrjbbAIleqHHnS4iSudpQcySMYtdFiXlAxzSbAwfMxK6kZoHKhbjjespMTioOPZnzI+4ucCeTVyKMVKLfeAS6vSWaTinuZwzyy/Dc7vaed+6KaV0kukdPUk6yOcctZPvvxxqksq2lEW8RvHjMEO2FCl/zy6p3NEm0R9OFSafJdldc4QVeyaaObMBO0/5cCaa6d9Ggyubxire+lEojscdjoWUR1xGOy8KD8mG2ZLO2l2paDc3A39qmU2z2W5YNv5+u79e6QfGJY/hAAB42m3NywrCMBQE0DupWp/1AYI7/6DEaLQu66Mrd35BKUWKJSlFv1+rue4cGM7shgR981qSon+ZNwUJ8iDgoYU2OvDRRQ99DDDECAHGmGCKmf80hZSx/Kik/LliFbtmN6xmt+yOjdg9GztV4tROnRwX/Bsaaw51nt4Lc7tWaZYHp/MlzKx51LZs5htNri+2AAAAAQAB//8AD3jaY2BkYGDgAWIxIGZiYARCESBmAfMYAAR6AEMAAAABAAAAANXtRbgAAAAA2AhRFAAAAADYCNuG) format('woff');
+
+}
+
+/** === Editor Frame === */
+
+body {
+
+	.wp-block[data-align="full"] {
+		width: 100%;
+	}
+
+	@include media(mobile) {
+		padding-top: 0;
+
+		:not(.editor-inner-blocks) > .editor-block-list__layout, // Target only the top level layout element, or nested blocks will also be affected.
+		.editor-post-title {
+			padding-left: 0;
+			padding-right: 0;
+		}
+
+		.editor-writing-flow {
+			padding-top: 50px;
+			overflow: hidden;
+		}
+
+		.wp-block[data-align="full"] {
+			position: relative;
+			left: 45px;
+		}
+	}
+
+	@include media(tablet) {
+
+		:not(.editor-inner-blocks) > .editor-block-list__layout, // Target only the top level layout element, or nested blocks will also be affected.
+		.editor-post-title {
+			padding-left: 46px;
+			padding-right: 46px;
+		}
+
+		.editor-block-list__layout,
+		.editor-post-title {
+			max-width: 80%;
+			margin: 0 10%;
+		}
+
+		.editor-post-title__block,
+		.editor-default-block-appender,
+		.editor-block-list__block {
+			margin-left: 0;
+			margin-right: 0;
+		}
+
+		.wp-block[data-align="wide"] {
+			width: 100%;
+		}
+
+		.wp-block[data-align="full"] {
+			position: relative;
+			left: calc( -12.5% - 14px );
+			width: calc( 125% + 116px );
+			max-width: calc( 125% + 116px );
+		}
+
+		.wp-block[data-align="right"] {
+			max-width: 125%;
+		}
+	}
+}
+
+/** === Content Width === */
+
+.wp-block {
+	width: calc(100vw - (2 * #{$size__spacing-unit}));
+	max-width: 100%;
+
+	@include media(tablet) {
+		width: calc(8 * (100vw / 12));
+	}
+
+	@include media(desktop) {
+		width: calc(6 * (100vw / 12 ));
+	}
+
+	// Only the top level blocks need specific widths, therefore override for every nested block.
+	.wp-block {
+		width: 100%;
+	}
+}
+
+/** === Base Typography === */
+
+body {
+	font-size: $font__size_base;
+	font-family: 'NonBreakingSpaceOverride', $font__body;
+	line-height: $font__line-height-body;
+	color: $color__text-main;
+}
+
+p {
+	font-size: $font__size_base;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: $font__heading;
+}
+
+h1 {
+	font-size: $font__size-xl;
+	@include post-section-dash;
+
+	@include media(tablet) {
+		font-size: $font__size-xxl;
+	}
+}
+
+h2 {
+	font-size: $font__size-lg;
+	@include post-section-dash;
+
+	@include media(tablet) {
+		font-size: $font__size-xl;
+	}
+}
+
+h3 {
+	font-size: $font__size-lg;
+}
+
+h4 {
+	font-size: $font__size-md;
+}
+
+h5 {
+	font-size: $font__size-sm;
+}
+
+h6 {
+	font-size: $font__size-xs;
+}
+
+a {
+	@include link-transition;
+	color: $color__link;
+
+	*:visited {
+
+	}
+
+	&:hover,
+	&:active {
+		color: $color__link-hover;
+		outline: 0;
+		text-decoration: none;
+	}
+
+	&:focus {
+		outline: 0;
+		text-decoration: underline;
+	}
+}
+
+.has-primary-background-color {
+
+	p,
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6,
+	a,
+	a:hover {
+		color: $color__background-body;
+	}
+}
+
+figcaption,
+.gallery-caption {
+	font-family: $font__heading;
+	font-size: $font__size-xs;
+	line-height: 1.6;
+	color: $color__text-light;
+}
+
+/** === Post Title === */
+
+.editor-post-title__block {
+	@include post-section-dash;
+
+	&:before {
+		width: $font__size-xxl;
+		margin-top: 0;
+		margin-bottom: 0;
+		margin-left: 1em;
+		position: relative;
+		top: 0.5em;
+	}
+
+	.editor-post-title__input {
+		font-family: $font__heading;
+		font-size: $font__size-xxl;
+		font-weight: 700;
+	}
+}
+
+/** === Default Appender === */
+
+.editor-default-block-appender input[type="text"].editor-default-block-appender__content {
+	font-family: $font__body;
+	font-size: $font__size_base;
+}
+
+/** === Heading === */
+
+.wp-block-heading {
+	strong {
+		font-weight: bolder;
+	}
+}
+/** === Paragraph === */
+
+.wp-block-paragraph {
+
+	&.has-drop-cap:not(:focus)::first-letter {
+		font-family: $font__heading;
+		font-size: $font__size-xxxl;
+		line-height: 1;
+		font-weight: bold;
+		margin: 0 0.25em 0 0;
+	}
+}
+
+/** === Cover === */
+
+.wp-block-cover {
+
+	h2,
+	.wp-block-cover-text {
+		font-family: $font__heading;
+		font-size: $font__size-lg;
+		font-weight: bold;
+		line-height: 1.4;
+		padding-left: $size__spacing-unit;
+		padding-right: $size__spacing-unit;
+
+		strong {
+			font-weight: bolder;
+		}
+
+		@include media(tablet) {
+			margin-left: auto;
+			margin-right: auto;
+			padding: 0;
+		}
+	}
+
+	@include media(tablet) {
+		padding-left: 10%;
+		padding-right: 10%;
+
+		h2,
+		.wp-block-cover-text {
+			font-size: $font__size-xl;
+		}
+	}
+}
+
+.wp-block[data-type="core/cover"][data-align="left"],
+.wp-block[data-type="core/cover"][data-align="right"] {
+
+	.editor-block-list__block-edit {
+		width: calc(4 * (100vw / 12));
+	}
+
+	.wp-block-cover {
+		width: 100%;
+		max-width: 100%;
+	}
+}
+
+.wp-block[data-type="core/cover"][data-align="wide"],
+.wp-block[data-type="core/cover"][data-align="full"] {
+
+	@include media(tablet) {
+
+		h2,
+		.wp-block-cover-text {
+			max-width: calc(8 * (100vw / 12));
+		}
+	}
+
+	@include media(desktop) {
+
+		h2,
+		.wp-block-cover-text {
+			max-width: calc(6 * (100vw / 12));
+		}
+	}
+}
+
+.wp-block[data-type="core/cover"][data-align="full"] {
+
+	@include media(tablet) {
+
+		.wp-block-cover {
+			padding-left: calc(10% + 64px);
+			padding-right: calc(10% + 64px);
+		}
+	}
+}
+
+/** === Gallery === */
+
+.wp-block-gallery {
+
+	.blocks-gallery-image figcaption,
+	.blocks-gallery-item figcaption,
+	.gallery-item .gallery-caption {
+		font-size: $font__size-xs;
+		line-height: 1.6;
+	}
+}
+
+/** === Button === */
+
+.wp-block-button {
+
+	.wp-block-button__link {
+		line-height: 1.8;
+		font-family: $font__heading;
+		font-size: $font__size-sm;
+		font-weight: bold;
+	}
+
+	&:not(.is-style-outline) .wp-block-button__link {
+		background: $color__background-button;
+	}
+
+	&:not(.is-style-squared) .wp-block-button__link {
+		border-radius: 5px;
+	}
+
+	&.is-style-outline,
+	&.is-style-outline:hover,
+	&.is-style-outline:focus,
+	&.is-style-outline:active {
+		background: transparent;
+		color: $color__background-button;
+
+		.wp-block-button__link {
+			background: transparent;
+
+			&:not(.has-text-color) {
+				color: $color__background-button;
+			}
+		}
+	}
+}
+
+/** === Blockquote === */
+
+.wp-block-quote {
+
+	&:not(.is-large):not(.is-style-large) {
+		border-left: 2px solid $color__link;
+	}
+
+	&.is-large,
+	&.is-style-large {
+		margin-top: $font__size-xxl;
+		margin-bottom: $font__size-xxl;
+	}
+
+	&.is-large p,
+	&.is-style-large p {
+		font-size: $font__size-lg;
+		line-height: 1.3;
+		margin-bottom: 0.5em;
+		margin-top: 0.5em;
+	}
+
+	cite,
+	footer,
+	.wp-block-quote__citation {
+		font-family: $font__heading;
+		font-size: $font__size-xs;
+		line-height: 1.6;
+		color: $color__text-light;
+	}
+}
+
+/** === Pullquote === */
+
+.wp-block-pullquote {
+	border: none;
+	color: #000;
+
+	blockquote {
+		margin-top: calc(3 * #{ $size__spacing-unit});
+		margin-bottom: calc(3.33 * #{ $size__spacing-unit});
+		hyphens: auto;
+		word-break: break-word;
+	}
+
+	&:not(.is-style-solid-color) .wp-block-pullquote__citation {
+		color: $color__text-light;
+	}
+
+	&.is-style-solid-color {
+
+		blockquote {
+			width: calc(100% - (2 * #{ $size__spacing-unit}));
+			max-width: calc( 100% - (2 * #{ $size__spacing-unit}));
+
+			@include media(tablet) {
+				max-width: 80%;
+			}
+		}
+
+		blockquote:not(.has-text-color) {
+			color: $color__background-body;
+		}
+
+		&:not(.has-background-color) {
+			background-color: $color__link;
+		}
+	}
+}
+
+.wp-block[data-type="core/pullquote"],
+.wp-block[data-type="core/pullquote"][data-align="left"],
+.wp-block[data-type="core/pullquote"][data-align="right"] {
+
+	blockquote > .block-library-pullquote__content .editor-rich-text__tinymce[data-is-empty="true"]::before,
+	blockquote > .editor-rich-text p,
+	p {
+		font-size: $font__size-lg;
+		font-style: italic;
+		line-height: 1.3;
+		margin-bottom: 0.5em;
+		margin-top: 0.5em;
+
+		@include media(tablet) {
+			font-size: $font__size-xl;
+		}
+	}
+
+	.wp-block-pullquote__citation {
+		font-family: $font__heading;
+		font-size: $font__size-xs;
+		line-height: 1.6;
+		text-transform: none;
+	}
+
+	em {
+		font-style: normal;
+	}
+}
+
+.wp-block[data-type="core/pullquote"][data-align="left"],
+.wp-block[data-type="core/pullquote"][data-align="right"] {
+
+	.editor-block-list__block-edit {
+		width: calc(4 * (100vw / 12));
+		max-width: 50%;
+
+		.wp-block-pullquote:not(.is-style-solid-color) {
+			padding: 0;
+		}
+
+		.wp-block-pullquote.is-style-solid-color {
+			padding: 1em;
+		}
+	}
+
+	blockquote > .block-library-pullquote__content .editor-rich-text__tinymce[data-is-empty="true"]::before,
+	blockquote > .editor-rich-text p,
+	p,
+	.wp-block-pullquote__citation {
+		text-align: left;
+	}
+}
+
+.wp-block[data-type="core/pullquote"][data-align="full"] {
+	
+	@include media(tablet) {
+		
+		.wp-block-pullquote blockquote {
+			max-width: calc(80% - 128px);
+		}
+	}
+}
+
+
+/** === File === */
+
+.wp-block-file {
+	font-family: $font__heading;
+
+	.wp-block-file__button {
+		line-height: 1.8;
+		font-size: $font__size-sm;
+		font-weight: bold;
+		background-color: $color__link;
+		border-radius: 5px;
+	}
+}
+
+/** === Verse === */
+
+.wp-block-verse,
+.wp-block-verse pre {
+	padding: 0;
+}
+
+/** === Code === */
+
+.wp-block-code {
+	border-radius: 0;
+}
+
+/** === Table === */
+
+.wp-block-table {
+
+	td, th {
+		border-color: $color__text-light;
+	}
+}
+
+/** === Separator === */
+
+.wp-block-separator {
+
+	&:not(.is-style-dots) {
+		border-bottom: 2px solid $color__text-light;
+	}
+
+	&:not(.is-style-wide):not(.is-style-dots) {
+		width: $font__size-xl;
+		margin-left: 0;
+	}
+
+	&.is-style-dots:before {
+		color: $color__text-light;
+		font-size: $font__size-lg;
+		letter-spacing: calc(2 * #{$size__spacing-unit});
+		padding-left: calc(2 * #{$size__spacing-unit});
+	}
+}
+
+/** === Latest Posts, Archives, Categories === */
+
+ul.wp-block-archives,
+.wp-block-categories,
+.wp-block-latest-posts {
+	padding: 0;
+	list-style-type: none;
+
+	ul {
+		padding: 0;
+		list-style-type: none;
+	}
+
+	li {
+		color: $color__text-light;
+		font-family: $font__heading;
+		font-size: calc(#{$font__size_base} * #{$font__size-ratio});
+		font-weight: bold;
+		line-height: $font__line-height-heading;
+		padding-bottom: ( .75 * $size__spacing-unit );
+
+		&.menu-item-has-children,
+		&:last-child {
+			padding-bottom: 0;
+		}
+
+		a {
+			text-decoration: none;
+		}
+
+		ul {
+			padding-left: $size__spacing-unit;
+		}
+	}
+}
+
+.wp-block-categories {
+
+	ul {
+		padding-top: ( .75 * $size__spacing-unit );
+		@include nestedSubMenuPadding();
+	}
+
+	li ul {
+		list-style: none;
+		padding-left: 0;
+		margin-bottom: ( -.75 * $size__spacing-unit );
+	}
+
+}
+
+/** === Latest Posts grid view === */
+.wp-block-latest-posts.is-grid {
+		li {
+			border-top: 2px solid $color__border;
+			padding-top: (1 * $size__spacing-unit);
+			margin-bottom: (2 * $size__spacing-unit);
+			a {
+				&:after {
+					content: '';
+				}
+			}
+			&:last-child {
+				margin-bottom: auto;
+				a:after {
+					content: '';
+				}
+			}
+		}
+	}
+
+/** === Latest Comments === */
+
+.wp-block-latest-comments {
+
+	.wp-block-latest-comments__comment-meta {
+		font-family: $font__heading;
+		font-weight: bold;
+
+		.wp-block-latest-comments__comment-date {
+			font-weight: normal;
+		}
+	}
+
+	.wp-block-latest-comments__comment,
+	.wp-block-latest-comments__comment-date,
+	.wp-block-latest-comments__comment-excerpt p {
+		font-size: inherit;
+	}
+
+	.wp-block-latest-comments__comment-date {
+		font-size: $font__size-xs;
+	}
+}
+
+/** === Classic Editor === */
+
+/* Properly center-align captions in the classic-editor block */
+.wp-caption {
+	dd {
+		color: $color__text-light;
+ 		font-size: $font__size-xs;
+ 		font-family: $font__heading;
+ 		line-height: $font__line-height-pre;
+ 		margin: 0;
+ 		padding: ( $size__spacing-unit * .5 );
+ 		text-align: left;
+		text-align: center;
+		-webkit-margin-start: 0px;
+		margin-inline-start: 0px;
+	}
+}
+
+.wp-block-freeform {
+
+	/* Add style for galleries in classic-editor block */
+	blockquote {
+		border-left: 2px solid $color__link;
+
+		cite {
+			font-family: $font__heading;
+			font-size: $font__size-xs;
+			font-style: normal;
+			line-height: 1.6;
+			color: $color__text-light;
+		}
+	}
+
+	/* Add style for galleries in classic-editor block */
+	.gallery {
+
+		display: flex;
+
+		.gallery-item {
+			padding: ( $size__spacing-unit * .5 );
+			text-align: center;
+			vertical-align: top;
+			width: 100%;
+
+			.gallery-caption {
+				margin: 0;
+			}
+		}
+
+		// Loops to enumerate the classes for gallery columns.
+		@for $i from 2 through 9 {
+			&.gallery-columns-#{$i} .gallery-item {
+				max-width: calc( ( 12 / #{$i} ) * (100% / 12) );
+			}
+		}
+	}
+}
