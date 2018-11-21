@@ -1598,6 +1598,13 @@ body.page .main-navigation {
   transform: rotate(45deg);
 }
 
+@media only screen and (min-width: 768px) {
+  .site-title + .social-navigation,
+  .site-description + .social-navigation {
+    margin-top: calc(1rem / 5);
+  }
+}
+
 /** === Footer menu === */
 .footer-navigation {
   display: inline;
@@ -3634,7 +3641,8 @@ body.page .main-navigation {
 }
 
 .entry .entry-content .wp-block-button.is-style-outline .wp-block-button__link:hover {
-  color: #111;
+  color: white;
+  border-color: #111;
 }
 
 .entry .entry-content .wp-block-archives,
