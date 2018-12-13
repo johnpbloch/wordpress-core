@@ -82,7 +82,8 @@ final class _WP_Editors {
 		$set = wp_parse_args(
 			$settings,
 			array(
-				'wpautop'             => true,
+				// Disable autop if the current post has blocks in it.
+				'wpautop'             => ! has_blocks(),
 				'media_buttons'       => true,
 				'default_editor'      => '',
 				'drag_drop_upload'    => false,
@@ -1441,6 +1442,10 @@ final class _WP_Editors {
 		if ( ! isset( $concatenate_scripts ) ) {
 			script_concat_settings();
 		}
+
+		wp_print_scripts( array( 'wp-tinymce' ) );
+
+		echo "<script type='text/javascript'>\n" . self::wp_mce_translation() . "</script>\n";
 	}
 
 	/**
