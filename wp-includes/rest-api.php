@@ -1342,12 +1342,22 @@ function rest_preload_api_request( $memo, $path ) {
 		return $memo;
 	}
 
+	$method = 'GET';
+	if ( is_array( $path ) && 2 === count( $path ) ) {
+		$method = end( $path );
+		$path   = reset( $path );
+
+		if ( ! in_array( $method, array( 'GET', 'OPTIONS' ), true ) ) {
+			$method = 'GET';
+		}
+	}
+
 	$path_parts = parse_url( $path );
 	if ( false === $path_parts ) {
 		return $memo;
 	}
 
-	$request = new WP_REST_Request( 'GET', $path_parts['path'] );
+	$request = new WP_REST_Request( $method, $path_parts['path'] );
 	if ( ! empty( $path_parts['query'] ) ) {
 		parse_str( $path_parts['query'], $query_params );
 		$request->set_query_params( $query_params );
@@ -1357,19 +1367,24 @@ function rest_preload_api_request( $memo, $path ) {
 	if ( 200 === $response->status ) {
 		$server = rest_get_server();
 		$data   = (array) $response->get_data();
-		if ( method_exists( $server, 'get_compact_response_links' ) ) {
-			$links = call_user_func( array( $server, 'get_compact_response_links' ), $response );
-		} else {
-			$links = call_user_func( array( $server, 'get_response_links' ), $response );
-		}
+		$links  = $server->get_compact_response_links( $response );
 		if ( ! empty( $links ) ) {
 			$data['_links'] = $links;
 		}
 
-		$memo[ $path ] = array(
-			'body'    => $data,
-			'headers' => $response->headers,
-		);
+		if ( 'OPTIONS' === $method ) {
+			$response = rest_send_allow_header( $response, $server, $request );
+
+			$memo[ $method ][ $path ] = array(
+				'body'    => $data,
+				'headers' => $response->headers,
+			);
+		} else {
+			$memo[ $path ] = array(
+				'body'    => $data,
+				'headers' => $response->headers,
+			);
+		}
 	}
 
 	return $memo;
