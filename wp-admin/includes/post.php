@@ -683,7 +683,7 @@ function get_default_post_to_edit( $post_type = 'post', $create_in_db = false ) 
 	 * @param string  $post_content Default post content.
 	 * @param WP_Post $post         Post object.
 	 */
-	$post->post_content = apply_filters( 'default_content', $post_content, $post );
+	$post->post_content = (string) apply_filters( 'default_content', $post_content, $post );
 
 	/**
 	 * Filters the default post title initially used in the "Write Post" form.
@@ -693,7 +693,7 @@ function get_default_post_to_edit( $post_type = 'post', $create_in_db = false ) 
 	 * @param string  $post_title Default post title.
 	 * @param WP_Post $post       Post object.
 	 */
-	$post->post_title = apply_filters( 'default_title', $post_title, $post );
+	$post->post_title = (string) apply_filters( 'default_title', $post_title, $post );
 
 	/**
 	 * Filters the default post excerpt initially used in the "Write Post" form.
@@ -703,7 +703,7 @@ function get_default_post_to_edit( $post_type = 'post', $create_in_db = false ) 
 	 * @param string  $post_excerpt Default post excerpt.
 	 * @param WP_Post $post         Post object.
 	 */
-	$post->post_excerpt = apply_filters( 'default_excerpt', $post_excerpt, $post );
+	$post->post_excerpt = (string) apply_filters( 'default_excerpt', $post_excerpt, $post );
 
 	return $post;
 }
@@ -2242,6 +2242,16 @@ function the_block_editor_meta_boxes() {
 			$meta_boxes = (array) $wp_meta_boxes[ $current_screen->id ][ $location ][ $priority ];
 			foreach ( $meta_boxes as $meta_box ) {
 				if ( false == $meta_box || ! $meta_box['title'] ) {
+					continue;
+				}
+
+				// If a meta box is just here for back compat, don't show it in the block editor.
+				if ( isset( $meta_box['args']['__back_compat_meta_box'] ) && $meta_box['args']['__back_compat_meta_box'] ) {
+					continue;
+				}
+
+				// If a meta box doesn't work in the block editor, don't show it in the block editor.
+				if ( isset( $meta_box['args']['__block_editor_compatible_meta_box'] ) && ! $meta_box['args']['__block_editor_compatible_meta_box'] ) {
 					continue;
 				}
 
