@@ -19,8 +19,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @global WP_Post      $post
  * @global string       $title
  * @global array        $editor_styles
+ * @global array        $wp_meta_boxes
  */
-global $post_type, $post_type_object, $post, $title, $editor_styles;
+global $post_type, $post_type_object, $post, $title, $editor_styles, $wp_meta_boxes;
 
 if ( ! empty( $post_type_object ) ) {
 	$title = $post_type_object->labels->edit_item;
@@ -201,6 +202,29 @@ if ( $editor_styles && current_theme_supports( 'editor-styles' ) ) {
 	}
 }
 
+// Image sizes.
+$image_sizes   = get_intermediate_image_sizes();
+$image_sizes[] = 'full';
+
+/** This filter is documented in wp-admin/includes/media.php */
+$image_size_names = apply_filters(
+	'image_size_names_choose',
+	array(
+		'thumbnail' => __( 'Thumbnail' ),
+		'medium'    => __( 'Medium' ),
+		'large'     => __( 'Large' ),
+		'full'      => __( 'Full Size' ),
+	)
+);
+
+$available_image_sizes = array();
+foreach ( $image_sizes as $image_size_slug ) {
+	$available_image_sizes[] = array(
+		'slug' => $image_size_slug,
+		'name' => isset( $image_size_names[ $image_size_slug ] ) ? $image_size_names[ $image_size_slug ] : $image_size_slug,
+	);
+}
+
 // Lock settings.
 $user_id = wp_check_post_lock( $post->ID );
 if ( $user_id ) {
@@ -256,12 +280,17 @@ $editor_settings = array(
 	'maxUploadFileSize'      => $max_upload_size,
 	'allowedMimeTypes'       => get_allowed_mime_types(),
 	'styles'                 => $styles,
+	'availableImageSizes'    => $available_image_sizes,
 	'postLock'               => $lock_details,
 	'postLockUtils'          => array(
 		'nonce'       => wp_create_nonce( 'lock-post_' . $post->ID ),
 		'unlockNonce' => wp_create_nonce( 'update-post_' . $post->ID ),
 		'ajaxUrl'     => admin_url( 'admin-ajax.php' ),
 	),
+
+	// Whether or not to load the 'postcustom' meta box is stored as a user meta
+	// field so that we're not always loading its assets.
+	'enableCustomFields'     => (bool) get_user_meta( get_current_user_id(), 'enable_custom_fields', true ),
 );
 
 $autosave = wp_get_post_autosave( $post_ID );
@@ -296,36 +325,6 @@ if ( $is_new_post && ! isset( $editor_settings['template'] ) && 'post' === $post
 	}
 }
 
-$init_script = <<<JS
-( function() {
-	window._wpLoadBlockEditor = new Promise( function( resolve ) {
-		wp.domReady( function() {
-			resolve( wp.editPost.initializeEditor( 'editor', "%s", %d, %s, %s ) );
-		} );
-	} );
-} )();
-JS;
-
-
-/**
- * Filters the settings to pass to the block editor.
- *
- * @since 5.0.0
- *
- * @param array   $editor_settings Default editor settings.
- * @param WP_Post $post            Post being edited.
- */
-$editor_settings = apply_filters( 'block_editor_settings', $editor_settings, $post );
-
-$script = sprintf(
-	$init_script,
-	$post->post_type,
-	$post->ID,
-	wp_json_encode( $editor_settings ),
-	wp_json_encode( $initial_edits )
-);
-wp_add_inline_script( 'wp-edit-post', $script );
-
 /**
  * Scripts
  */
@@ -334,6 +333,7 @@ wp_enqueue_media(
 		'post' => $post->ID,
 	)
 );
+wp_tinymce_inline_scripts();
 wp_enqueue_editor();
 
 /**
@@ -358,9 +358,40 @@ do_action( 'enqueue_block_editor_assets' );
 require_once( ABSPATH . 'wp-admin/includes/meta-boxes.php' );
 register_and_do_post_meta_boxes( $post );
 
-// Some meta boxes hook into the 'edit_form_advanced' filter.
-/** This action is documented in wp-admin/edit-form-advanced.php */
-do_action( 'edit_form_advanced', $post );
+// Check if the Custom Fields meta box has been removed at some point.
+$core_meta_boxes = $wp_meta_boxes[ $current_screen->id ]['normal']['core'];
+if ( ! isset( $core_meta_boxes['postcustom'] ) || ! $core_meta_boxes['postcustom'] ) {
+	unset( $editor_settings['enableCustomFields'] );
+}
+
+/**
+ * Filters the settings to pass to the block editor.
+ *
+ * @since 5.0.0
+ *
+ * @param array   $editor_settings Default editor settings.
+ * @param WP_Post $post            Post being edited.
+ */
+$editor_settings = apply_filters( 'block_editor_settings', $editor_settings, $post );
+
+$init_script = <<<JS
+( function() {
+	window._wpLoadBlockEditor = new Promise( function( resolve ) {
+		wp.domReady( function() {
+			resolve( wp.editPost.initializeEditor( 'editor', "%s", %d, %s, %s ) );
+		} );
+	} );
+} )();
+JS;
+
+$script = sprintf(
+	$init_script,
+	$post->post_type,
+	$post->ID,
+	wp_json_encode( $editor_settings ),
+	wp_json_encode( $initial_edits )
+);
+wp_add_inline_script( 'wp-edit-post', $script );
 
 require_once( ABSPATH . 'wp-admin/admin-header.php' );
 ?>

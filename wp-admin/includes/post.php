@@ -2045,6 +2045,11 @@ function use_block_editor_for_post( $post ) {
 		return false;
 	}
 
+	// The posts page can't be edited in the block editor.
+	if ( absint( get_option( 'page_for_posts' ) ) === $post->ID && empty( $post->post_content ) ) {
+		return false;
+	}
+
 	$use_block_editor = use_block_editor_for_post_type( $post->post_type );
 
 	/**
@@ -2107,7 +2112,7 @@ function get_block_categories( $post ) {
 		array(
 			'slug'  => 'common',
 			'title' => __( 'Common Blocks' ),
-			'icon'  => 'screenoptions',
+			'icon'  => null,
 		),
 		array(
 			'slug'  => 'formatting',
@@ -2209,8 +2214,12 @@ function the_block_editor_meta_boxes() {
 	<form class="metabox-base-form">
 	<?php the_block_editor_meta_box_post_form_hidden_fields( $post ); ?>
 	</form>
+	<form id="toggle-custom-fields-form" method="post" action="<?php echo esc_attr( admin_url( 'post.php' ) ); ?>">
+		<?php wp_nonce_field( 'toggle-custom-fields' ); ?>
+		<input type="hidden" name="action" value="toggle-custom-fields" />
+	</form>
 	<?php foreach ( $locations as $location ) : ?>
-		<form class="metabox-location-<?php echo esc_attr( $location ); ?>">
+		<form class="metabox-location-<?php echo esc_attr( $location ); ?>" onsubmit="return false;">
 			<div id="poststuff" class="sidebar-open">
 				<div id="postbox-container-2" class="postbox-container">
 					<?php
@@ -2284,6 +2293,29 @@ function the_block_editor_meta_boxes() {
 		printf( "<script type='text/javascript'>\n%s\n</script>\n", trim( $script ) );
 	}
 
+	/**
+	 * If the 'postcustom' meta box is enabled, then we need to perform some
+	 * extra initialization on it.
+	 */
+	$enable_custom_fields = (bool) get_user_meta( get_current_user_id(), 'enable_custom_fields', true );
+	if ( $enable_custom_fields ) {
+		$script = "( function( $ ) {
+			if ( $('#postcustom').length ) {
+				$( '#the-list' ).wpList( {
+					addBefore: function( s ) {
+						s.data += '&post_id=$post->ID';
+						return s;
+					},
+					addAfter: function() {
+						$('table#list-table').show();
+					}
+				});
+			}
+		} )( jQuery );";
+		wp_enqueue_script( 'wp-lists' );
+		wp_add_inline_script( 'wp-lists', $script );
+	}
+
 	// Reset meta box data.
 	$wp_meta_boxes = $_original_meta_boxes;
 }
@@ -2307,6 +2339,43 @@ function the_block_editor_meta_box_post_form_hidden_fields( $post ) {
 	$current_user = wp_get_current_user();
 	$user_id      = $current_user->ID;
 	wp_nonce_field( $nonce_action );
+
+	/*
+	 * Some meta boxes hook into these actions to add hidden input fields in the classic post form. For backwards
+	 * compatibility, we can capture the output from these actions, and extract the hidden input fields.
+	 */
+	$actions = array(
+		'edit_form_after_title',
+		'edit_form_advanced',
+	);
+
+	foreach ( $actions as $action ) {
+		ob_start();
+		do_action_deprecated(
+			$action,
+			array( $post ),
+			'5.0.0',
+			'block_editor_meta_box_hidden_fields',
+			__( 'This action is still supported in the classic editor, but is deprecated in the block editor.' )
+		);
+		$classic_output = ob_get_clean();
+
+		if ( ! $classic_output ) {
+			continue;
+		}
+
+		$classic_elements = wp_html_split( $classic_output );
+		$hidden_inputs    = '';
+		foreach ( $classic_elements as $element ) {
+			if ( 0 !== strpos( $element, '<input ' ) ) {
+				continue;
+			}
+
+			if ( preg_match( '/\stype=[\'"]hidden[\'"]\s/', $element ) ) {
+				echo $element;
+			}
+		}
+	}
 	?>
 	<input type="hidden" id="user-id" name="user_ID" value="<?php echo (int) $user_id; ?>" />
 	<input type="hidden" id="hiddenaction" name="action" value="<?php echo esc_attr( $form_action ); ?>" />
@@ -2324,4 +2393,16 @@ function the_block_editor_meta_box_post_form_hidden_fields( $post ) {
 	wp_nonce_field( 'closedpostboxes', 'closedpostboxesnonce', false );
 	// Permalink title nonce.
 	wp_nonce_field( 'samplepermalink', 'samplepermalinknonce', false );
+
+	/**
+	 * Add hidden input fields to the meta box save form.
+	 *
+	 * Hook into this action to print `<input type="hidden" ... />` fields, which will be POSTed back to
+	 * the server when meta boxes are saved.
+	 *
+	 * @since 5.0.0
+	 *
+	 * @params WP_Post $post The post that is being edited.
+	 */
+	do_action( 'block_editor_meta_box_hidden_fields', $post );
 }
