@@ -2349,17 +2349,79 @@ function wp_check_filetype_and_ext( $file, $filename, $mimes = null ) {
 		$real_mime = finfo_file( $finfo, $file );
 		finfo_close( $finfo );
 
-		/*
-		 * If $real_mime doesn't match what we're expecting, we need to do some extra
-		 * vetting of application mime types to make sure this type of file is allowed.
-		 * Other mime types are assumed to be safe, but should be considered unverified.
-		 */
-		if ( $real_mime && ( $real_mime !== $type ) && ( 0 === strpos( $real_mime, 'application' ) ) ) {
-			$allowed = get_allowed_mime_types();
+		// fileinfo often misidentifies obscure files as one of these types
+		$nonspecific_types = array(
+			'application/octet-stream',
+			'application/encrypted',
+			'application/CDFV2-encrypted',
+			'application/zip',
+		);
 
-			if ( ! in_array( $real_mime, $allowed ) ) {
+		/*
+		 * If $real_mime doesn't match the content type we're expecting from the file's extension,
+		 * we need to do some additional vetting. Media types and those listed in $nonspecific_types are
+		 * allowed some leeway, but anything else must exactly match the real content type.
+		 */
+		if ( in_array( $real_mime, $nonspecific_types, true ) ) {
+			// File is a non-specific binary type. That's ok if it's a type that generally tends to be binary.
+			if ( !in_array( substr( $type, 0, strcspn( $type, '/' ) ), array( 'application', 'video', 'audio' ) ) ) {
 				$type = $ext = false;
 			}
+		} elseif ( 0 === strpos( $real_mime, 'video/' ) || 0 === strpos( $real_mime, 'audio/' ) ) {
+			/*
+			 * For these types, only the major type must match the real value.
+			 * This means that common mismatches are forgiven: application/vnd.apple.numbers is often misidentified as application/zip,
+			 * and some media files are commonly named with the wrong extension (.mov instead of .mp4)
+			 */
+			if ( substr( $real_mime, 0, strcspn( $real_mime, '/' ) ) !== substr( $type, 0, strcspn( $type, '/' ) ) ) {
+				$type = $ext = false;
+			}
+		} elseif ( 'text/plain' === $real_mime ) {
+			// A few common file types are occasionally detected as text/plain; allow those.
+			if ( ! in_array(
+				$type,
+				array(
+					'text/plain',
+					'text/csv',
+					'text/richtext',
+					'text/tsv',
+					'text/vtt',
+				)
+			)
+			) {
+				$type = $ext = false;
+			}
+		} elseif ( 'text/rtf' === $real_mime ) {
+			// Special casing for RTF files.
+			if ( ! in_array(
+				$type,
+				array(
+					'text/rtf',
+					'text/plain',
+					'application/rtf',
+				)
+			)
+			) {
+				$type = $ext = false;
+			}
+		} else {
+			if ( $type !== $real_mime ) {
+				/*
+				 * Everything else including image/* and application/*: 
+				 * If the real content type doesn't match the file extension, assume it's dangerous.
+				 */
+				$type = $ext = false;
+			}
+
+		}
+	}
+
+	// The mime type must be allowed 
+	if ( $type ) {
+		$allowed = get_allowed_mime_types();
+
+		if ( ! in_array( $type, $allowed ) ) {
+			$type = $ext = false;
 		}
 	}
 
@@ -5756,6 +5818,26 @@ function wp_is_uuid( $uuid, $version = null ) {
 	}
 
 	return (bool) preg_match( $regex, $uuid );
+}
+
+/**
+ * Get unique ID.
+ *
+ * This is a PHP implementation of Underscore's uniqueId method. A static variable
+ * contains an integer that is incremented with each call. This number is returned
+ * with the optional prefix. As such the returned value is not universally unique,
+ * but it is unique across the life of the PHP process.
+ *
+ * @since 5.0.3
+ *
+ * @staticvar int $id_counter
+ *
+ * @param string $prefix Prefix for the returned ID.
+ * @return string Unique ID.
+ */
+function wp_unique_id( $prefix = '' ) {
+	static $id_counter = 0;
+	return $prefix . (string) ++$id_counter;
 }
 
 /**

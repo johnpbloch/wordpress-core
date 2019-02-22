@@ -334,7 +334,7 @@ function _arrayWithoutHoles(arr) {
   }
 }
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/iterableToArray.js
-var iterableToArray = __webpack_require__(32);
+var iterableToArray = __webpack_require__(33);
 
 // CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js
 function _nonIterableSpread() {
@@ -483,7 +483,7 @@ var external_lodash_ = __webpack_require__(2);
 var asyncToGenerator = __webpack_require__(38);
 
 // EXTERNAL MODULE: ./node_modules/redux/es/redux.js
-var redux = __webpack_require__(61);
+var redux = __webpack_require__(62);
 
 // EXTERNAL MODULE: ./node_modules/is-promise/index.js
 var is_promise = __webpack_require__(86);
@@ -690,12 +690,23 @@ function createReduxStore(reducer, key, registry) {
 
 function mapSelectors(selectors, store) {
   var createStateSelector = function createStateSelector(selector) {
-    return function () {
-      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
+    return function runSelector() {
+      // This function is an optimized implementation of:
+      //
+      //   selector( store.getState(), ...arguments )
+      //
+      // Where the above would incur an `Array#concat` in its application,
+      // the logic here instead efficiently constructs an arguments array via
+      // direct assignment.
+      var argsLength = arguments.length;
+      var args = new Array(argsLength + 1);
+      args[0] = store.getState();
+
+      for (var i = 0; i < argsLength; i++) {
+        args[i + 1] = arguments[i];
       }
 
-      return selector.apply(void 0, [store.getState()].concat(args));
+      return selector.apply(void 0, args);
     };
   };
 
@@ -741,8 +752,8 @@ function mapResolvers(resolvers, selectors, fulfillment, store) {
     }
 
     return function () {
-      for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-        args[_key2] = arguments[_key2];
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
       }
 
       function fulfillSelector() {
@@ -829,29 +840,29 @@ function getCoreDataFulfillment(registry, key) {
 
   return {
     hasStarted: function hasStarted() {
-      for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-        args[_key3] = arguments[_key3];
+      for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        args[_key2] = arguments[_key2];
       }
 
       return hasStartedResolution.apply(void 0, [key].concat(args));
     },
     start: function start() {
-      for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
-        args[_key4] = arguments[_key4];
+      for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+        args[_key3] = arguments[_key3];
       }
 
       return startResolution.apply(void 0, [key].concat(args));
     },
     finish: function finish() {
-      for (var _len5 = arguments.length, args = new Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
-        args[_key5] = arguments[_key5];
+      for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+        args[_key4] = arguments[_key4];
       }
 
       return finishResolution.apply(void 0, [key].concat(args));
     },
     fulfill: function fulfill() {
-      for (var _len6 = arguments.length, args = new Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
-        args[_key6] = arguments[_key6];
+      for (var _len5 = arguments.length, args = new Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+        args[_key5] = arguments[_key5];
       }
 
       return fulfillWithRegistry.apply(void 0, [registry, key].concat(args));
@@ -879,9 +890,9 @@ function _fulfillWithRegistry() {
   regeneratorRuntime.mark(function _callee2(registry, key, selectorName) {
     var namespace,
         resolver,
-        _len7,
+        _len6,
         args,
-        _key7,
+        _key6,
         action,
         _args2 = arguments;
 
@@ -900,8 +911,8 @@ function _fulfillWithRegistry() {
             return _context2.abrupt("return");
 
           case 4:
-            for (_len7 = _args2.length, args = new Array(_len7 > 3 ? _len7 - 3 : 0), _key7 = 3; _key7 < _len7; _key7++) {
-              args[_key7 - 3] = _args2[_key7];
+            for (_len6 = _args2.length, args = new Array(_len6 > 3 ? _len6 - 3 : 0), _key6 = 3; _key6 < _len6; _key6++) {
+              args[_key6 - 3] = _args2[_key6];
             }
 
             action = resolver.fulfill.apply(resolver, args);
@@ -1724,7 +1735,7 @@ var with_select_withSelect = function withSelect(mapSelectToProps) {
      */
 
     function getNextMergeProps(props) {
-      return mapSelectToProps(props.registry.select, props.ownProps) || DEFAULT_MERGE_PROPS;
+      return mapSelectToProps(props.registry.select, props.ownProps, props.registry) || DEFAULT_MERGE_PROPS;
     }
 
     var ComponentWithSelect =
@@ -1922,7 +1933,7 @@ var with_dispatch_withDispatch = function withDispatch(mapDispatchToProps) {
           }
 
           // Original dispatcher is a pre-bound (dispatching) action creator.
-          (_mapDispatchToProps = mapDispatchToProps(this.props.registry.dispatch, this.props.ownProps))[propName].apply(_mapDispatchToProps, args);
+          (_mapDispatchToProps = mapDispatchToProps(this.props.registry.dispatch, this.props.ownProps, this.props.registry))[propName].apply(_mapDispatchToProps, args);
         }
       }, {
         key: "setProxyProps",
@@ -1935,11 +1946,16 @@ var with_dispatch_withDispatch = function withDispatch(mapDispatchToProps) {
           // called, it is done only to determine the keys for which
           // proxy functions should be created. The actual registry
           // dispatch does not occur until the function is called.
-          var propsToDispatchers = mapDispatchToProps(this.props.registry.dispatch, props.ownProps);
+          var propsToDispatchers = mapDispatchToProps(this.props.registry.dispatch, props.ownProps, this.props.registry);
           this.proxyProps = Object(external_lodash_["mapValues"])(propsToDispatchers, function (dispatcher, propName) {
-            // Prebind with prop name so we have reference to the original
+            if (typeof dispatcher !== 'function') {
+              // eslint-disable-next-line no-console
+              console.warn("Property ".concat(propName, " returned from mapDispatchToProps in withDispatch must be a function."));
+            } // Prebind with prop name so we have reference to the original
             // dispatcher to invoke. Track between re-renders to avoid
             // creating new function references every render.
+
+
             if (_this2.proxyProps.hasOwnProperty(propName)) {
               return _this2.proxyProps[propName];
             }
@@ -2021,7 +2037,7 @@ var build_module_use = default_registry.use;
 
 /***/ }),
 
-/***/ 32:
+/***/ 33:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2131,7 +2147,7 @@ module.exports = g;
 
 /***/ }),
 
-/***/ 61:
+/***/ 62:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

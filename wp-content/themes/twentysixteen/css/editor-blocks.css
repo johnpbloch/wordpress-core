@@ -1,6 +1,6 @@
 /*
 Theme Name: Twenty Sixteen
-Description: Used to style Gutenberg Blocks in the editor.
+Description: Used to style blocks in the editor.
 */
 
 /*--------------------------------------------------------------
@@ -19,7 +19,7 @@ Description: Used to style Gutenberg Blocks in the editor.
 --------------------------------------------------------------*/
 
 .edit-post-visual-editor .editor-block-list__block,
-.editor-default-block-appender input[type="text"].editor-default-block-appender__content {
+.editor-default-block-appender textarea.editor-default-block-appender__content {
 	font-family: Merriweather, Georgia, serif;
 	font-size: 16px;
 	font-size: 1rem;
@@ -543,16 +543,21 @@ Description: Used to style Gutenberg Blocks in the editor.
 /* Buttons */
 
 .wp-block-button .wp-block-button__link {
-	background: #1a1a1a;
-	border: 0;
-	border-radius: 2px;
-	color: #fff;
 	font-family: Montserrat, "Helvetica Neue", sans-serif;
 	font-weight: 700;
 	letter-spacing: 0.046875em;
 	line-height: 1;
-	padding: 0.84375em 0.875em 0.78125em;
+	padding: 0.84375em 1.3125em 0.78125em;
 	text-transform: uppercase;
+}
+
+.wp-block-button__link {
+	background: #1a1a1a;
+	color: #fff;
+}
+
+.is-style-outline .wp-block-button__link {
+	color: #1a1a1a;
 }
 
 /* Media & Text */

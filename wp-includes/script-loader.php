@@ -60,7 +60,7 @@ function wp_register_tinymce_scripts( &$scripts, $force_uncompressed = false ) {
 		$scripts->add( 'wp-tinymce', includes_url( 'js/tinymce/' ) . "plugins/compat3x/plugin$dev_suffix.js", array( 'wp-tinymce-root' ), $tinymce_version );
 	}
 
-	$scripts->add( 'wp-tinymce-lists', includes_url( "js/tinymce/plugins/lists/plugin$suffix.js", array( 'wp-tinymce' ), $tinymce_version ) );
+	$scripts->add( 'wp-tinymce-lists', includes_url( "js/tinymce/plugins/lists/plugin$suffix.js" ), array( 'wp-tinymce' ), $tinymce_version );
 }
 
 /**
@@ -76,7 +76,7 @@ function wp_register_tinymce_scripts( &$scripts, $force_uncompressed = false ) {
 function wp_default_packages_vendor( &$scripts ) {
 	global $wp_locale;
 
-	$dev_suffix = wp_scripts_get_suffix( 'dev' );
+	$suffix = wp_scripts_get_suffix();
 
 	$vendor_scripts = array(
 		'react' => array( 'wp-polyfill' ),
@@ -108,7 +108,7 @@ function wp_default_packages_vendor( &$scripts ) {
 			$dependencies = array();
 		}
 
-		$path = "/wp-includes/js/dist/vendor/$handle$dev_suffix.js";
+		$path    = "/wp-includes/js/dist/vendor/$handle$suffix.js";
 		$version = $vendor_scripts_versions[ $handle ];
 
 		$scripts->add( $handle, $path, $dependencies, $version, 1 );
@@ -124,8 +124,7 @@ function wp_default_packages_vendor( &$scripts ) {
 				'document.contains'   => 'wp-polyfill-node-contains',
 				'window.FormData && window.FormData.prototype.keys' => 'wp-polyfill-formdata',
 				'Element.prototype.matches && Element.prototype.closest' => 'wp-polyfill-element-closest',
-			),
-			'after'
+			)
 		)
 	);
 
@@ -225,42 +224,42 @@ function wp_default_packages_scripts( &$scripts ) {
 	$suffix = wp_scripts_get_suffix();
 
 	$packages_versions = array(
-		'api-fetch' => '2.2.5',
+		'api-fetch' => '2.2.7',
 		'a11y' => '2.0.2',
-		'annotations' => '1.0.3',
+		'annotations' => '1.0.5',
 		'autop' => '2.0.2',
 		'blob' => '2.1.0',
-		'block-library' => '2.2.9',
-		'block-serialization-default-parser' => '2.0.1',
-		'blocks' => '6.0.3',
-		'components' => '7.0.3',
+		'block-library' => '2.2.12',
+		'block-serialization-default-parser' => '2.0.3',
+		'blocks' => '6.0.5',
+		'components' => '7.0.5',
 		'compose' => '3.0.0',
-		'core-data' => '2.0.14',
-		'data' => '4.0.1',
-		'date' => '3.0.0',
-		'deprecated' => '2.0.3',
-		'dom' => '2.0.7',
+		'core-data' => '2.0.16',
+		'data' => '4.2.0',
+		'date' => '3.0.1',
+		'deprecated' => '2.0.4',
+		'dom' => '2.0.8',
 		'dom-ready' => '2.0.2',
-		'edit-post' => '3.1.4',
-		'editor' => '9.0.4',
+		'edit-post' => '3.1.7',
+		'editor' => '9.0.7',
 		'element' => '2.1.8',
 		'escape-html' => '1.0.1',
-		'format-library' => '1.2.7',
-		'hooks' => '2.0.3',
-		'html-entities' => '2.0.3',
+		'format-library' => '1.2.10',
+		'hooks' => '2.0.4',
+		'html-entities' => '2.0.4',
 		'i18n' => '3.1.0',
 		'is-shallow-equal' => '1.1.4',
 		'keycodes' => '2.0.5',
-		'list-reusable-blocks' => '1.1.16',
-		'notices' => '1.1.0',
-		'nux' => '3.0.4',
-		'plugins' => '2.0.9',
+		'list-reusable-blocks' => '1.1.18',
+		'notices' => '1.1.2',
+		'nux' => '3.0.6',
+		'plugins' => '2.0.10',
 		'redux-routine' => '3.0.3',
-		'rich-text' => '3.0.2',
+		'rich-text' => '3.0.4',
 		'shortcode' => '2.0.2',
 		'token-list' => '1.1.0',
-		'url' => '2.3.1',
-		'viewport' => '2.0.12',
+		'url' => '2.3.3',
+		'viewport' => '2.1.0',
 		'wordcount' => '2.0.3',
 	);
 
@@ -1764,26 +1763,6 @@ function wp_default_styles( &$styles ) {
 	$styles->add( 'colors-fresh', false, array( 'wp-admin', 'buttons' ) ); // Old handle.
 	$styles->add( 'open-sans', $open_sans_font_url ); // No longer used in core as of 4.6
 
-	// RTL CSS
-	$rtl_styles = array(
-		// wp-admin
-		'common', 'forms', 'admin-menu', 'dashboard', 'list-tables', 'edit', 'revisions', 'media', 'themes', 'about', 'nav-menus',
-		'widgets', 'site-icon', 'l10n', 'install', 'wp-color-picker', 'customize-controls', 'customize-widgets', 'customize-nav-menus', 'customize-preview',
-		'ie', 'login',
-		// wp-includes
-		'buttons', 'admin-bar', 'wp-auth-check', 'editor-buttons', 'media-views', 'wp-pointer',
-		'wp-jquery-ui-dialog',
-		// deprecated
-		'deprecated-media', 'farbtastic',
-	);
-
-	foreach ( $rtl_styles as $rtl_style ) {
-		$styles->add_data( $rtl_style, 'rtl', 'replace' );
-		if ( $suffix ) {
-			$styles->add_data( $rtl_style, 'suffix', $suffix );
-		}
-	}
-
 	// Packages styles
 	$fonts_url = '';
 
@@ -1799,7 +1778,6 @@ function wp_default_styles( &$styles ) {
 	$styles->add( 'wp-editor-font', $fonts_url );
 
 	$styles->add( 'wp-block-library-theme', "/wp-includes/css/dist/block-library/theme$suffix.css" );
-	$styles->add_data( 'wp-block-library-theme', 'rtl', 'replace' );
 
 	$styles->add(
 		'wp-edit-blocks',
@@ -1807,11 +1785,11 @@ function wp_default_styles( &$styles ) {
 		array(
 			'wp-components',
 			'wp-editor',
+			'wp-block-library',
 			// Always include visual styles so the editor never appears broken.
 			'wp-block-library-theme',
 		)
 	);
-	$styles->add_data( 'wp-edit-blocks', 'rtl', 'replace' );
 
 	$package_styles = array(
 		'block-library' => array(),
@@ -1825,10 +1803,32 @@ function wp_default_styles( &$styles ) {
 
 	foreach ( $package_styles as $package => $dependencies ) {
 		$handle  = 'wp-' . $package;
-		$path     = "/wp-includes/css/dist/$package/style$suffix.css";
+		$path    = "/wp-includes/css/dist/$package/style$suffix.css";
 
 		$styles->add( $handle, $path, $dependencies );
-		$styles->add_data( $handle, 'rtl', 'replace' );
+	}
+
+	// RTL CSS
+	$rtl_styles = array(
+		// Admin CSS
+		'common', 'forms', 'admin-menu', 'dashboard', 'list-tables', 'edit', 'revisions', 'media', 'themes', 'about', 'nav-menus',
+		'widgets', 'site-icon', 'l10n', 'install', 'wp-color-picker', 'customize-controls', 'customize-widgets', 'customize-nav-menus', 'customize-preview',
+		'ie', 'login',
+		// Includes CSS
+		'buttons', 'admin-bar', 'wp-auth-check', 'editor-buttons', 'media-views', 'wp-pointer',
+		'wp-jquery-ui-dialog',
+		// Package styles
+		'wp-block-library-theme', 'wp-edit-blocks', 'wp-block-library', 'wp-components', 'wp-edit-post', 'wp-editor', 'wp-format-library',
+		'wp-list-reusable-blocks', 'wp-nux',
+		// Deprecated CSS
+		'deprecated-media', 'farbtastic',
+	);
+
+	foreach ( $rtl_styles as $rtl_style ) {
+		$styles->add_data( $rtl_style, 'rtl', 'replace' );
+		if ( $suffix ) {
+			$styles->add_data( $rtl_style, 'suffix', $suffix );
+		}
 	}
 }
 

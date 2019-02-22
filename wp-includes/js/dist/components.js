@@ -377,7 +377,7 @@ function _arrayWithoutHoles(arr) {
   }
 }
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/iterableToArray.js
-var iterableToArray = __webpack_require__(32);
+var iterableToArray = __webpack_require__(33);
 
 // CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js
 function _nonIterableSpread() {
@@ -566,7 +566,8 @@ if (false) { var throwOnDirectAccess, isValidElement, REACT_ELEMENT_TYPE; } else
 
 /***/ }),
 /* 31 */,
-/* 32 */
+/* 32 */,
+/* 33 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -576,7 +577,6 @@ function _iterableToArray(iter) {
 }
 
 /***/ }),
-/* 33 */,
 /* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2423,7 +2423,8 @@ module.exports = g;
 /* 52 */,
 /* 53 */,
 /* 54 */,
-/* 55 */
+/* 55 */,
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var moment = __webpack_require__(27);
@@ -2469,7 +2470,7 @@ module.exports = {
 
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var rng = __webpack_require__(77);
@@ -2504,8 +2505,8 @@ module.exports = v4;
 
 
 /***/ }),
-/* 57 */,
-/* 58 */
+/* 58 */,
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2514,7 +2515,6 @@ module.exports = v4;
 module.exports = __webpack_require__(118);
 
 /***/ }),
-/* 59 */,
 /* 60 */,
 /* 61 */,
 /* 62 */,
@@ -3553,7 +3553,7 @@ var _reactAddonsShallowCompare = __webpack_require__(69);
 
 var _reactAddonsShallowCompare2 = _interopRequireDefault(_reactAddonsShallowCompare);
 
-var _reactMomentProptypes = __webpack_require__(55);
+var _reactMomentProptypes = __webpack_require__(56);
 
 var _reactMomentProptypes2 = _interopRequireDefault(_reactMomentProptypes);
 
@@ -7601,7 +7601,7 @@ var _reactAddonsShallowCompare = __webpack_require__(69);
 
 var _reactAddonsShallowCompare2 = _interopRequireDefault(_reactAddonsShallowCompare);
 
-var _reactMomentProptypes = __webpack_require__(55);
+var _reactMomentProptypes = __webpack_require__(56);
 
 var _reactMomentProptypes2 = _interopRequireDefault(_reactMomentProptypes);
 
@@ -8050,7 +8050,7 @@ var _reactAddonsShallowCompare = __webpack_require__(69);
 
 var _reactAddonsShallowCompare2 = _interopRequireDefault(_reactAddonsShallowCompare);
 
-var _reactMomentProptypes = __webpack_require__(55);
+var _reactMomentProptypes = __webpack_require__(56);
 
 var _reactMomentProptypes2 = _interopRequireDefault(_reactMomentProptypes);
 
@@ -8678,7 +8678,7 @@ var _propTypes = __webpack_require__(29);
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
-var _reactMomentProptypes = __webpack_require__(55);
+var _reactMomentProptypes = __webpack_require__(56);
 
 var _reactMomentProptypes2 = _interopRequireDefault(_reactMomentProptypes);
 
@@ -9057,7 +9057,7 @@ var _moment = __webpack_require__(27);
 
 var _moment2 = _interopRequireDefault(_moment);
 
-var _reactMomentProptypes = __webpack_require__(55);
+var _reactMomentProptypes = __webpack_require__(56);
 
 var _reactMomentProptypes2 = _interopRequireDefault(_reactMomentProptypes);
 
@@ -10690,7 +10690,7 @@ var _propTypes = __webpack_require__(29);
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
-var _reactMomentProptypes = __webpack_require__(55);
+var _reactMomentProptypes = __webpack_require__(56);
 
 var _reactMomentProptypes2 = _interopRequireDefault(_reactMomentProptypes);
 
@@ -12298,7 +12298,7 @@ var _propTypes = __webpack_require__(29);
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
-var _reactMomentProptypes = __webpack_require__(55);
+var _reactMomentProptypes = __webpack_require__(56);
 
 var _reactMomentProptypes2 = _interopRequireDefault(_reactMomentProptypes);
 
@@ -13334,7 +13334,7 @@ var _propTypes = __webpack_require__(29);
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
-var _reactMomentProptypes = __webpack_require__(55);
+var _reactMomentProptypes = __webpack_require__(56);
 
 var _reactMomentProptypes2 = _interopRequireDefault(_reactMomentProptypes);
 
@@ -18736,7 +18736,7 @@ var _reactAddonsShallowCompare = __webpack_require__(69);
 
 var _reactAddonsShallowCompare2 = _interopRequireDefault(_reactAddonsShallowCompare);
 
-var _reactMomentProptypes = __webpack_require__(55);
+var _reactMomentProptypes = __webpack_require__(56);
 
 var _reactMomentProptypes2 = _interopRequireDefault(_reactMomentProptypes);
 
@@ -23877,6 +23877,13 @@ function (_Component) {
 
 /* harmony default export */ var build_module_tooltip = (tooltip_Tooltip);
 
+// CONCATENATED MODULE: ./node_modules/@wordpress/components/build-module/dashicon/icon-class.js
+var IconClass = function IconClass(props) {
+  var icon = props.icon,
+      className = props.className;
+  return ['dashicon', 'dashicons-' + icon, className].filter(Boolean).join(' ');
+};
+
 // CONCATENATED MODULE: ./node_modules/@wordpress/components/build-module/dashicon/index.js
 
 
@@ -23902,6 +23909,7 @@ OR if you're looking to change now SVGs get output, you'll need to edit strings 
 
 
 
+
 var dashicon_Dashicon =
 /*#__PURE__*/
 function (_Component) {
@@ -23916,14 +23924,13 @@ function (_Component) {
   Object(createClass["a" /* default */])(Dashicon, [{
     key: "shouldComponentUpdate",
     value: function shouldComponentUpdate(nextProps) {
-      return this.props.icon !== nextProps.icon || this.props.size !== nextProps.size || this.props.className !== nextProps.className;
+      return this.props.icon !== nextProps.icon || this.props.size !== nextProps.size || this.props.className !== nextProps.className || this.props.ariaPressed !== nextProps.ariaPressed;
     }
   }, {
     key: "render",
     value: function render() {
       var _this$props = this.props,
           icon = _this$props.icon,
-          className = _this$props.className,
           _this$props$size = _this$props.size,
           size = _this$props$size === void 0 ? 20 : _this$props$size;
       var path;
@@ -25082,7 +25089,7 @@ function (_Component) {
         return null;
       }
 
-      var iconClass = ['dashicon', 'dashicons-' + icon, className].filter(Boolean).join(' ');
+      var iconClass = IconClass(this.props);
       return Object(external_this_wp_element_["createElement"])(svg_SVG, {
         "aria-hidden": true,
         role: "img",
@@ -25156,6 +25163,7 @@ function (_Component) {
           labelPosition = _this$props.labelPosition,
           additionalProps = Object(objectWithoutProperties["a" /* default */])(_this$props, ["icon", "children", "label", "className", "tooltip", "shortcut", "labelPosition"]);
 
+      var ariaPressed = this.props['aria-pressed'];
       var classes = classnames_default()('components-icon-button', className);
       var tooltipText = tooltip || label; // Should show the tooltip if...
 
@@ -25170,7 +25178,8 @@ function (_Component) {
       }, additionalProps, {
         className: classes
       }), Object(external_lodash_["isString"])(icon) ? Object(external_this_wp_element_["createElement"])(dashicon_Dashicon, {
-        icon: icon
+        icon: icon,
+        ariaPressed: ariaPressed
       }) : icon, children);
 
       if (showTooltip) {
@@ -29016,6 +29025,10 @@ var react_dates = __webpack_require__(187);
 
 var TIMEZONELESS_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
 
+var date_isRTL = function isRTL() {
+  return document.documentElement.dir === 'rtl';
+};
+
 var date_DatePicker =
 /*#__PURE__*/
 function (_Component) {
@@ -29065,7 +29078,8 @@ function (_Component) {
         numberOfMonths: 1,
         onDateChange: this.onChangeMoment,
         transitionDuration: 0,
-        weekDayFormat: "ddd"
+        weekDayFormat: "ddd",
+        isRTL: date_isRTL()
       }));
     }
   }]);
@@ -30312,20 +30326,24 @@ function (_Component) {
         'is-close-to-left': position && position.x === 'left',
         'is-close-to-right': position && position.x === 'right'
       }, "is-dragging-".concat(type), !!type));
+      var children;
+
+      if (isDraggingOverElement) {
+        children = Object(external_this_wp_element_["createElement"])("div", {
+          className: "components-drop-zone__content"
+        }, Object(external_this_wp_element_["createElement"])(dashicon_Dashicon, {
+          icon: "upload",
+          size: "40",
+          className: "components-drop-zone__content-icon"
+        }), Object(external_this_wp_element_["createElement"])("span", {
+          className: "components-drop-zone__content-text"
+        }, label ? label : Object(external_this_wp_i18n_["__"])('Drop files to upload')));
+      }
+
       return Object(external_this_wp_element_["createElement"])("div", {
         ref: this.dropZoneElement,
         className: classes
-      }, Object(external_this_wp_element_["createElement"])("div", {
-        className: "components-drop-zone__content"
-      }, [Object(external_this_wp_element_["createElement"])(dashicon_Dashicon, {
-        key: "icon",
-        icon: "upload",
-        size: "40",
-        className: "components-drop-zone__content-icon"
-      }), Object(external_this_wp_element_["createElement"])("span", {
-        key: "text",
-        className: "components-drop-zone__content-text"
-      }, label ? label : Object(external_this_wp_i18n_["__"])('Drop files to upload'))]));
+      }, children);
     }
   }]);
 
@@ -30958,7 +30976,6 @@ function RangeControl(_ref) {
  */
 
 
-
 /**
  * Internal dependencies
  */
@@ -30995,6 +31012,9 @@ function FontSizePicker(_ref) {
   var currentFont = fontSizes.find(function (font) {
     return font.size === value;
   });
+
+  var currentFontSizeName = currentFont && currentFont.name || !value && Object(external_this_wp_i18n_["_x"])('Normal', 'font size name') || Object(external_this_wp_i18n_["_x"])('Custom', 'font size name');
+
   return Object(external_this_wp_element_["createElement"])(base_control, {
     label: Object(external_this_wp_i18n_["__"])('Font Size')
   }, Object(external_this_wp_element_["createElement"])("div", {
@@ -31011,22 +31031,26 @@ function FontSizePicker(_ref) {
         isLarge: true,
         onClick: onToggle,
         "aria-expanded": isOpen,
-        "aria-label": Object(external_this_wp_i18n_["__"])('Custom font size')
-      }, currentFont && currentFont.name || !value && Object(external_this_wp_i18n_["_x"])('Normal', 'font size name') || Object(external_this_wp_i18n_["_x"])('Custom', 'font size name'));
+        "aria-label": Object(external_this_wp_i18n_["sprintf"])(
+        /* translators: %s: font size name */
+        Object(external_this_wp_i18n_["__"])('Font size: %s'), currentFontSizeName)
+      }, currentFontSizeName);
     },
     renderContent: function renderContent() {
       return Object(external_this_wp_element_["createElement"])(menu, null, Object(external_lodash_["map"])(fontSizes, function (_ref3) {
         var name = _ref3.name,
             size = _ref3.size,
             slug = _ref3.slug;
+        var isSelected = value === size || !value && slug === 'normal';
         return Object(external_this_wp_element_["createElement"])(build_module_button, {
           key: slug,
           onClick: function onClick() {
             return onChange(slug === 'normal' ? undefined : size);
           },
-          className: 'is-font-' + slug,
-          role: "menuitem"
-        }, (value === size || !value && slug === 'normal') && Object(external_this_wp_element_["createElement"])(dashicon_Dashicon, {
+          className: "is-font-".concat(slug),
+          role: "menuitemradio",
+          "aria-checked": isSelected
+        }, isSelected && Object(external_this_wp_element_["createElement"])(dashicon_Dashicon, {
           icon: "saved"
         }), Object(external_this_wp_element_["createElement"])("span", {
           className: "components-font-size-picker__dropdown-text-size",
@@ -31050,8 +31074,7 @@ function FontSizePicker(_ref) {
       return onChange(undefined);
     },
     isSmall: true,
-    isDefault: true,
-    "aria-label": Object(external_this_wp_i18n_["__"])('Reset font size')
+    isDefault: true
   }, Object(external_this_wp_i18n_["__"])('Reset'))), withSlider && Object(external_this_wp_element_["createElement"])(range_control, {
     className: "components-font-size-picker__custom-input",
     label: Object(external_this_wp_i18n_["__"])('Custom Size'),
@@ -31065,7 +31088,7 @@ function FontSizePicker(_ref) {
   }));
 }
 
-/* harmony default export */ var font_size_picker = (Object(external_this_wp_compose_["withInstanceId"])(FontSizePicker));
+/* harmony default export */ var font_size_picker = (FontSizePicker);
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/components/build-module/form-file-upload/index.js
 
@@ -31384,7 +31407,7 @@ function (_Component) {
 /* harmony default export */ var token_input = (token_input_TokenInput);
 
 // EXTERNAL MODULE: ./node_modules/dom-scroll-into-view/lib/index.js
-var lib = __webpack_require__(58);
+var lib = __webpack_require__(59);
 var lib_default = /*#__PURE__*/__webpack_require__.n(lib);
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/components/build-module/form-token-field/suggestions-list.js
@@ -33710,7 +33733,7 @@ var getStringSize = function getStringSize(n) {
   return n + 'px';
 };
 
-var definedProps = ['style', 'className', 'grid', 'snap', 'bounds', 'size', 'defaultSize', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight', 'lockAspectRatio', 'lockAspectRatioExtraWidth', 'lockAspectRatioExtraHeight', 'enable', 'handleStyles', 'handleClasses', 'handleWrapperStyle', 'handleWrapperClass', 'children', 'onResizeStart', 'onResize', 'onResizeStop', 'handleComponent', 'scale'];
+var definedProps = ['style', 'className', 'grid', 'snap', 'bounds', 'size', 'defaultSize', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight', 'lockAspectRatio', 'lockAspectRatioExtraWidth', 'lockAspectRatioExtraHeight', 'enable', 'handleStyles', 'handleClasses', 'handleWrapperStyle', 'handleWrapperClass', 'children', 'onResizeStart', 'onResize', 'onResizeStop', 'handleComponent', 'scale', 'resizeRatio'];
 
 var baseClassName = '__resizable_base__';
 
@@ -33908,8 +33931,9 @@ var lib_Resizable = function (_React$Component) {
           minWidth = _props2.minWidth,
           minHeight = _props2.minHeight;
 
-      // TODO: refactor
+      var resizeRatio = this.props.resizeRatio || 1;
 
+      // TODO: refactor
       var parentSize = this.getParentSize();
       if (maxWidth && typeof maxWidth === 'string' && endsWith(maxWidth, '%')) {
         var _ratio = Number(maxWidth.replace('%', '')) / 100;
@@ -33936,19 +33960,19 @@ var lib_Resizable = function (_React$Component) {
       var newWidth = original.width;
       var newHeight = original.height;
       if (/right/i.test(direction)) {
-        newWidth = original.width + (clientX - original.x) / scale;
+        newWidth = original.width + (clientX - original.x) * resizeRatio / scale;
         if (lockAspectRatio) newHeight = (newWidth - lockAspectRatioExtraWidth) / ratio + lockAspectRatioExtraHeight;
       }
       if (/left/i.test(direction)) {
-        newWidth = original.width - (clientX - original.x) / scale;
+        newWidth = original.width - (clientX - original.x) * resizeRatio / scale;
         if (lockAspectRatio) newHeight = (newWidth - lockAspectRatioExtraWidth) / ratio + lockAspectRatioExtraHeight;
       }
       if (/bottom/i.test(direction)) {
-        newHeight = original.height + (clientY - original.y) / scale;
+        newHeight = original.height + (clientY - original.y) * resizeRatio / scale;
         if (lockAspectRatio) newWidth = (newHeight - lockAspectRatioExtraHeight) * ratio + lockAspectRatioExtraWidth;
       }
       if (/top/i.test(direction)) {
-        newHeight = original.height - (clientY - original.y) / scale;
+        newHeight = original.height - (clientY - original.y) * resizeRatio / scale;
         if (lockAspectRatio) newWidth = (newHeight - lockAspectRatioExtraHeight) * ratio + lockAspectRatioExtraWidth;
       }
 
@@ -34253,7 +34277,8 @@ lib_Resizable.defaultProps = {
   lockAspectRatio: false,
   lockAspectRatioExtraWidth: 0,
   lockAspectRatioExtraHeight: 0,
-  scale: 1
+  scale: 1,
+  resizeRatio: 1
 };
 
 /* harmony default export */ var re_resizable_lib = (lib_Resizable);
@@ -35491,7 +35516,7 @@ function withFilters(hookName) {
 }
 
 // EXTERNAL MODULE: ./node_modules/uuid/v4.js
-var v4 = __webpack_require__(56);
+var v4 = __webpack_require__(57);
 var v4_default = /*#__PURE__*/__webpack_require__.n(v4);
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/components/build-module/higher-order/with-notices/index.js
