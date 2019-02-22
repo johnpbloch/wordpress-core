@@ -1,0 +1,26 @@
+body {
+	font-size: 11px;
+	font-family: sans-serif !important;
+}
+ul, ol {
+	padding: 5px 22px 5px 5px;
+}
+.form-table th {
+	text-align: right;
+}
+input {
+	padding: 1px
+}
+#logo {
+	text-align: left;
+}
+#admin_email {
+	direction: ltr;
+	text-align: left;
+}
+.submit input, .button, .button-secondary {
+	font-family: sans-serif !important;
+}
+h1 {
+	font-family: sans-serif;
+}
