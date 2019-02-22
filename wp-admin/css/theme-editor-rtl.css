@@ -1,0 +1,12 @@
+#templateside {
+	float: left;
+}
+#themeselector {
+	padding-right: 0;
+	padding-left: 5px;
+	float: left;
+}
+div.tablenav {
+	margin-right: 0;
+	margin-left: 210px;
+}
