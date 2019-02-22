@@ -1,0 +1,73 @@
+#poststuff .postbox h3 {
+	padding-left:0;
+	padding-right: 23px;
+}
+* html #poststuff .postarea, * html #poststuff #titlediv {
+	margin-left:0;
+	margin-right: 3%;
+}
+* html #poststuff h2 {
+	margin-right: 0;
+}
+#bh {
+	padding-right:0;
+	padding-left: 15px;
+}
+div#dashboard-widgets {
+	padding-right:0;
+	padding-left: 1px;
+}
+#tagchecklist span a {
+	margin: 4px -9px 0 0;
+}
+#poststuff .togbox {
+	margin-left:0;
+	margin-right: -19px;
+}
+.widefat th input {
+	margin: 0 5px 0 0;
+}
+/* ---------- add by navid */
+#dashmenu { /* fix top right bottom in admin */
+	direction:ltr;
+}
+#sidemenu a { /* fix left admin buttom ex. plugins, options */
+	float:left;
+}
+.wrap h2 {
+	margin:5px 4px 0 0;
+}
+#editor-toolbar {/* fix hover in media uploader icon */
+	direction:ltr;
+}
+#TB_window { /* fix theme preview */
+	left:2%;
+}
+/* fix widget page */
+form#widgets-filter {
+	position:static;
+}
+#widget-search {
+	display:none;
+}
+/* fix manage comment page */
+ul.view-switch li {
+	float:left;
+}
+form#posts-filter {
+	position:static;
+}
+#post-search {
+	display:none;
+}
+#submenu {
+	margin-right: 20px;
+}
+/* Fixes for media-upload window */
+/* Center media-upload panel on screen */
+#TB_window { 
+	width: 670px; 
+	position: absolute; 
+	top: 50%; 
+	left: 50%; 
+	margin-right: 335px !important; }
