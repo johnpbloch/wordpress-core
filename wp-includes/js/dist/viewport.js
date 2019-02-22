@@ -344,7 +344,6 @@ var build_module_queries = Object(external_lodash_["reduce"])(BREAKPOINTS, funct
 window.addEventListener('orientationchange', build_module_setIsMatching); // Set initial values
 
 build_module_setIsMatching();
-build_module_setIsMatching.flush();
 
 
 /***/ }),

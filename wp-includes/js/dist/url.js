@@ -87,6 +87,28 @@ this["wp"] = this["wp"] || {}; this["wp"]["url"] =
 /************************************************************************/
 /******/ ({
 
+/***/ 15:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _defineProperty; });
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+/***/ }),
+
 /***/ 179:
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -357,8 +379,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "prependHTTP", function() { return prependHTTP; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "safeDecodeURI", function() { return safeDecodeURI; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "filterURLForDisplay", function() { return filterURLForDisplay; });
-/* harmony import */ var qs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(76);
-/* harmony import */ var qs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(qs__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _babel_runtime_helpers_esm_objectSpread__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8);
+/* harmony import */ var qs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(76);
+/* harmony import */ var qs__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(qs__WEBPACK_IMPORTED_MODULE_1__);
+
+
 /**
  * External dependencies
  */
@@ -528,32 +553,19 @@ function isValidFragment(fragment) {
   return /^#[^\s#?\/]*$/.test(fragment);
 }
 /**
- * Appends arguments as querystring to the provided URL. If the URL already
- * includes query arguments, the arguments are merged with (and take precedent
- * over) the existing set.
+ * Appends arguments to the query string of the url
  *
- * @param {?string} url  URL to which arguments should be appended. If omitted,
- *                       only the resulting querystring is returned.
- * @param {Object}  args Query arguments to apply to URL.
+ * @param {string} url  URL
+ * @param {Object} args Query Args
  *
- * @return {string} URL with arguments applied.
+ * @return {string} Updated URL
  */
 
-function addQueryArgs() {
-  var url = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-  var args = arguments.length > 1 ? arguments[1] : undefined;
-  var baseUrl = url; // Determine whether URL already had query arguments.
-
+function addQueryArgs(url, args) {
   var queryStringIndex = url.indexOf('?');
-
-  if (queryStringIndex !== -1) {
-    // Merge into existing query arguments.
-    args = Object.assign(Object(qs__WEBPACK_IMPORTED_MODULE_0__["parse"])(url.substr(queryStringIndex + 1)), args); // Change working base URL to omit previous query arguments.
-
-    baseUrl = baseUrl.substr(0, queryStringIndex);
-  }
-
-  return baseUrl + '?' + Object(qs__WEBPACK_IMPORTED_MODULE_0__["stringify"])(args);
+  var query = queryStringIndex !== -1 ? Object(qs__WEBPACK_IMPORTED_MODULE_1__["parse"])(url.substr(queryStringIndex + 1)) : {};
+  var baseUrl = queryStringIndex !== -1 ? url.substr(0, queryStringIndex) : url;
+  return baseUrl + '?' + Object(qs__WEBPACK_IMPORTED_MODULE_1__["stringify"])(Object(_babel_runtime_helpers_esm_objectSpread__WEBPACK_IMPORTED_MODULE_0__[/* default */ "a"])({}, query, args));
 }
 /**
  * Returns a single query argument of the url
@@ -566,7 +578,7 @@ function addQueryArgs() {
 
 function getQueryArg(url, arg) {
   var queryStringIndex = url.indexOf('?');
-  var query = queryStringIndex !== -1 ? Object(qs__WEBPACK_IMPORTED_MODULE_0__["parse"])(url.substr(queryStringIndex + 1)) : {};
+  var query = queryStringIndex !== -1 ? Object(qs__WEBPACK_IMPORTED_MODULE_1__["parse"])(url.substr(queryStringIndex + 1)) : {};
   return query[arg];
 }
 /**
@@ -592,7 +604,7 @@ function hasQueryArg(url, arg) {
 
 function removeQueryArgs(url) {
   var queryStringIndex = url.indexOf('?');
-  var query = queryStringIndex !== -1 ? Object(qs__WEBPACK_IMPORTED_MODULE_0__["parse"])(url.substr(queryStringIndex + 1)) : {};
+  var query = queryStringIndex !== -1 ? Object(qs__WEBPACK_IMPORTED_MODULE_1__["parse"])(url.substr(queryStringIndex + 1)) : {};
   var baseUrl = queryStringIndex !== -1 ? url.substr(0, queryStringIndex) : url;
 
   for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -602,7 +614,7 @@ function removeQueryArgs(url) {
   args.forEach(function (arg) {
     return delete query[arg];
   });
-  return baseUrl + '?' + Object(qs__WEBPACK_IMPORTED_MODULE_0__["stringify"])(query);
+  return baseUrl + '?' + Object(qs__WEBPACK_IMPORTED_MODULE_1__["stringify"])(query);
 }
 /**
  * Prepends "http://" to a url, if it looks like something that is meant to be a TLD.
@@ -1073,6 +1085,34 @@ module.exports = {
     stringify: stringify
 };
 
+
+/***/ }),
+
+/***/ 8:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _objectSpread; });
+/* harmony import */ var _defineProperty__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
+
+function _objectSpread(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+    var ownKeys = Object.keys(source);
+
+    if (typeof Object.getOwnPropertySymbols === 'function') {
+      ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+      }));
+    }
+
+    ownKeys.forEach(function (key) {
+      Object(_defineProperty__WEBPACK_IMPORTED_MODULE_0__[/* default */ "a"])(target, key, source[key]);
+    });
+  }
+
+  return target;
+}
 
 /***/ })
 

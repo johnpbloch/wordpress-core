@@ -3203,6 +3203,7 @@ function (_Component) {
           height = attributes.height,
           linkTarget = attributes.linkTarget;
       var isExternal = edit_isExternalImage(id, url);
+      var imageSizeOptions = this.getImageSizeOptions();
       var toolbarEditButton;
 
       if (url) {
@@ -3261,7 +3262,6 @@ function (_Component) {
       });
       var isResizable = ['wide', 'full'].indexOf(align) === -1 && isLargeViewport;
       var isLinkURLInputReadOnly = linkDestination !== LINK_DESTINATION_CUSTOM;
-      var imageSizeOptions = this.getImageSizeOptions();
 
       var getInspectorControls = function getInspectorControls(imageWidth, imageHeight) {
         return Object(external_this_wp_element_["createElement"])(external_this_wp_editor_["InspectorControls"], null, Object(external_this_wp_element_["createElement"])(external_this_wp_components_["PanelBody"], {
@@ -3612,19 +3612,6 @@ var image_schema = {
     })
   }
 };
-
-function getFirstAnchorAttributeFormHTML(html, attributeName) {
-  var _document$implementat = document.implementation.createHTMLDocument(''),
-      body = _document$implementat.body;
-
-  body.innerHTML = html;
-  var firstElementChild = body.firstElementChild;
-
-  if (firstElementChild && firstElementChild.nodeName === 'A') {
-    return firstElementChild.getAttribute(attributeName) || undefined;
-  }
-}
-
 var image_settings = {
   title: Object(external_this_wp_i18n_["__"])('Image'),
   description: Object(external_this_wp_i18n_["__"])('Insert an image to make a visual statement.'),
@@ -3707,37 +3694,32 @@ var image_settings = {
         caption: {
           shortcode: function shortcode(attributes, _ref) {
             var _shortcode = _ref.shortcode;
-
-            var _document$implementat2 = document.implementation.createHTMLDocument(''),
-                body = _document$implementat2.body;
-
-            body.innerHTML = _shortcode.content;
-            body.removeChild(body.firstElementChild);
-            return body.innerHTML.trim();
+            var content = _shortcode.content;
+            return content.replace(/\s*<img[^>]*>\s/, '');
           }
         },
         href: {
-          shortcode: function shortcode(attributes, _ref2) {
-            var _shortcode2 = _ref2.shortcode;
-            return getFirstAnchorAttributeFormHTML(_shortcode2.content, 'href');
-          }
+          type: 'string',
+          source: 'attribute',
+          attribute: 'href',
+          selector: 'a'
         },
         rel: {
-          shortcode: function shortcode(attributes, _ref3) {
-            var _shortcode3 = _ref3.shortcode;
-            return getFirstAnchorAttributeFormHTML(_shortcode3.content, 'rel');
-          }
+          type: 'string',
+          source: 'attribute',
+          attribute: 'rel',
+          selector: 'a'
         },
         linkClass: {
-          shortcode: function shortcode(attributes, _ref4) {
-            var _shortcode4 = _ref4.shortcode;
-            return getFirstAnchorAttributeFormHTML(_shortcode4.content, 'class');
-          }
+          type: 'string',
+          source: 'attribute',
+          attribute: 'class',
+          selector: 'a'
         },
         id: {
           type: 'number',
-          shortcode: function shortcode(_ref5) {
-            var id = _ref5.named.id;
+          shortcode: function shortcode(_ref2) {
+            var id = _ref2.named.id;
 
             if (!id) {
               return;
@@ -3748,9 +3730,9 @@ var image_settings = {
         },
         align: {
           type: 'string',
-          shortcode: function shortcode(_ref6) {
-            var _ref6$named$align = _ref6.named.align,
-                align = _ref6$named$align === void 0 ? 'alignnone' : _ref6$named$align;
+          shortcode: function shortcode(_ref3) {
+            var _ref3$named$align = _ref3.named.align,
+                align = _ref3$named$align === void 0 ? 'alignnone' : _ref3$named$align;
             return align.replace('align', '');
           }
         }
@@ -3769,10 +3751,10 @@ var image_settings = {
     }
   },
   edit: image_edit,
-  save: function save(_ref7) {
+  save: function save(_ref4) {
     var _classnames;
 
-    var attributes = _ref7.attributes;
+    var attributes = _ref4.attributes;
     var url = attributes.url,
         alt = attributes.alt,
         caption = attributes.caption,
@@ -3814,10 +3796,10 @@ var image_settings = {
   },
   deprecated: [{
     attributes: image_blockAttributes,
-    save: function save(_ref8) {
+    save: function save(_ref5) {
       var _classnames2;
 
-      var attributes = _ref8.attributes;
+      var attributes = _ref5.attributes;
       var url = attributes.url,
           alt = attributes.alt,
           caption = attributes.caption,
@@ -3845,8 +3827,8 @@ var image_settings = {
     }
   }, {
     attributes: image_blockAttributes,
-    save: function save(_ref9) {
-      var attributes = _ref9.attributes;
+    save: function save(_ref6) {
+      var attributes = _ref6.attributes;
       var url = attributes.url,
           alt = attributes.alt,
           caption = attributes.caption,
@@ -3873,8 +3855,8 @@ var image_settings = {
     }
   }, {
     attributes: image_blockAttributes,
-    save: function save(_ref10) {
-      var attributes = _ref10.attributes;
+    save: function save(_ref7) {
+      var attributes = _ref7.attributes;
       var url = attributes.url,
           alt = attributes.alt,
           caption = attributes.caption,
@@ -7331,6 +7313,10 @@ var cover_settings = {
       backgroundColor: overlayColor.color
     });
 
+    var classes = classnames_default()(className, contentAlign !== 'center' && "has-".concat(contentAlign, "-content"), dimRatioToClass(dimRatio), {
+      'has-background-dim': dimRatio !== 0,
+      'has-parallax': hasParallax
+    });
     var controls = Object(external_this_wp_element_["createElement"])(external_this_wp_element_["Fragment"], null, Object(external_this_wp_element_["createElement"])(external_this_wp_editor_["BlockControls"], null, Object(external_this_wp_element_["createElement"])(external_this_wp_editor_["BlockAlignmentToolbar"], {
       value: align,
       onChange: updateAlignment
@@ -7401,10 +7387,6 @@ var cover_settings = {
       }));
     }
 
-    var classes = classnames_default()(className, contentAlign !== 'center' && "has-".concat(contentAlign, "-content"), dimRatioToClass(dimRatio), {
-      'has-background-dim': dimRatio !== 0,
-      'has-parallax': hasParallax
-    });
     return Object(external_this_wp_element_["createElement"])(external_this_wp_element_["Fragment"], null, controls, Object(external_this_wp_element_["createElement"])("div", {
       "data-url": url,
       style: style,
@@ -9844,6 +9826,8 @@ function (_Component) {
   }, {
     key: "render",
     value: function render() {
+      var _this3 = this;
+
       var _this$props = this.props,
           attributes = _this$props.attributes,
           setAttributes = _this$props.setAttributes,
@@ -9957,7 +9941,7 @@ function (_Component) {
           target: "_blank"
         }, Object(external_this_wp_htmlEntities_["decodeEntities"])(post.title.rendered.trim()) || Object(external_this_wp_i18n_["__"])('(Untitled)')), displayPostDate && post.date_gmt && Object(external_this_wp_element_["createElement"])("time", {
           dateTime: Object(external_this_wp_date_["format"])('c', post.date_gmt),
-          className: "wp-block-latest-posts__post-date"
+          className: "".concat(_this3.props.className, "__post-date")
         }, Object(external_this_wp_date_["dateI18n"])(dateFormat, post.date_gmt)));
       })));
     }
@@ -10053,7 +10037,7 @@ var latest_posts_settings = {
   getEditWrapperProps: function getEditWrapperProps(attributes) {
     var align = attributes.align;
 
-    if (['left', 'center', 'right', 'wide', 'full'].includes(align)) {
+    if ('left' === align || 'right' === align || 'wide' === align || 'full' === align) {
       return {
         'data-align': align
       };
