@@ -106,7 +106,10 @@ function twentynineteen_can_show_post_thumbnail() {
  * Returns true if image filters are enabled on the theme options.
  */
 function twentynineteen_image_filters_enabled() {
-	return 0 !== get_theme_mod( 'image_filter', 1 );
+	if ( get_theme_mod( 'image_filter', 1 ) ) {
+		return true;
+	}
+	return false;
 }
 
 /**
@@ -203,18 +206,18 @@ function twentynineteen_add_ellipses_to_nav( $nav_menu, $args ) {
 	if ( 'menu-1' === $args->theme_location ) :
 
 		$nav_menu .= '<div class="main-menu-more">';
-		$nav_menu .= '<ul class="main-menu">';
+		$nav_menu .= '<ul class="main-menu" tabindex="0">';
 		$nav_menu .= '<li class="menu-item menu-item-has-children">';
-		$nav_menu .= '<button class="submenu-expand main-menu-more-toggle is-empty" tabindex="-1" aria-label="More" aria-haspopup="true" aria-expanded="false">';
-		$nav_menu .= '<span class="screen-reader-text">' . esc_html__( 'More', 'twentynineteen' ) . '</span>';
+		$nav_menu .= '<a href="#" class="screen-reader-text" aria-label="More" aria-haspopup="true" aria-expanded="false">' . esc_html__( 'More', 'twentynineteen' ) . '</a>';
+		$nav_menu .= '<span class="submenu-expand main-menu-more-toggle is-empty" tabindex="-1">';
 		$nav_menu .= twentynineteen_get_icon_svg( 'arrow_drop_down_ellipsis' );
-		$nav_menu .= '</button>';
+		$nav_menu .= '</span>';
 		$nav_menu .= '<ul class="sub-menu hidden-links">';
 		$nav_menu .= '<li id="menu-item--1" class="mobile-parent-nav-menu-item menu-item--1">';
-		$nav_menu .= '<button class="menu-item-link-return">';
+		$nav_menu .= '<span class="menu-item-link-return">';
 		$nav_menu .= twentynineteen_get_icon_svg( 'chevron_left' );
 		$nav_menu .= esc_html__( 'Back', 'twentynineteen' );
-		$nav_menu .= '</button>';
+		$nav_menu .= '</span>';
 		$nav_menu .= '</li>';
 		$nav_menu .= '</ul>';
 		$nav_menu .= '</li>';
@@ -269,11 +272,11 @@ function twentynineteen_add_dropdown_icons( $output, $item, $depth, $args ) {
 		// Inject the keyboard_arrow_left SVG inside the parent nav menu item, and let the item link to the parent item.
 		// @todo Only do this for nested submenus? If on a first-level submenu, then really the link could be "#" since the desire is to remove the target entirely.
 		$link = sprintf(
-			'<button class="menu-item-link-return" tabindex="-1">%s',
+			'<span class="menu-item-link-return" tabindex="-1">%s',
 			twentynineteen_get_icon_svg( 'chevron_left', 24 )
 		);
 
-		// replace opening <a> with <button>
+		// replace opening <a> with <span>
 		$output = preg_replace(
 			'/<a\s.*?>/',
 			$link,
@@ -281,10 +284,10 @@ function twentynineteen_add_dropdown_icons( $output, $item, $depth, $args ) {
 			1 // Limit.
 		);
 
-		// replace closing </a> with </button>
+		// replace closing </a> with </span>
 		$output = preg_replace(
 			'#</a>#i',
-			'</button>',
+			'</span>',
 			$output,
 			1 // Limit.
 		);
@@ -295,7 +298,7 @@ function twentynineteen_add_dropdown_icons( $output, $item, $depth, $args ) {
 		$icon = twentynineteen_get_icon_svg( 'keyboard_arrow_down', 24 );
 
 		$output .= sprintf(
-			'<button class="submenu-expand" tabindex="-1">%s</button>',
+			'<span class="submenu-expand" tabindex="-1">%s</span>',
 			$icon
 		);
 	}
@@ -415,7 +418,8 @@ function twentynineteen_hsl_hex( $h, $s, $l, $to_hex = true ) {
 
 		return "#$r$g$b";
 
-	}
+	} else {
 
-	return "rgb($r, $g, $b)";
+		return "rgb($r, $g, $b)";
+	}
 }

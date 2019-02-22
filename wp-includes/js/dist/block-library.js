@@ -1093,7 +1093,7 @@ function _arrayWithoutHoles(arr) {
   }
 }
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/iterableToArray.js
-var iterableToArray = __webpack_require__(33);
+var iterableToArray = __webpack_require__(32);
 
 // CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js
 function _nonIterableSpread() {
@@ -1989,7 +1989,7 @@ var paragraph_settings = {
 };
 
 // EXTERNAL MODULE: external {"this":["wp","blob"]}
-var external_this_wp_blob_ = __webpack_require__(32);
+var external_this_wp_blob_ = __webpack_require__(33);
 
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/slicedToArray.js + 1 modules
 var slicedToArray = __webpack_require__(25);
@@ -2458,7 +2458,7 @@ var DEFAULT_EMBED_BLOCK = 'core/embed';
 var WORDPRESS_EMBED_BLOCK = 'core-embed/wordpress';
 
 // EXTERNAL MODULE: ./node_modules/classnames/dedupe.js
-var dedupe = __webpack_require__(60);
+var dedupe = __webpack_require__(59);
 var dedupe_default = /*#__PURE__*/__webpack_require__.n(dedupe);
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/block-library/build-module/embed/util.js
@@ -2627,22 +2627,6 @@ function getClassNames(html) {
   }
 
   return existingClassNames;
-}
-/**
- * Fallback behaviour for unembeddable URLs.
- * Creates a paragraph block containing a link to the URL, and calls `onReplace`.
- *
- * @param {string}   url       The URL that could not be embedded.
- * @param {function} onReplace Function to call with the created fallback block.
- */
-
-function util_fallback(url, onReplace) {
-  var link = Object(external_this_wp_element_["createElement"])("a", {
-    href: url
-  }, url);
-  onReplace(Object(external_this_wp_blocks_["createBlock"])('core/paragraph', {
-    content: Object(external_this_wp_element_["renderToString"])(link)
-  }));
 }
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/block-library/build-module/image/image-size.js
@@ -3203,6 +3187,7 @@ function (_Component) {
           height = attributes.height,
           linkTarget = attributes.linkTarget;
       var isExternal = edit_isExternalImage(id, url);
+      var imageSizeOptions = this.getImageSizeOptions();
       var toolbarEditButton;
 
       if (url) {
@@ -3236,7 +3221,7 @@ function (_Component) {
         onChange: this.updateAlignment
       }), toolbarEditButton);
 
-      if (isEditing || !url) {
+      if (isEditing) {
         var src = isExternal ? url : undefined;
         return Object(external_this_wp_element_["createElement"])(external_this_wp_element_["Fragment"], null, controls, Object(external_this_wp_element_["createElement"])(external_this_wp_editor_["MediaPlaceholder"], {
           icon: "format-image",
@@ -3261,7 +3246,6 @@ function (_Component) {
       });
       var isResizable = ['wide', 'full'].indexOf(align) === -1 && isLargeViewport;
       var isLinkURLInputReadOnly = linkDestination !== LINK_DESTINATION_CUSTOM;
-      var imageSizeOptions = this.getImageSizeOptions();
 
       var getInspectorControls = function getInspectorControls(imageWidth, imageHeight) {
         return Object(external_this_wp_element_["createElement"])(external_this_wp_editor_["InspectorControls"], null, Object(external_this_wp_element_["createElement"])(external_this_wp_components_["PanelBody"], {
@@ -3612,19 +3596,6 @@ var image_schema = {
     })
   }
 };
-
-function getFirstAnchorAttributeFormHTML(html, attributeName) {
-  var _document$implementat = document.implementation.createHTMLDocument(''),
-      body = _document$implementat.body;
-
-  body.innerHTML = html;
-  var firstElementChild = body.firstElementChild;
-
-  if (firstElementChild && firstElementChild.nodeName === 'A') {
-    return firstElementChild.getAttribute(attributeName) || undefined;
-  }
-}
-
 var image_settings = {
   title: Object(external_this_wp_i18n_["__"])('Image'),
   description: Object(external_this_wp_i18n_["__"])('Insert an image to make a visual statement.'),
@@ -3707,37 +3678,32 @@ var image_settings = {
         caption: {
           shortcode: function shortcode(attributes, _ref) {
             var _shortcode = _ref.shortcode;
-
-            var _document$implementat2 = document.implementation.createHTMLDocument(''),
-                body = _document$implementat2.body;
-
-            body.innerHTML = _shortcode.content;
-            body.removeChild(body.firstElementChild);
-            return body.innerHTML.trim();
+            var content = _shortcode.content;
+            return content.replace(/\s*<img[^>]*>\s/, '');
           }
         },
         href: {
-          shortcode: function shortcode(attributes, _ref2) {
-            var _shortcode2 = _ref2.shortcode;
-            return getFirstAnchorAttributeFormHTML(_shortcode2.content, 'href');
-          }
+          type: 'string',
+          source: 'attribute',
+          attribute: 'href',
+          selector: 'a'
         },
         rel: {
-          shortcode: function shortcode(attributes, _ref3) {
-            var _shortcode3 = _ref3.shortcode;
-            return getFirstAnchorAttributeFormHTML(_shortcode3.content, 'rel');
-          }
+          type: 'string',
+          source: 'attribute',
+          attribute: 'rel',
+          selector: 'a'
         },
         linkClass: {
-          shortcode: function shortcode(attributes, _ref4) {
-            var _shortcode4 = _ref4.shortcode;
-            return getFirstAnchorAttributeFormHTML(_shortcode4.content, 'class');
-          }
+          type: 'string',
+          source: 'attribute',
+          attribute: 'class',
+          selector: 'a'
         },
         id: {
           type: 'number',
-          shortcode: function shortcode(_ref5) {
-            var id = _ref5.named.id;
+          shortcode: function shortcode(_ref2) {
+            var id = _ref2.named.id;
 
             if (!id) {
               return;
@@ -3748,9 +3714,9 @@ var image_settings = {
         },
         align: {
           type: 'string',
-          shortcode: function shortcode(_ref6) {
-            var _ref6$named$align = _ref6.named.align,
-                align = _ref6$named$align === void 0 ? 'alignnone' : _ref6$named$align;
+          shortcode: function shortcode(_ref3) {
+            var _ref3$named$align = _ref3.named.align,
+                align = _ref3$named$align === void 0 ? 'alignnone' : _ref3$named$align;
             return align.replace('align', '');
           }
         }
@@ -3769,10 +3735,10 @@ var image_settings = {
     }
   },
   edit: image_edit,
-  save: function save(_ref7) {
+  save: function save(_ref4) {
     var _classnames;
 
-    var attributes = _ref7.attributes;
+    var attributes = _ref4.attributes;
     var url = attributes.url,
         alt = attributes.alt,
         caption = attributes.caption,
@@ -3814,10 +3780,10 @@ var image_settings = {
   },
   deprecated: [{
     attributes: image_blockAttributes,
-    save: function save(_ref8) {
+    save: function save(_ref5) {
       var _classnames2;
 
-      var attributes = _ref8.attributes;
+      var attributes = _ref5.attributes;
       var url = attributes.url,
           alt = attributes.alt,
           caption = attributes.caption,
@@ -3845,8 +3811,8 @@ var image_settings = {
     }
   }, {
     attributes: image_blockAttributes,
-    save: function save(_ref9) {
-      var attributes = _ref9.attributes;
+    save: function save(_ref6) {
+      var attributes = _ref6.attributes;
       var url = attributes.url,
           alt = attributes.alt,
           caption = attributes.caption,
@@ -3873,8 +3839,8 @@ var image_settings = {
     }
   }, {
     attributes: image_blockAttributes,
-    save: function save(_ref10) {
-      var attributes = _ref10.attributes;
+    save: function save(_ref7) {
+      var attributes = _ref7.attributes;
       var url = attributes.url,
           alt = attributes.alt,
           caption = attributes.caption,
@@ -7331,6 +7297,10 @@ var cover_settings = {
       backgroundColor: overlayColor.color
     });
 
+    var classes = classnames_default()(className, contentAlign !== 'center' && "has-".concat(contentAlign, "-content"), dimRatioToClass(dimRatio), {
+      'has-background-dim': dimRatio !== 0,
+      'has-parallax': hasParallax
+    });
     var controls = Object(external_this_wp_element_["createElement"])(external_this_wp_element_["Fragment"], null, Object(external_this_wp_element_["createElement"])(external_this_wp_editor_["BlockControls"], null, Object(external_this_wp_element_["createElement"])(external_this_wp_editor_["BlockAlignmentToolbar"], {
       value: align,
       onChange: updateAlignment
@@ -7401,10 +7371,6 @@ var cover_settings = {
       }));
     }
 
-    var classes = classnames_default()(className, contentAlign !== 'center' && "has-".concat(contentAlign, "-content"), dimRatioToClass(dimRatio), {
-      'has-background-dim': dimRatio !== 0,
-      'has-parallax': hasParallax
-    });
     return Object(external_this_wp_element_["createElement"])(external_this_wp_element_["Fragment"], null, controls, Object(external_this_wp_element_["createElement"])("div", {
       "data-url": url,
       style: style,
@@ -7607,9 +7573,7 @@ var embed_placeholder_EmbedPlaceholder = function EmbedPlaceholder(props) {
       value = props.value,
       onSubmit = props.onSubmit,
       onChange = props.onChange,
-      cannotEmbed = props.cannotEmbed,
-      fallback = props.fallback,
-      tryAgain = props.tryAgain;
+      cannotEmbed = props.cannotEmbed;
   return Object(external_this_wp_element_["createElement"])(external_this_wp_components_["Placeholder"], {
     icon: Object(external_this_wp_element_["createElement"])(external_this_wp_editor_["BlockIcon"], {
       icon: icon,
@@ -7631,13 +7595,7 @@ var embed_placeholder_EmbedPlaceholder = function EmbedPlaceholder(props) {
     type: "submit"
   }, Object(external_this_wp_i18n_["_x"])('Embed', 'button label')), cannotEmbed && Object(external_this_wp_element_["createElement"])("p", {
     className: "components-placeholder__error"
-  }, Object(external_this_wp_i18n_["__"])('Sorry, we could not embed that content.'), Object(external_this_wp_element_["createElement"])("br", null), Object(external_this_wp_element_["createElement"])(external_this_wp_components_["Button"], {
-    isLarge: true,
-    onClick: tryAgain
-  }, Object(external_this_wp_i18n_["_x"])('Try again', 'button label')), " ", Object(external_this_wp_element_["createElement"])(external_this_wp_components_["Button"], {
-    isLarge: true,
-    onClick: fallback
-  }, Object(external_this_wp_i18n_["_x"])('Convert to link', 'button label')))));
+  }, Object(external_this_wp_i18n_["__"])('Sorry, we could not embed that content.'))));
 };
 
 /* harmony default export */ var embed_placeholder = (embed_placeholder_EmbedPlaceholder);
@@ -7881,11 +7839,10 @@ function getEmbedEditComponent(title, icon) {
         value: function componentDidUpdate(prevProps) {
           var hasPreview = undefined !== this.props.preview;
           var hadPreview = undefined !== prevProps.preview;
-          var previewChanged = prevProps.preview && this.props.preview && this.props.preview.html !== prevProps.preview.html;
-          var switchedPreview = previewChanged || hasPreview && !hadPreview;
+          var switchedPreview = this.props.preview && this.props.attributes.url !== prevProps.attributes.url;
           var switchedURL = this.props.attributes.url !== prevProps.attributes.url;
 
-          if (switchedPreview || switchedURL) {
+          if (hasPreview && !hadPreview || switchedPreview || switchedURL) {
             if (this.props.cannotEmbed) {
               // Can't embed this URL, and we've just received or switched the preview.
               return;
@@ -8001,8 +7958,7 @@ function getEmbedEditComponent(title, icon) {
               className = _this$props2.className,
               preview = _this$props2.preview,
               cannotEmbed = _this$props2.cannotEmbed,
-              themeSupportsResponsive = _this$props2.themeSupportsResponsive,
-              tryAgain = _this$props2.tryAgain;
+              themeSupportsResponsive = _this$props2.themeSupportsResponsive;
 
           if (fetching) {
             return Object(external_this_wp_element_["createElement"])(embed_loading, null);
@@ -8022,11 +7978,7 @@ function getEmbedEditComponent(title, icon) {
                 return _this2.setState({
                   url: event.target.value
                 });
-              },
-              fallback: function fallback() {
-                return util_fallback(url, _this2.props.onReplace);
-              },
-              tryAgain: tryAgain
+              }
             });
           }
 
@@ -8154,17 +8106,6 @@ function getEmbedBlockSettings(_ref) {
         fetching: fetching,
         themeSupportsResponsive: themeSupports['responsive-embeds'],
         cannotEmbed: cannotEmbed
-      };
-    }), Object(external_this_wp_data_["withDispatch"])(function (dispatch, ownProps) {
-      var url = ownProps.attributes.url;
-      var coreData = dispatch('core/data');
-
-      var tryAgain = function tryAgain() {
-        coreData.invalidateResolution('core', 'getEmbedPreview', [url]);
-      };
-
-      return {
-        tryAgain: tryAgain
       };
     }))(edit),
     save: function save(_ref2) {
@@ -9121,7 +9062,7 @@ function (_Component) {
 var edit_ALLOWED_BLOCKS = ['core/button', 'core/paragraph', 'core/heading', 'core/list'];
 var TEMPLATE = [['core/paragraph', {
   fontSize: 'large',
-  placeholder: Object(external_this_wp_i18n_["_x"])('Content…', 'content placeholder')
+  placeholder: 'Content…'
 }]];
 
 var edit_MediaTextEdit =
@@ -9844,6 +9785,8 @@ function (_Component) {
   }, {
     key: "render",
     value: function render() {
+      var _this3 = this;
+
       var _this$props = this.props,
           attributes = _this$props.attributes,
           setAttributes = _this$props.setAttributes,
@@ -9957,7 +9900,7 @@ function (_Component) {
           target: "_blank"
         }, Object(external_this_wp_htmlEntities_["decodeEntities"])(post.title.rendered.trim()) || Object(external_this_wp_i18n_["__"])('(Untitled)')), displayPostDate && post.date_gmt && Object(external_this_wp_element_["createElement"])("time", {
           dateTime: Object(external_this_wp_date_["format"])('c', post.date_gmt),
-          className: "wp-block-latest-posts__post-date"
+          className: "".concat(_this3.props.className, "__post-date")
         }, Object(external_this_wp_date_["dateI18n"])(dateFormat, post.date_gmt)));
       })));
     }
@@ -10053,7 +9996,7 @@ var latest_posts_settings = {
   getEditWrapperProps: function getEditWrapperProps(attributes) {
     var align = attributes.align;
 
-    if (['left', 'center', 'right', 'wide', 'full'].includes(align)) {
+    if ('left' === align || 'right' === align || 'wide' === align || 'full' === align) {
       return {
         'data-align': align
       };
@@ -11574,7 +11517,7 @@ var separator_settings = {
 };
 
 // EXTERNAL MODULE: external {"this":["wp","autop"]}
-var external_this_wp_autop_ = __webpack_require__(58);
+var external_this_wp_autop_ = __webpack_require__(57);
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/block-library/build-module/shortcode/index.js
 
@@ -13427,8 +13370,6 @@ var video_settings = {
 
 
 
-var classic_edit_window = window,
-    wp = classic_edit_window.wp;
 
 function isTmceEmpty(editor) {
   // When tinyMce is empty the content seems to be:
@@ -13524,7 +13465,6 @@ function (_Component) {
           content = _this$props2.attributes.content,
           setAttributes = _this$props2.setAttributes;
       var ref = this.ref;
-      var bookmark;
       this.editor = editor;
 
       if (content) {
@@ -13534,19 +13474,10 @@ function (_Component) {
       }
 
       editor.on('blur', function () {
-        bookmark = editor.selection.getBookmark(2, true);
         setAttributes({
           content: editor.getContent()
         });
-        editor.once('focus', function () {
-          if (bookmark) {
-            editor.selection.moveToBookmark(bookmark);
-          }
-        });
         return false;
-      });
-      editor.on('mousedown touchstart', function () {
-        bookmark = null;
       });
       editor.on('keydown', function (event) {
         if ((event.keyCode === external_this_wp_keycodes_["BACKSPACE"] || event.keyCode === external_this_wp_keycodes_["DELETE"]) && isTmceEmpty(editor)) {
@@ -13834,13 +13765,6 @@ var build_module_registerCoreBlocks = function registerCoreBlocks() {
 /***/ }),
 
 /***/ 32:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["blob"]; }());
-
-/***/ }),
-
-/***/ 33:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13848,6 +13772,13 @@ var build_module_registerCoreBlocks = function registerCoreBlocks() {
 function _iterableToArray(iter) {
   if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
 }
+
+/***/ }),
+
+/***/ 33:
+/***/ (function(module, exports) {
+
+(function() { module.exports = this["wp"]["blob"]; }());
 
 /***/ }),
 
@@ -14053,21 +13984,14 @@ module.exports = g;
 
 /***/ }),
 
-/***/ 58:
+/***/ 57:
 /***/ (function(module, exports) {
 
 (function() { module.exports = this["wp"]["autop"]; }());
 
 /***/ }),
 
-/***/ 6:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["editor"]; }());
-
-/***/ }),
-
-/***/ 60:
+/***/ 59:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -14180,6 +14104,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 	} else {}
 }());
 
+
+/***/ }),
+
+/***/ 6:
+/***/ (function(module, exports) {
+
+(function() { module.exports = this["wp"]["editor"]; }());
 
 /***/ }),
 

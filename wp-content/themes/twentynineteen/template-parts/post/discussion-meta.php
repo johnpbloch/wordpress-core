@@ -17,6 +17,7 @@ if ( $has_responses ) {
 } else {
 	$meta_label = __( 'No comments', 'twentynineteen' );
 }
+
 ?>
 
 <div class="discussion-meta">

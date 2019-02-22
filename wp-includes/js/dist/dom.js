@@ -103,7 +103,7 @@ function _arrayWithoutHoles(arr) {
   }
 }
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/iterableToArray.js
-var iterableToArray = __webpack_require__(33);
+var iterableToArray = __webpack_require__(32);
 
 // CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js
 function _nonIterableSpread() {
@@ -124,6 +124,17 @@ function _toConsumableArray(arr) {
 /***/ (function(module, exports) {
 
 (function() { module.exports = this["lodash"]; }());
+
+/***/ }),
+
+/***/ 32:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _iterableToArray; });
+function _iterableToArray(iter) {
+  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
+}
 
 /***/ }),
 
@@ -697,6 +708,7 @@ function placeCaretAtVerticalEdge(container, isReverse, rect) {
   var editableRect = container.getBoundingClientRect();
   var x = rect.left;
   var y = isReverse ? editableRect.bottom - buffer : editableRect.top + buffer;
+  var selection = window.getSelection();
   var range = hiddenCaretRangeFromPoint(document, x, y, container);
 
   if (!range || !container.contains(range.startContainer)) {
@@ -726,7 +738,6 @@ function placeCaretAtVerticalEdge(container, isReverse, rect) {
     }
   }
 
-  var selection = window.getSelection();
   selection.removeAllRanges();
   selection.addRange(range);
   container.focus(); // Editable was already focussed, it goes back to old range...
@@ -992,17 +1003,6 @@ var build_module_focus = {
 };
 
 
-
-/***/ }),
-
-/***/ 33:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _iterableToArray; });
-function _iterableToArray(iter) {
-  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
-}
 
 /***/ })
 
