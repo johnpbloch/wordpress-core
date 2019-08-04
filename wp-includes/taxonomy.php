@@ -19,7 +19,7 @@
  *
  * @since 2.8.0
  *
- * @global WP_Rewrite $wp_rewrite The WordPress rewrite class.
+ * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
  */
 function create_initial_taxonomies() {
 	global $wp_rewrite;
@@ -2413,7 +2413,7 @@ function wp_insert_term( $term, $taxonomy, $args = array() ) {
  *
  * @since 2.3.0
  *
- * @global wpdb $wpdb The WordPress database abstraction object.
+ * @global wpdb $wpdb WordPress database abstraction object.
  *
  * @param int              $object_id The object to relate to.
  * @param string|int|array $terms     A single term slug, single term id, or array of either term slugs or ids.
@@ -3214,7 +3214,7 @@ function clean_object_term_cache( $object_ids, $object_type ) {
  *
  * @since 2.3.0
  *
- * @global wpdb $wpdb WordPress database abstraction object.
+ * @global wpdb $wpdb                           WordPress database abstraction object.
  * @global bool $_wp_suspend_cache_invalidation
  *
  * @param int|array $ids            Single or list of Term IDs.
@@ -4168,7 +4168,7 @@ function wp_term_is_shared( $term_id ) {
  *
  * @since 2.5.0
  *
- * @global WP_Rewrite $wp_rewrite
+ * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
  *
  * @param object|int|string $term     The term object, ID, or slug whose link will be retrieved.
  * @param string            $taxonomy Optional. Taxonomy. Default empty.

@@ -687,7 +687,7 @@ function comment_ID() { // phpcs:ignore WordPress.NamingConventions.ValidFunctio
  *
  * @see get_page_of_comment()
  *
- * @global WP_Rewrite $wp_rewrite
+ * @global WP_Rewrite $wp_rewrite      WordPress rewrite component.
  * @global bool       $in_comment_loop
  *
  * @param WP_Comment|int|null $comment Comment to retrieve. Default current comment.
@@ -1304,7 +1304,7 @@ function wp_comment_form_unfiltered_html_nonce() {
  *
  * @global WP_Query   $wp_query
  * @global WP_Post    $post
- * @global wpdb       $wpdb
+ * @global wpdb       $wpdb             WordPress database abstraction object.
  * @global int        $id
  * @global WP_Comment $comment
  * @global string     $user_login

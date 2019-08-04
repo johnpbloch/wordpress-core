@@ -423,7 +423,7 @@ $GLOBALS['wp_query'] = $GLOBALS['wp_the_query'];
 /**
  * Holds the WordPress Rewrite object for creating pretty URLs
  *
- * @global WP_Rewrite $wp_rewrite
+ * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
  * @since 1.5.0
  */
 $GLOBALS['wp_rewrite'] = new WP_Rewrite();
@@ -447,7 +447,7 @@ $GLOBALS['wp_widget_factory'] = new WP_Widget_Factory();
 /**
  * WordPress User Roles
  *
- * @global WP_Roles $wp_roles
+ * @global WP_Roles $wp_roles WordPress role management object.
  * @since 2.0.0
  */
 $GLOBALS['wp_roles'] = new WP_Roles();
