@@ -1794,6 +1794,10 @@ function wp_insert_user( $userdata ) {
 	 */
 	$data = apply_filters( 'wp_pre_insert_user_data', $data, $update, $update ? (int) $ID : null );
 
+	if ( empty( $data ) || ! is_array( $data ) ) {
+		return new WP_Error( 'empty_data', __( 'Not enough data to create this user.' ) );
+	}
+
 	if ( $update ) {
 		if ( $user_email !== $old_user_data->user_email ) {
 			$data['user_activation_key'] = '';
@@ -2994,10 +2998,11 @@ function wp_user_personal_data_exporter( $email_address ) {
 	}
 
 	$data_to_export[] = array(
-		'group_id'    => 'user',
-		'group_label' => __( 'User' ),
-		'item_id'     => "user-{$user->ID}",
-		'data'        => $user_data_to_export,
+		'group_id'          => 'user',
+		'group_label'       => __( 'User' ),
+		'group_description' => __( 'User&#8217;s profile data.' ),
+		'item_id'           => "user-{$user->ID}",
+		'data'              => $user_data_to_export,
 	);
 
 	return array(
