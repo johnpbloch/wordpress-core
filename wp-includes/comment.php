@@ -2633,16 +2633,36 @@ function discover_pingback_server_uri( $url, $deprecated = '' ) {
 function do_all_pings() {
 	global $wpdb;
 
-	// Do pingbacks
-	while ( $ping = $wpdb->get_row( "SELECT ID, post_content, meta_id FROM {$wpdb->posts}, {$wpdb->postmeta} WHERE {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id AND {$wpdb->postmeta}.meta_key = '_pingme' LIMIT 1" ) ) {
-		delete_metadata_by_mid( 'post', $ping->meta_id );
-		pingback( $ping->post_content, $ping->ID );
+	// Do pingbacks.
+	$pings = get_posts(
+		array(
+			'post_type'        => get_post_types(),
+			'suppress_filters' => false,
+			'nopaging'         => true,
+			'meta_key'         => '_pingme',
+			'fields'           => 'ids',
+		)
+	);
+
+	foreach ( $pings as $ping ) {
+		delete_post_meta( $ping, '_pingme' );
+		pingback( null, $ping );
 	}
 
-	// Do Enclosures
-	while ( $enclosure = $wpdb->get_row( "SELECT ID, post_content, meta_id FROM {$wpdb->posts}, {$wpdb->postmeta} WHERE {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id AND {$wpdb->postmeta}.meta_key = '_encloseme' LIMIT 1" ) ) {
-		delete_metadata_by_mid( 'post', $enclosure->meta_id );
-		do_enclose( $enclosure->post_content, $enclosure->ID );
+	// Do enclosures.
+	$enclosures = get_posts(
+		array(
+			'post_type'        => get_post_types(),
+			'suppress_filters' => false,
+			'nopaging'         => true,
+			'meta_key'         => '_encloseme',
+			'fields'           => 'ids',
+		)
+	);
+
+	foreach ( $enclosure as $enclosure ) {
+		delete_post_meta( $enclosure, '_encloseme' );
+		do_enclose( null, $enclosure->ID );
 	}
 
 	// Do Trackbacks
