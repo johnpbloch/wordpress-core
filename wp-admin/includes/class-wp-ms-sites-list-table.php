@@ -218,7 +218,7 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 	/**
 	 * @global string $mode List table view mode.
 	 *
-	 * @param string $which
+	 * @param string $which The location of the pagination nav markup: 'top' or 'bottom'.
 	 */
 	protected function pagination( $which ) {
 		global $mode;
@@ -228,6 +228,48 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 		if ( 'top' === $which ) {
 			$this->view_switcher( $mode );
 		}
+	}
+
+	/**
+	 * Extra controls to be displayed between bulk actions and pagination.
+	 *
+	 * @since 5.3.0
+	 *
+	 * @param string $which The location of the extra table nav markup: 'top' or 'bottom'.
+	 */
+	protected function extra_tablenav( $which ) {
+		?>
+		<div class="alignleft actions">
+		<?php
+		if ( 'top' === $which ) {
+			ob_start();
+
+			/**
+			 * Fires before the Filter button on the MS sites list table.
+			 *
+			 * @since 5.3.0
+			 *
+			 * @param string $which The location of the extra table nav markup: 'top' or 'bottom'.
+			 */
+			do_action( 'restrict_manage_sites', $which );
+			$output = ob_get_clean();
+			if ( ! empty( $output ) ) {
+				echo $output;
+				submit_button( __( 'Filter' ), '', 'filter_action', false, array( 'id' => 'site-query-submit' ) );
+			}
+		}
+		?>
+		</div>
+		<?php
+		/**
+		 * Fires immediately following the closing "actions" div in the tablenav for the
+		 * MS sites list table.
+		 *
+		 * @since 5.3.0
+		 *
+		 * @param string $which The location of the extra table nav markup: 'top' or 'bottom'.
+		 */
+		do_action( 'manage_sites_extra_tablenav', $which );
 	}
 
 	/**
