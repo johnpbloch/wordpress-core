@@ -1066,17 +1066,15 @@ class WP_Posts_List_Table extends WP_List_Table {
 			$h_time    = $t_time;
 			$time_diff = 0;
 		} else {
-			$t_time = get_the_time( __( 'Y/m/d g:i:s a' ) );
-			$m_time = $post->post_date;
-			$time   = get_post_time( 'G', true, $post );
-
+			$t_time    = get_the_time( __( 'Y/m/d g:i:s a' ), $post );
+			$time      = get_post_timestamp( $post );
 			$time_diff = time() - $time;
 
-			if ( $time_diff > 0 && $time_diff < DAY_IN_SECONDS ) {
+			if ( $time && $time_diff > 0 && $time_diff < DAY_IN_SECONDS ) {
 				/* translators: %s: Human-readable time difference. */
 				$h_time = sprintf( __( '%s ago' ), human_time_diff( $time ) );
 			} else {
-				$h_time = mysql2date( __( 'Y/m/d' ), $m_time );
+				$h_time = get_the_time( __( 'Y/m/d' ), $post );
 			}
 		}
 
