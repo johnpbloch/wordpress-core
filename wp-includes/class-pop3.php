@@ -13,7 +13,7 @@
     *
     * pop3 class
     *
-    * $Id: class-pop3.php 6044 2007-09-05 22:55:38Z ryan $
+    * $Id$
     */
 
 class POP3 {
