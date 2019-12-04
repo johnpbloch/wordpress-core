@@ -72,7 +72,7 @@ if (!defined('CASE_UPPER')) {
  * @link        http://php.net/function.array_change_key_case
  * @author      Stephan Schmidt <schst@php.net>
  * @author      Aidan Lister <aidan@php.net>
- * @version     $Revision: 3771 $
+ * @version     $Revision$
  * @since       PHP 4.2.0
  * @require     PHP 4.0.0 (user_error)
  */
