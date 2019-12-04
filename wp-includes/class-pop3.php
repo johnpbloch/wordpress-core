@@ -14,7 +14,7 @@
  *
  * pop3 class
  *
- * $Id: class-pop3.php 8082 2008-06-14 16:36:13Z westi $
+ * $Id$
  */
 
 /**
