@@ -742,7 +742,12 @@ class wpdb {
 	 *
 	 * @param string $charset The character set to check.
 	 * @param string $collate The collation to check.
-	 * @return array The most appropriate character set and collation to use.
+	 * @return array {
+	 *     The most appropriate character set and collation to use.
+	 *
+	 *     @type string $charset Character set.
+	 *     @type string $collate Collation.
+	 * }
 	 */
 	public function determine_charset( $charset, $collate ) {
 		if ( ( $this->use_mysqli && ! ( $this->dbh instanceof mysqli ) ) || empty( $this->dbh ) ) {
@@ -3494,7 +3499,7 @@ class wpdb {
 	 * @global string $wp_version
 	 * @global string $required_mysql_version
 	 *
-	 * @return WP_Error|void
+	 * @return void|WP_Error
 	 */
 	public function check_database_version() {
 		global $wp_version, $required_mysql_version;

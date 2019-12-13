@@ -312,7 +312,7 @@ function wp_debug_mode() {
 	 *
 	 * This filter runs before it can be used by plugins. It is designed for
 	 * non-web run-times. Returning false causes the `WP_DEBUG` and related
-	 * constants to not be checked and the default php values for errors
+	 * constants to not be checked and the default PHP values for errors
 	 * will be used unless you take care to update them yourself.
 	 *
 	 * @since 4.6.0
@@ -625,7 +625,7 @@ function wp_not_installed() {
  * @since 3.0.0
  * @access private
  *
- * @return array Files to include.
+ * @return string[] Array of absolute paths of files to include.
  */
 function wp_get_mu_plugins() {
 	$mu_plugins = array();
@@ -736,7 +736,7 @@ function wp_skip_paused_plugins( array $plugins ) {
  * @since 5.1.0
  * @access private
  *
- * @return array Array of paths to theme directories.
+ * @return string[] Array of absolute paths to theme directories.
  */
 function wp_get_active_and_valid_themes() {
 	global $pagenow;
@@ -775,7 +775,7 @@ function wp_get_active_and_valid_themes() {
  * @since 5.2.0
  *
  * @param string[] $themes Array of absolute theme directory paths.
- * @return string[] Filtered array of themes, without any paused themes.
+ * @return string[] Filtered array of absolute paths to themes, without any paused themes.
  */
 function wp_skip_paused_themes( array $themes ) {
 	$paused_themes = wp_paused_themes()->get_all();
@@ -990,7 +990,7 @@ function is_admin() {
 }
 
 /**
- * Whether the current request is for a site's admininstrative interface.
+ * Whether the current request is for a site's administrative interface.
  *
  * e.g. `/wp-admin/`
  *
@@ -1478,7 +1478,8 @@ function wp_finalize_scraping_edited_file_errors( $scrape_key ) {
  *
  * @since 5.0.0
  *
- * @return bool True if Accepts or Content-Type headers contain application/json, false otherwise.
+ * @return bool True if `Accepts` or `Content-Type` headers contain `application/json`.
+ *              False otherwise.
  */
 function wp_is_json_request() {
 
@@ -1527,7 +1528,8 @@ function wp_is_jsonp_request() {
  *
  * @since 5.2.0
  *
- * @return bool True if Accepts or Content-Type headers contain xml, false otherwise.
+ * @return bool True if `Accepts` or `Content-Type` headers contain `text/xml`
+ *              or one of the related MIME types. False otherwise.
  */
 function wp_is_xml_request() {
 	$accepted = array(

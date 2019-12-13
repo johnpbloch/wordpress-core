@@ -79,7 +79,8 @@ function wp_get_themes( $args = array() ) {
 		if ( isset( $_themes[ $theme_root['theme_root'] . '/' . $theme ] ) ) {
 			$themes[ $theme ] = $_themes[ $theme_root['theme_root'] . '/' . $theme ];
 		} else {
-			$themes[ $theme ]                                    = new WP_Theme( $theme, $theme_root['theme_root'] );
+			$themes[ $theme ] = new WP_Theme( $theme, $theme_root['theme_root'] );
+
 			$_themes[ $theme_root['theme_root'] . '/' . $theme ] = $themes[ $theme ];
 		}
 	}
@@ -1973,13 +1974,13 @@ function remove_editor_styles() {
 }
 
 /**
- * Retrieve any registered editor stylesheets
+ * Retrieve any registered editor stylesheet URLs.
  *
  * @since 4.0.0
  *
  * @global array $editor_styles Registered editor stylesheets
  *
- * @return array If registered, a list of editor stylesheet URLs.
+ * @return string[] If registered, a list of editor stylesheet URLs.
  */
 function get_editor_stylesheets() {
 	$stylesheets = array();
@@ -2019,11 +2020,11 @@ function get_editor_stylesheets() {
 	}
 
 	/**
-	 * Filters the array of stylesheets applied to the editor.
+	 * Filters the array of URLs of stylesheets applied to the editor.
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param array $stylesheets Array of stylesheets to be applied to the editor.
+	 * @param string[] $stylesheets Array of URLs of stylesheets to be applied to the editor.
 	 */
 	return apply_filters( 'editor_stylesheets', $stylesheets );
 }
@@ -3143,7 +3144,7 @@ function _wp_customize_publish_changeset( $new_status, $old_status, $changeset_p
  *
  * @param array $post_data          An array of slashed post data.
  * @param array $supplied_post_data An array of sanitized, but otherwise unmodified post data.
- * @returns array Filtered data.
+ * @return array Filtered data.
  */
 function _wp_customize_changeset_filter_insert_post_data( $post_data, $supplied_post_data ) {
 	if ( isset( $post_data['post_type'] ) && 'customize_changeset' === $post_data['post_type'] ) {

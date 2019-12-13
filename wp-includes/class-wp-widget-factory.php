@@ -36,24 +36,14 @@ class WP_Widget_Factory {
 	 * PHP4 constructor.
 	 *
 	 * @since 2.8.0
+	 * @deprecated 4.3.0 Use __construct() instead.
+	 *
+	 * @see WP_Widget_Factory::__construct()
 	 */
 	public function WP_Widget_Factory() {
-		_deprecated_constructor( 'WP_Widget_Factory', '4.2.0' );
+		_deprecated_constructor( 'WP_Widget_Factory', '4.3.0' );
 		self::__construct();
 	}
-
-	/**
-	 * Memory for the number of times unique class instances have been hashed.
-	 *
-	 * This can be eliminated in favor of straight spl_object_hash() when 5.3
-	 * is the minimum requirement for PHP.
-	 *
-	 * @since 4.6.0
-	 * @var array
-	 *
-	 * @see WP_Widget_Factory::hash_object()
-	 */
-	private $hashed_class_counts = array();
 
 	/**
 	 * Registers a widget subclass.

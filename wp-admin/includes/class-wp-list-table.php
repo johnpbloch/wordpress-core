@@ -251,7 +251,7 @@ class WP_List_Table {
 	 * @abstract
 	 */
 	public function ajax_user_can() {
-		die( 'function WP_List_Table::ajax_user_can() must be over-ridden in a sub-class.' );
+		die( 'function WP_List_Table::ajax_user_can() must be overridden in a subclass.' );
 	}
 
 	/**
@@ -263,7 +263,7 @@ class WP_List_Table {
 	 * @abstract
 	 */
 	public function prepare_items() {
-		die( 'function WP_List_Table::prepare_items() must be over-ridden in a sub-class.' );
+		die( 'function WP_List_Table::prepare_items() must be overridden in a subclass.' );
 	}
 
 	/**
@@ -580,8 +580,8 @@ class WP_List_Table {
 		 *
 		 * @since 3.7.0
 		 *
-		 * @param object $months    The months drop-down query results.
-		 * @param string $post_type The post type.
+		 * @param object[] $months    Array of the months drop-down query results.
+		 * @param string   $post_type The post type.
 		 */
 		$months = apply_filters( 'months_dropdown_results', $months, $post_type );
 
@@ -631,12 +631,15 @@ class WP_List_Table {
 		<div class="view-switch">
 		<?php
 		foreach ( $this->modes as $mode => $title ) {
-			$classes = array( 'view-' . $mode );
+			$classes      = array( 'view-' . $mode );
+			$aria_current = '';
+
 			if ( $current_mode === $mode ) {
-				$classes[] = 'current';
+				$classes[]    = 'current';
+				$aria_current = ' aria-current="page"';
 			}
 			printf(
-				"<a href='%s' class='%s' id='view-switch-$mode'><span class='screen-reader-text'>%s</span></a>\n",
+				"<a href='%s' class='%s' id='view-switch-$mode'$aria_current><span class='screen-reader-text'>%s</span></a>\n",
 				esc_url( add_query_arg( 'mode', $mode ) ),
 				implode( ' ', $classes ),
 				$title
@@ -931,7 +934,7 @@ class WP_List_Table {
 	 * @return array
 	 */
 	public function get_columns() {
-		die( 'function WP_List_Table::get_columns() must be over-ridden in a sub-class.' );
+		die( 'function WP_List_Table::get_columns() must be overridden in a subclass.' );
 	}
 
 	/**
@@ -1217,7 +1220,7 @@ class WP_List_Table {
 	 *
 	 * @since 3.1.0
 	 *
-	 * @return array List of CSS classes for the table tag.
+	 * @return string[] Array of CSS classes for the table tag.
 	 */
 	protected function get_table_classes() {
 		return array( 'widefat', 'fixed', 'striped', $this->_args['plural'] );

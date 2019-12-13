@@ -199,9 +199,12 @@ switch ( $wp_list_table->current_action() ) {
 			break;
 		}
 		check_admin_referer( 'bulk-tags' );
-		$tags = (array) $_REQUEST['delete_tags'];
-		/** This action is documented in wp-admin/edit-comments.php */
-		$location = apply_filters( 'handle_bulk_actions-' . get_current_screen()->id, $location, $wp_list_table->current_action(), $tags );  // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
+
+		$screen = get_current_screen()->id;
+		$tags   = (array) $_REQUEST['delete_tags'];
+
+		/** This action is documented in wp-admin/edit.php */
+		$location = apply_filters( "handle_bulk_actions-{$screen}", $location, $wp_list_table->current_action(), $tags );  // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 		break;
 }
 
@@ -219,8 +222,8 @@ if ( $location ) {
 	 *
 	 * @since 4.6.0
 	 *
-	 * @param string $location The destination URL.
-	 * @param object $tax      The taxonomy object.
+	 * @param string      $location The destination URL.
+	 * @param WP_Taxonomy $tax      The taxonomy object.
 	 */
 	wp_redirect( apply_filters( 'redirect_term_location', $location, $tax ) );
 	exit;
@@ -374,31 +377,31 @@ if ( $can_edit_terms ) {
 		 * Fires before the Add Category form.
 		 *
 		 * @since 2.1.0
-		 * @deprecated 3.0.0 Use {$taxonomy}_pre_add_form instead.
+		 * @deprecated 3.0.0 Use {@see '{$taxonomy}_pre_add_form'} instead.
 		 *
 		 * @param object $arg Optional arguments cast to an object.
 		 */
-		do_action( 'add_category_form_pre', (object) array( 'parent' => 0 ) );
+		do_action_deprecated( 'add_category_form_pre', array( (object) array( 'parent' => 0 ) ), '3.0.0', '{$taxonomy}_pre_add_form' );
 	} elseif ( 'link_category' == $taxonomy ) {
 		/**
 		 * Fires before the link category form.
 		 *
 		 * @since 2.3.0
-		 * @deprecated 3.0.0 Use {$taxonomy}_pre_add_form instead.
+		 * @deprecated 3.0.0 Use {@see '{$taxonomy}_pre_add_form'} instead.
 		 *
 		 * @param object $arg Optional arguments cast to an object.
 		 */
-		do_action( 'add_link_category_form_pre', (object) array( 'parent' => 0 ) );
+		do_action_deprecated( 'add_link_category_form_pre', array( (object) array( 'parent' => 0 ) ), '3.0.0', '{$taxonomy}_pre_add_form' );
 	} else {
 		/**
 		 * Fires before the Add Tag form.
 		 *
 		 * @since 2.5.0
-		 * @deprecated 3.0.0 Use {$taxonomy}_pre_add_form instead.
+		 * @deprecated 3.0.0 Use {@see '{$taxonomy}_pre_add_form'} instead.
 		 *
 		 * @param string $taxonomy The taxonomy slug.
 		 */
-		do_action( 'add_tag_form_pre', $taxonomy );
+		do_action_deprecated( 'add_tag_form_pre', array( $taxonomy ), '3.0.0', '{$taxonomy}_pre_add_form' );
 	}
 
 	/**
@@ -530,31 +533,31 @@ if ( $can_edit_terms ) {
 		 * Fires at the end of the Edit Category form.
 		 *
 		 * @since 2.1.0
-		 * @deprecated 3.0.0 Use {$taxonomy}_add_form instead.
+		 * @deprecated 3.0.0 Use {@see '{$taxonomy}_add_form'} instead.
 		 *
 		 * @param object $arg Optional arguments cast to an object.
 		 */
-		do_action( 'edit_category_form', (object) array( 'parent' => 0 ) );
+		do_action_deprecated( 'edit_category_form', array( (object) array( 'parent' => 0 ) ), '3.0.0', '{$taxonomy}_add_form' );
 	} elseif ( 'link_category' == $taxonomy ) {
 		/**
 		 * Fires at the end of the Edit Link form.
 		 *
 		 * @since 2.3.0
-		 * @deprecated 3.0.0 Use {$taxonomy}_add_form instead.
+		 * @deprecated 3.0.0 Use {@see '{$taxonomy}_add_form'} instead.
 		 *
 		 * @param object $arg Optional arguments cast to an object.
 		 */
-		do_action( 'edit_link_category_form', (object) array( 'parent' => 0 ) );
+		do_action_deprecated( 'edit_link_category_form', array( (object) array( 'parent' => 0 ) ), '3.0.0', '{$taxonomy}_add_form' );
 	} else {
 		/**
 		 * Fires at the end of the Add Tag form.
 		 *
 		 * @since 2.7.0
-		 * @deprecated 3.0.0 Use {$taxonomy}_add_form instead.
+		 * @deprecated 3.0.0 Use {@see '{$taxonomy}_add_form'} instead.
 		 *
 		 * @param string $taxonomy The taxonomy slug.
 		 */
-		do_action( 'add_tag_form', $taxonomy );
+		do_action_deprecated( 'add_tag_form', array( $taxonomy ), '3.0.0', '{$taxonomy}_add_form' );
 	}
 
 	/**

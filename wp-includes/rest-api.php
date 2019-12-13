@@ -504,7 +504,7 @@ function rest_ensure_request( $request ) {
  *
  * @since 4.4.0
  *
- * @param WP_Error|WP_HTTP_Response|mixed $response Response to check.
+ * @param WP_HTTP_Response|WP_Error|mixed $response Response to check.
  * @return WP_REST_Response|mixed If response generated an error, WP_Error, if response
  *                                is already an instance, WP_HTTP_Response, otherwise
  *                                returns a new WP_REST_Response instance.
@@ -872,8 +872,7 @@ function rest_output_link_header() {
  * @global mixed          $wp_rest_auth_cookie
  *
  * @param WP_Error|mixed $result Error from another authentication handler,
- *                               null if we should handle it, or another value
- *                               if not.
+ *                               null if we should handle it, or another value if not.
  * @return WP_Error|mixed|bool WP_Error if the cookie is invalid, the $result, otherwise true.
  */
 function rest_cookie_check_errors( $result ) {
@@ -1025,7 +1024,7 @@ function rest_authorization_required_code() {
  * @param  mixed            $value
  * @param  WP_REST_Request  $request
  * @param  string           $param
- * @return WP_Error|boolean
+ * @return true|WP_Error
  */
 function rest_validate_request_arg( $value, $request, $param ) {
 	$attributes = $request->get_attributes();
@@ -1165,7 +1164,7 @@ function rest_is_boolean( $maybe_bool ) {
  *
  * @param mixed $id_or_email The Gravatar to retrieve a URL for. Accepts a user_id, gravatar md5 hash,
  *                           user email, WP_User object, WP_Post object, or WP_Comment object.
- * @return array $urls Gravatar url for each size.
+ * @return array Avatar URLs keyed by size. Each value can be a URL string or boolean false.
  */
 function rest_get_avatar_urls( $id_or_email ) {
 	$avatar_sizes = rest_get_avatar_sizes();
@@ -1183,7 +1182,7 @@ function rest_get_avatar_urls( $id_or_email ) {
  *
  * @since 4.7.0
  *
- * @return array List of pixel sizes for avatars. Default `[ 24, 48, 96 ]`.
+ * @return int[] List of pixel sizes for avatars. Default `[ 24, 48, 96 ]`.
  */
 function rest_get_avatar_sizes() {
 	/**
@@ -1194,7 +1193,7 @@ function rest_get_avatar_sizes() {
 	 *
 	 * @since 4.4.0
 	 *
-	 * @param array $sizes An array of int values that are the pixel sizes for avatars.
+	 * @param int[] $sizes An array of int values that are the pixel sizes for avatars.
 	 *                     Default `[ 24, 48, 96 ]`.
 	 */
 	return apply_filters( 'rest_avatar_sizes', array( 24, 48, 96 ) );

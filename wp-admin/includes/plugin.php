@@ -226,7 +226,7 @@ function _get_plugin_data_markup_translate( $plugin_file, $plugin_data, $markup 
  * @since 2.8.0
  *
  * @param string $plugin Path to the plugin file relative to the plugins directory.
- * @return array List of files relative to the plugin root.
+ * @return string[] Array of file names relative to the plugin root.
  */
 function get_plugin_files( $plugin ) {
 	$plugin_file = WP_PLUGIN_DIR . '/' . $plugin;
@@ -273,7 +273,7 @@ function get_plugin_files( $plugin ) {
  * @since 1.5.0
  *
  * @param string $plugin_folder Optional. Relative path to single plugin folder.
- * @return array Key is the plugin file path and the value is an array of the plugin data.
+ * @return array[] Array of arrays of plugin data, keyed by plugin file name. See `get_plugin_data()`.
  */
 function get_plugins( $plugin_folder = '' ) {
 
@@ -354,7 +354,7 @@ function get_plugins( $plugin_folder = '' ) {
  * WordPress only includes mu-plugin files in the base mu-plugins directory (wp-content/mu-plugins).
  *
  * @since 3.0.0
- * @return array Key is the mu-plugin file path and the value is an array of the mu-plugin data.
+ * @return array[] Array of arrays of mu-plugin data, keyed by plugin file name. See `get_plugin_data()`.
  */
 function get_mu_plugins() {
 	$wp_plugins = array();
@@ -423,7 +423,7 @@ function _sort_uname_callback( $a, $b ) {
  * Check the wp-content directory and retrieve all drop-ins with any plugin data.
  *
  * @since 3.0.0
- * @return array Key is the file path and the value is an array of the plugin data.
+ * @return array[] Array of arrays of dropin plugin data, keyed by plugin file name. See `get_plugin_data()`.
  */
 function get_dropins() {
 	$dropins      = array();
@@ -471,7 +471,7 @@ function get_dropins() {
  * Includes Multisite drop-ins only when is_multisite()
  *
  * @since 3.0.0
- * @return array Key is file name. The value is an array, with the first value the
+ * @return array[] Key is file name. The value is an array, with the first value the
  *  purpose of the drop-in and the second value the name of the constant that must be
  *  true for the drop-in to be used, or true if no constant is required.
  */
@@ -613,7 +613,7 @@ function is_network_only_plugin( $plugin ) {
  * @param bool   $network_wide Optional. Whether to enable the plugin for all sites in the network
  *                             or just the current site. Multisite only. Default false.
  * @param bool   $silent       Optional. Whether to prevent calling activation hooks. Default false.
- * @return WP_Error|null WP_Error on invalid file or null on success.
+ * @return null|WP_Error WP_Error on invalid file or null on success.
  */
 function activate_plugin( $plugin, $redirect = '', $network_wide = false, $silent = false ) {
 	$plugin = plugin_basename( trim( $plugin ) );
@@ -726,10 +726,11 @@ function activate_plugin( $plugin, $redirect = '', $network_wide = false, $silen
  *
  * @since 2.5.0
  *
- * @param string|array $plugins Single plugin or list of plugins to deactivate.
- * @param bool $silent Prevent calling deactivation hooks. Default is false.
- * @param mixed $network_wide Whether to deactivate the plugin for all sites in the network.
- *  A value of null (the default) will deactivate plugins for both the site and the network.
+ * @param string|string[] $plugins      Single plugin or list of plugins to deactivate.
+ * @param bool            $silent       Prevent calling deactivation hooks. Default false.
+ * @param bool|null       $network_wide Whether to deactivate the plugin for all sites in the network.
+ *                                      A value of null will deactivate plugins for both the network
+ *                                      and the current site. Multisite only. Default null.
  */
 function deactivate_plugins( $plugins, $silent = false, $network_wide = null ) {
 	if ( is_multisite() ) {
@@ -758,7 +759,7 @@ function deactivate_plugins( $plugins, $silent = false, $network_wide = null ) {
 			 *
 			 * @param string $plugin               Path to the plugin file relative to the plugins directory.
 			 * @param bool   $network_deactivating Whether the plugin is deactivated for all sites in the network
-			 *                                     or just the current site. Multisite only. Default is false.
+			 *                                     or just the current site. Multisite only. Default false.
 			 */
 			do_action( 'deactivate_plugin', $plugin, $network_deactivating );
 		}
@@ -797,7 +798,7 @@ function deactivate_plugins( $plugins, $silent = false, $network_wide = null ) {
 			 * @since 2.0.0
 			 *
 			 * @param bool $network_deactivating Whether the plugin is deactivated for all sites in the network
-			 *                                   or just the current site. Multisite only. Default is false.
+			 *                                   or just the current site. Multisite only. Default false.
 			 */
 			do_action( "deactivate_{$plugin}", $network_deactivating );
 
@@ -810,7 +811,7 @@ function deactivate_plugins( $plugins, $silent = false, $network_wide = null ) {
 			 * @since 2.9.0
 			 *
 			 * @param string $plugin               Path to the plugin file relative to the plugins directory.
-			 * @param bool   $network_deactivating Whether the plugin is deactivated for all sites in the network.
+			 * @param bool   $network_deactivating Whether the plugin is deactivated for all sites in the network
 			 *                                     or just the current site. Multisite only. Default false.
 			 */
 			do_action( 'deactivated_plugin', $plugin, $network_deactivating );
@@ -829,16 +830,17 @@ function deactivate_plugins( $plugins, $silent = false, $network_wide = null ) {
  * Activate multiple plugins.
  *
  * When WP_Error is returned, it does not mean that one of the plugins had
- * errors. It means that one or more of the plugins file path was invalid.
+ * errors. It means that one or more of the plugin file paths were invalid.
  *
  * The execution will be halted as soon as one of the plugins has an error.
  *
  * @since 2.6.0
  *
- * @param string|array $plugins Single plugin or list of plugins to activate.
- * @param string $redirect Redirect to page after successful activation.
- * @param bool $network_wide Whether to enable the plugin for all sites in the network.
- * @param bool $silent Prevent calling activation hooks. Default is false.
+ * @param string|string[] $plugins      Single plugin or list of plugins to activate.
+ * @param string          $redirect     Redirect to page after successful activation.
+ * @param bool            $network_wide Whether to enable the plugin for all sites in the network.
+ *                                      Default false.
+ * @param bool $silent                  Prevent calling activation hooks. Default false.
  * @return bool|WP_Error True when finished or WP_Error if there were errors during a plugin activation.
  */
 function activate_plugins( $plugins, $redirect = '', $network_wide = false, $silent = false ) {
@@ -1029,7 +1031,7 @@ function delete_plugins( $plugins, $deprecated = '' ) {
  * returns an array of deactivated ones.
  *
  * @since 2.5.0
- * @return array invalid plugins, plugin as key, error as value
+ * @return WP_Error[] Array of plugin errors keyed by plugin file name.
  */
 function validate_active_plugins() {
 	$plugins = get_option( 'active_plugins', array() );
@@ -1069,7 +1071,7 @@ function validate_active_plugins() {
  * @since 2.5.0
  *
  * @param string $plugin Path to the plugin file relative to the plugins directory.
- * @return WP_Error|int 0 on success, WP_Error on failure.
+ * @return int|WP_Error 0 on success, WP_Error on failure.
  */
 function validate_plugin( $plugin ) {
 	if ( validate_file( $plugin ) ) {
@@ -1388,8 +1390,9 @@ function add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, 
 
 		$submenu[ $parent_slug ][] = $new_sub_menu;
 	} else {
-		// If position is equal or higher than the number of items in the array, append the submenu.
-		if ( $position >= count( $submenu[ $parent_slug ] ) ) {
+		// Append the submenu if the parent item is not present in the submenu,
+		// or if position is equal or higher than the number of items in the array.
+		if ( ! isset( $submenu[ $parent_slug ] ) || $position >= count( $submenu[ $parent_slug ] ) ) {
 			$submenu[ $parent_slug ][] = $new_sub_menu;
 		} else {
 			// Test for a negative position.
@@ -1754,17 +1757,17 @@ function remove_submenu_page( $menu_slug, $submenu_slug ) {
 }
 
 /**
- * Get the url to access a particular menu page based on the slug it was registered with.
+ * Get the URL to access a particular menu page based on the slug it was registered with.
  *
- * If the slug hasn't been registered properly no url will be returned
+ * If the slug hasn't been registered properly, no URL will be returned.
  *
  * @since 3.0.0
  *
  * @global array $_parent_pages
  *
- * @param string $menu_slug The slug name to refer to this menu by (should be unique for this menu)
- * @param bool $echo Whether or not to echo the url - default is true
- * @return string the url
+ * @param string $menu_slug The slug name to refer to this menu by (should be unique for this menu).
+ * @param bool   $echo      Whether or not to echo the URL. Default true.
+ * @return string The menu page URL.
  */
 function menu_page_url( $menu_slug, $echo = true ) {
 	global $_parent_pages;
@@ -2184,7 +2187,8 @@ function remove_option_whitelist( $del_options, $options = '' ) {
  *
  * @since 2.7.0
  *
- * @param string $option_group A settings group name. This should match the group name used in register_setting().
+ * @param string $option_group A settings group name. This should match the group name
+ *                             used in register_setting().
  */
 function settings_fields( $option_group ) {
 	echo "<input type='hidden' name='option_page' value='" . esc_attr( $option_group ) . "' />";
@@ -2193,11 +2197,11 @@ function settings_fields( $option_group ) {
 }
 
 /**
- * Clears the Plugins cache used by get_plugins() and by default, the Plugin Update cache.
+ * Clears the plugins cache used by get_plugins() and by default, the plugin updates cache.
  *
  * @since 3.7.0
  *
- * @param bool $clear_update_cache Whether to clear the Plugin updates cache
+ * @param bool $clear_update_cache Whether to clear the plugin updates cache. Default true.
  */
 function wp_clean_plugins_cache( $clear_update_cache = true ) {
 	if ( $clear_update_cache ) {
@@ -2239,7 +2243,8 @@ function plugin_sandbox_scrape( $plugin ) {
  *
  * @since 4.9.6
  *
- * @param string $plugin_name The name of the plugin or theme that is suggesting content for the site's privacy policy.
+ * @param string $plugin_name The name of the plugin or theme that is suggesting content
+ *                            for the site's privacy policy.
  * @param string $policy_text The suggested content for inclusion in the policy.
  */
 function wp_add_privacy_policy_content( $plugin_name, $policy_text ) {
@@ -2285,7 +2290,7 @@ function wp_add_privacy_policy_content( $plugin_name, $policy_text ) {
  * @since 5.2.0
  *
  * @param string $plugin Path to the plugin file relative to the plugins directory.
- * @return bool True, if in the list of paused plugins. False, not in the list.
+ * @return bool True, if in the list of paused plugins. False, if not in the list.
  */
 function is_plugin_paused( $plugin ) {
 	if ( ! isset( $GLOBALS['_paused_plugins'] ) ) {
@@ -2306,10 +2311,9 @@ function is_plugin_paused( $plugin ) {
  *
  * @since 5.2.0
  *
- * @param string $plugin Path to the plugin file relative to the plugins
- *                       directory.
- * @return array|false Array of error information as it was returned by
- *                     `error_get_last()`, or false if none was recorded.
+ * @param string $plugin Path to the plugin file relative to the plugins directory.
+ * @return array|false Array of error information as returned by `error_get_last()`,
+ *                     or false if none was recorded.
  */
 function wp_get_plugin_error( $plugin ) {
 	if ( ! isset( $GLOBALS['_paused_plugins'] ) ) {
@@ -2337,8 +2341,8 @@ function wp_get_plugin_error( $plugin ) {
  *
  * @since 5.2.0
  *
- * @param string $plugin       Single plugin to resume.
- * @param string $redirect     Optional. URL to redirect to. Default empty string.
+ * @param string $plugin   Single plugin to resume.
+ * @param string $redirect Optional. URL to redirect to. Default empty string.
  * @return bool|WP_Error True on success, false if `$plugin` was not paused,
  *                       `WP_Error` on failure.
  */

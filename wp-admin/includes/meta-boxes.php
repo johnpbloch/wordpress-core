@@ -1504,11 +1504,11 @@ function register_and_do_post_meta_boxes( $post ) {
 	 * Fires in the middle of built-in meta box registration.
 	 *
 	 * @since 2.1.0
-	 * @deprecated 3.7.0 Use 'add_meta_boxes' instead.
+	 * @deprecated 3.7.0 Use {@see 'add_meta_boxes'} instead.
 	 *
 	 * @param WP_Post $post Post object.
 	 */
-	do_action( 'dbx_post_advanced', $post );
+	do_action_deprecated( 'dbx_post_advanced', array( $post ), '3.7.0', 'add_meta_boxes' );
 
 	// Allow the Discussion meta box to show up if the post type supports comments,
 	// or if comments or pings are open.

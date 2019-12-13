@@ -463,7 +463,7 @@ class WP_Rewrite {
 	 *
 	 * @since 1.5.0
 	 *
-	 * @return array Page rewrite rules.
+	 * @return string[] Page rewrite rules.
 	 */
 	public function page_rewrite_rules() {
 		// The extra .? at the beginning prevents clashes with other regular expressions in the rules array.
@@ -1250,7 +1250,7 @@ class WP_Rewrite {
 	 *
 	 * @since 1.5.0
 	 *
-	 * @return array An associate array of matches and queries.
+	 * @return string[] An associative array of matches and queries.
 	 */
 	public function rewrite_rules() {
 		$rewrite = array();
@@ -1407,11 +1407,11 @@ class WP_Rewrite {
 				 * Filters rewrite rules used specifically for Tags.
 				 *
 				 * @since 2.3.0
-				 * @deprecated 3.1.0 Use 'post_tag_rewrite_rules' instead
+				 * @deprecated 3.1.0 Use {@see 'post_tag_rewrite_rules'} instead.
 				 *
 				 * @param string[] $rules Array of rewrite rules generated for tags, keyed by their regex pattern.
 				 */
-				$rules = apply_filters( 'tag_rewrite_rules', $rules );
+				$rules = apply_filters_deprecated( 'tag_rewrite_rules', array( $rules ), '3.1.0', 'post_tag_rewrite_rules' );
 			}
 
 			$this->extra_rules_top = array_merge( $this->extra_rules_top, $rules );
@@ -1455,7 +1455,7 @@ class WP_Rewrite {
 	 *
 	 * @since 1.5.0
 	 *
-	 * @return array Rewrite rules.
+	 * @return string[] Array of rewrite rules keyed by their regex pattern.
 	 */
 	public function wp_rewrite_rules() {
 		$this->rules = get_option( 'rewrite_rules' );
@@ -1556,11 +1556,11 @@ class WP_Rewrite {
 		 * Filters the list of rewrite rules formatted for output to an .htaccess file.
 		 *
 		 * @since 1.5.0
-		 * @deprecated 1.5.0 Use the mod_rewrite_rules filter instead.
+		 * @deprecated 1.5.0 Use the {@see 'mod_rewrite_rules'} filter instead.
 		 *
 		 * @param string $rules mod_rewrite Rewrite rules formatted for .htaccess.
 		 */
-		return apply_filters( 'rewrite_rules', $rules );
+		return apply_filters_deprecated( 'rewrite_rules', array( $rules ), '1.5.0', 'mod_rewrite_rules' );
 	}
 
 	/**

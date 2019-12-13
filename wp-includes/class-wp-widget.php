@@ -101,7 +101,7 @@ class WP_Widget {
 	/**
 	 * Echoes the widget content.
 	 *
-	 * Sub-classes should over-ride this function to generate their widget code.
+	 * Subclasses should override this function to generate their widget code.
 	 *
 	 * @since 2.8.0
 	 *
@@ -110,7 +110,7 @@ class WP_Widget {
 	 * @param array $instance The settings for the particular instance of the widget.
 	 */
 	public function widget( $args, $instance ) {
-		die( 'function WP_Widget::widget() must be over-ridden in a sub-class.' );
+		die( 'function WP_Widget::widget() must be overridden in a subclass.' );
 	}
 
 	/**
@@ -177,8 +177,9 @@ class WP_Widget {
 	 * PHP4 constructor.
 	 *
 	 * @since 2.8.0
+	 * @deprecated 4.3.0 Use __construct() instead.
 	 *
-	 * @see __construct()
+	 * @see WP_Widget::__construct()
 	 *
 	 * @param string $id_base         Optional Base ID for the widget, lowercase and unique. If left empty,
 	 *                                a portion of the widget's class name will be used Has to be unique.

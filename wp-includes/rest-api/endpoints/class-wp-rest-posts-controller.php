@@ -270,6 +270,10 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 
 		$taxonomies = wp_list_filter( get_object_taxonomies( $this->post_type, 'objects' ), array( 'show_in_rest' => true ) );
 
+		if ( ! empty( $request['tax_relation'] ) ) {
+			$query_args['tax_query'] = array( 'relation' => $request['tax_relation'] );
+		}
+
 		foreach ( $taxonomies as $taxonomy ) {
 			$base        = ! empty( $taxonomy->rest_base ) ? $taxonomy->rest_base : $taxonomy->name;
 			$tax_exclude = $base . '_exclude';
@@ -498,7 +502,7 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 			return new WP_Error( 'rest_cannot_edit_others', __( 'Sorry, you are not allowed to create posts as this user.' ), array( 'status' => rest_authorization_required_code() ) );
 		}
 
-		if ( ! empty( $request['sticky'] ) && ! current_user_can( $post_type->cap->edit_others_posts ) ) {
+		if ( ! empty( $request['sticky'] ) && ! current_user_can( $post_type->cap->edit_others_posts ) && ! current_user_can( $post_type->cap->publish_posts ) ) {
 			return new WP_Error( 'rest_cannot_assign_sticky', __( 'Sorry, you are not allowed to make posts sticky.' ), array( 'status' => rest_authorization_required_code() ) );
 		}
 
@@ -653,7 +657,7 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 			return new WP_Error( 'rest_cannot_edit_others', __( 'Sorry, you are not allowed to update posts as this user.' ), array( 'status' => rest_authorization_required_code() ) );
 		}
 
-		if ( ! empty( $request['sticky'] ) && ! current_user_can( $post_type->cap->edit_others_posts ) ) {
+		if ( ! empty( $request['sticky'] ) && ! current_user_can( $post_type->cap->edit_others_posts ) && ! current_user_can( $post_type->cap->publish_posts ) ) {
 			return new WP_Error( 'rest_cannot_assign_sticky', __( 'Sorry, you are not allowed to make posts sticky.' ), array( 'status' => rest_authorization_required_code() ) );
 		}
 
@@ -865,7 +869,7 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 		 *
 		 * @since 4.7.0
 		 *
-		 * @param object           $post     The deleted or trashed post.
+		 * @param WP_Post          $post     The deleted or trashed post.
 		 * @param WP_REST_Response $response The response data.
 		 * @param WP_REST_Request  $request  The request sent to the API.
 		 */
@@ -955,7 +959,7 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 	 * @return stdClass|WP_Error Post object or WP_Error.
 	 */
 	protected function prepare_item_for_database( $request ) {
-		$prepared_post = new stdClass;
+		$prepared_post = new stdClass();
 
 		// Post ID.
 		if ( isset( $request['id'] ) ) {
@@ -1141,8 +1145,8 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 	 *
 	 * @since 4.7.0
 	 *
-	 * @param string $post_status Post status.
-	 * @param object $post_type   Post type.
+	 * @param string       $post_status Post status.
+	 * @param WP_Post_Type $post_type   Post type.
 	 * @return string|WP_Error Post status or WP_Error if lacking the proper permission.
 	 */
 	protected function handle_status_param( $post_status, $post_type ) {
@@ -1317,7 +1321,7 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 	 *
 	 * @since 4.7.0
 	 *
-	 * @param object|string $post_type Post type name or object.
+	 * @param WP_Post_Type|string $post_type Post type name or object.
 	 * @return bool Whether the post type is allowed in REST.
 	 */
 	protected function check_is_post_type_allowed( $post_type ) {
@@ -1339,7 +1343,7 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 	 *
 	 * @since 4.7.0
 	 *
-	 * @param object $post Post object.
+	 * @param WP_Post $post Post object.
 	 * @return bool Whether the post can be read.
 	 */
 	public function check_read_permission( $post ) {
@@ -1382,7 +1386,7 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 	 *
 	 * @since 4.7.0
 	 *
-	 * @param object $post Post object.
+	 * @param WP_Post $post Post object.
 	 * @return bool Whether the post can be edited.
 	 */
 	protected function check_update_permission( $post ) {
@@ -1400,7 +1404,7 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 	 *
 	 * @since 4.7.0
 	 *
-	 * @param object $post Post object.
+	 * @param WP_Post $post Post object.
 	 * @return bool Whether the post can be created.
 	 */
 	protected function check_create_permission( $post ) {
@@ -1418,7 +1422,7 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 	 *
 	 * @since 4.7.0
 	 *
-	 * @param object $post Post object.
+	 * @param WP_Post $post Post object.
 	 * @return bool Whether the post can be deleted.
 	 */
 	protected function check_delete_permission( $post ) {
@@ -2530,6 +2534,14 @@ class WP_REST_Posts_Controller extends WP_REST_Controller {
 		);
 
 		$taxonomies = wp_list_filter( get_object_taxonomies( $this->post_type, 'objects' ), array( 'show_in_rest' => true ) );
+
+		if ( ! empty( $taxonomies ) ) {
+			$query_params['tax_relation'] = array(
+				'description' => __( 'Limit result set based on relationship between multiple taxonomies.' ),
+				'type'        => 'string',
+				'enum'        => array( 'AND', 'OR' ),
+			);
+		}
 
 		foreach ( $taxonomies as $taxonomy ) {
 			$base = ! empty( $taxonomy->rest_base ) ? $taxonomy->rest_base : $taxonomy->name;

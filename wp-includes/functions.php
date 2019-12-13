@@ -335,24 +335,29 @@ function wp_maybe_decline_date( $date ) {
 		$months          = $wp_locale->month;
 		$months_genitive = $wp_locale->month_genitive;
 
-		// Match a format like 'j F Y' or 'j. F'
-		if ( preg_match( '#^\d{1,2}\.? [^\d ]+#u', $date ) ) {
-
+		/*
+		 * Match a format like 'j F Y' or 'j. F' (day of the month, followed by month name)
+		 * and decline the month.
+		 */
+		if ( preg_match( '#\b\d{1,2}\.? [^\d ]+\b#u', $date ) ) {
 			foreach ( $months as $key => $month ) {
-				$months[ $key ] = '# ' . $month . '( |$)#u';
+				$months[ $key ] = '# ' . preg_quote( $month, '#' ) . '\b#u';
 			}
 
 			foreach ( $months_genitive as $key => $month ) {
-				$months_genitive[ $key ] = ' ' . $month . '$1';
+				$months_genitive[ $key ] = ' ' . $month;
 			}
 
 			$date = preg_replace( $months, $months_genitive, $date );
 		}
 
-		// Match a format like 'F jS' or 'F j' and change it to 'j F'
-		if ( preg_match( '#^[^\d ]+ \d{1,2}(st|nd|rd|th)? #u', trim( $date ) ) ) {
+		/*
+		 * Match a format like 'F jS' or 'F j' (month name, followed by day with an optional ordinal suffix)
+		 * and change it to declined 'j F'.
+		 */
+		if ( preg_match( '#\b[^\d ]+ \d{1,2}(st|nd|rd|th)?\b#u', trim( $date ) ) ) {
 			foreach ( $months as $key => $month ) {
-				$months[ $key ] = '#' . $month . ' (\d{1,2})(st|nd|rd|th)?#u';
+				$months[ $key ] = '#\b' . preg_quote( $month, '#' ) . ' (\d{1,2})(st|nd|rd|th)?\b#u';
 			}
 
 			foreach ( $months_genitive as $key => $month ) {
@@ -766,7 +771,7 @@ function xmlrpc_removepostdata( $content ) {
  * @since 3.7.0
  *
  * @param string $content Content to extract URLs from.
- * @return array URLs found in passed string.
+ * @return string[] Array of URLs found in passed string.
  */
 function wp_extract_urls( $content ) {
 	preg_match_all(
@@ -2409,6 +2414,7 @@ function wp_unique_filename( $dir, $filename, $unique_filename_callback = null )
 	// Separate the filename into a name and extension.
 	$ext  = pathinfo( $filename, PATHINFO_EXTENSION );
 	$name = pathinfo( $filename, PATHINFO_BASENAME );
+
 	if ( $ext ) {
 		$ext = '.' . $ext;
 	}
@@ -2426,6 +2432,15 @@ function wp_unique_filename( $dir, $filename, $unique_filename_callback = null )
 		$filename = call_user_func( $unique_filename_callback, $dir, $name, $ext );
 	} else {
 		$number = '';
+		$fname  = pathinfo( $filename, PATHINFO_FILENAME );
+
+		// Always append a number to file names that can potentially match image sub-size file names.
+		if ( $fname && preg_match( '/-(?:\d+x\d+|scaled|rotated)$/', $fname ) ) {
+			$number = 1;
+
+			// At this point the file name may not be unique. This is tested below and the $number is incremented.
+			$filename = str_replace( "{$fname}{$ext}", "{$fname}-{$number}{$ext}", $filename );
+		}
 
 		// Change '.ext' to lower case.
 		if ( $ext && strtolower( $ext ) != $ext ) {
@@ -2433,39 +2448,91 @@ function wp_unique_filename( $dir, $filename, $unique_filename_callback = null )
 			$filename2 = preg_replace( '|' . preg_quote( $ext ) . '$|', $ext2, $filename );
 
 			// Check for both lower and upper case extension or image sub-sizes may be overwritten.
-			while ( file_exists( $dir . "/$filename" ) || file_exists( $dir . "/$filename2" ) ) {
+			while ( file_exists( $dir . "/{$filename}" ) || file_exists( $dir . "/{$filename2}" ) ) {
 				$new_number = (int) $number + 1;
-				$filename   = str_replace( array( "-$number$ext", "$number$ext" ), "-$new_number$ext", $filename );
-				$filename2  = str_replace( array( "-$number$ext2", "$number$ext2" ), "-$new_number$ext2", $filename2 );
+				$filename   = str_replace( array( "-{$number}{$ext}", "{$number}{$ext}" ), "-{$new_number}{$ext}", $filename );
+				$filename2  = str_replace( array( "-{$number}{$ext2}", "{$number}{$ext2}" ), "-{$new_number}{$ext2}", $filename2 );
 				$number     = $new_number;
 			}
 
-			/**
-			 * Filters the result when generating a unique file name.
-			 *
-			 * @since 4.5.0
-			 *
-			 * @param string        $filename                 Unique file name.
-			 * @param string        $ext                      File extension, eg. ".png".
-			 * @param string        $dir                      Directory path.
-			 * @param callable|null $unique_filename_callback Callback function that generates the unique file name.
-			 */
-			return apply_filters( 'wp_unique_filename', $filename2, $ext, $dir, $unique_filename_callback );
+			$filename = $filename2;
+		} else {
+			while ( file_exists( $dir . "/{$filename}" ) ) {
+				$new_number = (int) $number + 1;
+
+				if ( '' === "{$number}{$ext}" ) {
+					$filename = "{$filename}-{$new_number}";
+				} else {
+					$filename = str_replace( array( "-{$number}{$ext}", "{$number}{$ext}" ), "-{$new_number}{$ext}", $filename );
+				}
+
+				$number = $new_number;
+			}
 		}
 
-		while ( file_exists( $dir . "/$filename" ) ) {
-			$new_number = (int) $number + 1;
-			if ( '' == "$number$ext" ) {
-				$filename = "$filename-" . $new_number;
-			} else {
-				$filename = str_replace( array( "-$number$ext", "$number$ext" ), '-' . $new_number . $ext, $filename );
+		// Prevent collisions with existing file names that contain dimension-like strings
+		// (whether they are subsizes or originals uploaded prior to #42437).
+
+		// The (resized) image files would have name and extension, and will be in the uploads dir.
+		if ( @is_dir( $dir ) && $name && $ext ) {
+			// List of all files and directories contained in $dir (with the "dot" files removed).
+			$files = array_diff( scandir( $dir ), array( '.', '..' ) );
+
+			if ( ! empty( $files ) ) {
+				while ( _wp_check_existing_file_names( $filename, $files ) ) {
+					$new_number = (int) $number + 1;
+					$filename   = str_replace( array( "-{$number}{$ext}", "{$number}{$ext}" ), "-{$new_number}{$ext}", $filename );
+					$number     = $new_number;
+				}
 			}
-			$number = $new_number;
 		}
 	}
 
-	/** This filter is documented in wp-includes/functions.php */
+	/**
+	 * Filters the result when generating a unique file name.
+	 *
+	 * @since 4.5.0
+	 *
+	 * @param string        $filename                 Unique file name.
+	 * @param string        $ext                      File extension, eg. ".png".
+	 * @param string        $dir                      Directory path.
+	 * @param callable|null $unique_filename_callback Callback function that generates the unique file name.
+	 */
 	return apply_filters( 'wp_unique_filename', $filename, $ext, $dir, $unique_filename_callback );
+}
+
+/**
+ * Helper function to check if a file name could match an existing image sub-size file name.
+ *
+ * @since 5.3.1
+ * @access private
+ *
+ * @param string $filename The file name to check.
+ * $param array  $files    An array of existing files in the directory.
+ * $return bool True if the tested file name could match an existing file, false otherwise.
+ */
+function _wp_check_existing_file_names( $filename, $files ) {
+	$fname = pathinfo( $filename, PATHINFO_FILENAME );
+	$ext   = pathinfo( $filename, PATHINFO_EXTENSION );
+
+	// Edge case, file names like `.ext`
+	if ( empty( $fname ) ) {
+		return false;
+	}
+
+	if ( $ext ) {
+		$ext = ".$ext";
+	}
+
+	$regex = '/^' . preg_quote( $fname ) . '-(?:\d+x\d+|scaled|rotated)' . preg_quote( $ext ) . '$/';
+
+	foreach ( $files as $file ) {
+		if ( preg_match( $regex, $file ) ) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 /**
@@ -2487,7 +2554,7 @@ function wp_unique_filename( $dir, $filename, $unique_filename_callback = null )
  *
  * @param string       $name       Filename.
  * @param null|string  $deprecated Never used. Set to null.
- * @param mixed        $bits       File content
+ * @param string       $bits       File content
  * @param string       $time       Optional. Time formatted in 'yyyy/mm'. Default null.
  * @return array
  */
@@ -3003,7 +3070,7 @@ function wp_get_mime_types() {
  *
  * @since 4.6.0
  *
- * @return array Array of file extensions types keyed by the type of file.
+ * @return array[] Multi-dimensional array of file extensions types keyed by the type of file.
  */
 function wp_get_ext_types() {
 
@@ -3014,8 +3081,7 @@ function wp_get_ext_types() {
 	 *
 	 * @see wp_ext2type()
 	 *
-	 * @param array $ext2type Multi-dimensional array with extensions for a default set
-	 *                        of file types.
+	 * @param array[] $ext2type Multi-dimensional array of file extensions types keyed by the type of file.
 	 */
 	return apply_filters(
 		'ext2type',
@@ -4262,7 +4328,7 @@ function wp_parse_list( $list ) {
  * @since 3.0.0
  *
  * @param array|string $list List of ids.
- * @return array Sanitized array of IDs.
+ * @return int[] Sanitized array of IDs.
  */
 function wp_parse_id_list( $list ) {
 	$list = wp_parse_list( $list );
@@ -4276,7 +4342,7 @@ function wp_parse_id_list( $list ) {
  * @since 4.7.0
  *
  * @param  array|string $list List of slugs.
- * @return array Sanitized array of slugs.
+ * @return string[] Sanitized array of slugs.
  */
 function wp_parse_slug_list( $list ) {
 	$list = wp_parse_list( $list );
@@ -4676,7 +4742,7 @@ function _deprecated_constructor( $class, $version, $parent_class = '' ) {
 						$class,
 						$parent_class,
 						$version,
-						'<pre>__construct()</pre>'
+						'<code>__construct()</code>'
 					),
 					E_USER_DEPRECATED
 				);
@@ -4687,7 +4753,7 @@ function _deprecated_constructor( $class, $version, $parent_class = '' ) {
 						__( 'The called constructor method for %1$s is <strong>deprecated</strong> since version %2$s! Use %3$s instead.' ),
 						$class,
 						$version,
-						'<pre>__construct()</pre>'
+						'<code>__construct()</code>'
 					),
 					E_USER_DEPRECATED
 				);
@@ -4700,7 +4766,7 @@ function _deprecated_constructor( $class, $version, $parent_class = '' ) {
 						$class,
 						$parent_class,
 						$version,
-						'<pre>__construct()</pre>'
+						'<code>__construct()</code>'
 					),
 					E_USER_DEPRECATED
 				);
@@ -4710,7 +4776,7 @@ function _deprecated_constructor( $class, $version, $parent_class = '' ) {
 						'The called constructor method for %1$s is <strong>deprecated</strong> since version %2$s! Use %3$s instead.',
 						$class,
 						$version,
-						'<pre>__construct()</pre>'
+						'<code>__construct()</code>'
 					),
 					E_USER_DEPRECATED
 				);
@@ -4924,8 +4990,8 @@ function _deprecated_argument( $function, $version, $message = null ) {
  *
  * @param string $hook        The hook that was used.
  * @param string $version     The version of WordPress that deprecated the hook.
- * @param string $replacement Optional. The hook that should have been used.
- * @param string $message     Optional. A message regarding the change.
+ * @param string $replacement Optional. The hook that should have been used. Default null.
+ * @param string $message     Optional. A message regarding the change. Default null.
  */
 function _deprecated_hook( $hook, $version, $replacement = null, $message = null ) {
 	/**
@@ -5842,7 +5908,7 @@ function wp_scheduled_delete() {
  * @param array  $default_headers List of headers, in the format `array( 'HeaderKey' => 'Header Name' )`.
  * @param string $context         Optional. If specified adds filter hook {@see 'extra_$context_headers'}.
  *                                Default empty.
- * @return array Array of file headers in `HeaderKey => Header Value` format.
+ * @return string[] Array of file header values keyed by header name.
  */
 function get_file_data( $file, $default_headers, $context = '' ) {
 	// We don't need to write to the file, so just open for reading.
@@ -6395,7 +6461,7 @@ function wp_auth_check_html() {
  * @global int $login_grace_period
  *
  * @param array $response  The Heartbeat response.
- * @return array $response The Heartbeat response with 'wp-auth-check' value set.
+ * @return array The Heartbeat response with 'wp-auth-check' value set.
  */
 function wp_auth_check( $response ) {
 	$response['wp-auth-check'] = is_user_logged_in() && empty( $GLOBALS['login_grace_period'] );

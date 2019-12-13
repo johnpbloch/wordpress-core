@@ -621,7 +621,7 @@ final class WP_Customize_Widgets {
 	 * @since 3.9.0
 	 *
 	 * @param string $setting_id Widget setting ID.
-	 * @return WP_Error|array Array containing a widget's id_base and number components,
+	 * @return array|WP_Error Array containing a widget's id_base and number components,
 	 *                        or a WP_Error object.
 	 */
 	public function parse_widget_setting_id( $setting_id ) {
@@ -1104,7 +1104,7 @@ final class WP_Customize_Widgets {
 	 * @since 4.2.0
 	 *
 	 * @param  array $nonces Array of nonces.
-	 * @return array $nonces Array of nonces.
+	 * @return array Array of nonces.
 	 */
 	public function refresh_nonces( $nonces ) {
 		$nonces['update-widget'] = wp_create_nonce( 'update-widget' );
@@ -1392,7 +1392,7 @@ final class WP_Customize_Widgets {
 	 * @global array $wp_registered_widget_controls
 	 *
 	 * @param  string $widget_id Widget ID.
-	 * @return WP_Error|array Array containing the updated widget information.
+	 * @return array|WP_Error Array containing the updated widget information.
 	 *                        A WP_Error object, otherwise.
 	 */
 	public function call_widget_update( $widget_id ) {

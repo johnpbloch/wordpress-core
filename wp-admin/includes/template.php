@@ -32,7 +32,7 @@ require_once( ABSPATH . 'wp-admin/includes/class-wp-internal-pointers.php' );
  * @param int[]  $selected_cats        Optional. Array of category IDs to mark as checked. Default false.
  * @param int[]  $popular_cats         Optional. Array of category IDs to receive the "popular-category" class.
  *                                     Default false.
- * @param object $walker               Optional. Walker object to use to build the output.
+ * @param Walker $walker               Optional. Walker object to use to build the output.
  *                                     Default is a Walker_Category_Checklist instance.
  * @param bool   $checked_ontop        Optional. Whether to move checked items out of the hierarchy and to
  *                                     the top of the list. Default true.
@@ -68,7 +68,7 @@ function wp_category_checklist( $post_id = 0, $descendants_and_self = 0, $select
  *     @type int[]  $selected_cats        Array of category IDs to mark as checked. Default false.
  *     @type int[]  $popular_cats         Array of category IDs to receive the "popular-category" class.
  *                                        Default false.
- *     @type object $walker               Walker object to use to build the output.
+ *     @type Walker $walker               Walker object to use to build the output.
  *                                        Default is a Walker_Category_Checklist instance.
  *     @type string $taxonomy             Taxonomy to generate the checklist for. Default 'category'.
  *     @type bool   $checked_ontop        Whether to move checked items out of the hierarchy and to
@@ -199,10 +199,10 @@ function wp_terms_checklist( $post_id = 0, $args = array() ) {
  * @since 2.5.0
  *
  * @param string $taxonomy Taxonomy to retrieve terms from.
- * @param int $default Not used.
- * @param int $number Number of terms to retrieve. Defaults to 10.
- * @param bool $echo Optionally output the list as well. Defaults to true.
- * @return array List of popular term IDs.
+ * @param int    $default  Not used.
+ * @param int    $number   Number of terms to retrieve. Defaults to 10.
+ * @param bool   $echo     Optionally output the list as well. Defaults to true.
+ * @return int[] Array of popular term IDs.
  */
 function wp_popular_terms_checklist( $taxonomy, $default = 0, $number = 10, $echo = true ) {
 	$post = get_post();
@@ -2097,12 +2097,12 @@ function _post_states( $post, $echo = true ) {
 }
 
 /**
- * Function to retrieve an array of post states from a post.
+ * Retrieves an array of post states from a post.
  *
  * @since 5.3.0
  *
  * @param WP_Post $post The post to retrieve states for.
- * @return array The array of translated post states.
+ * @return string[] Array of post state labels keyed by their state.
  */
 function get_post_states( $post ) {
 	$post_states = array();

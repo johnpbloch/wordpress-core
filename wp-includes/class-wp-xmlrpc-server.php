@@ -1469,8 +1469,8 @@ class wp_xmlrpc_server extends IXR_Server {
 		$post_data['edit_date'] = false;
 
 		if ( ! empty( $dateCreated ) ) {
-			$post_data['post_date']     = get_date_from_gmt( iso8601_to_datetime( $dateCreated ) );
-			$post_data['post_date_gmt'] = iso8601_to_datetime( $dateCreated, 'GMT' );
+			$post_data['post_date']     = iso8601_to_datetime( $dateCreated );
+			$post_data['post_date_gmt'] = iso8601_to_datetime( $dateCreated, 'gmt' );
 
 			// Flag the post date to be edited.
 			$post_data['edit_date'] = true;
@@ -1637,7 +1637,11 @@ class wp_xmlrpc_server extends IXR_Server {
 		}
 
 		if ( ! $post_ID ) {
-			return new IXR_Error( 401, __( 'Sorry, your entry could not be posted.' ) );
+			if ( $update ) {
+				return new IXR_Error( 401, __( 'Sorry, the post could not be updated.' ) );
+			} else {
+				return new IXR_Error( 401, __( 'Sorry, the post could not be created.' ) );
+			}
 		}
 
 		return strval( $post_ID );
@@ -1777,7 +1781,7 @@ class wp_xmlrpc_server extends IXR_Server {
 		$result = wp_delete_post( $post_id );
 
 		if ( ! $result ) {
-			return new IXR_Error( 500, __( 'The post cannot be deleted.' ) );
+			return new IXR_Error( 500, __( 'Sorry, the post could not be deleted.' ) );
 		}
 
 		return true;
@@ -2079,7 +2083,7 @@ class wp_xmlrpc_server extends IXR_Server {
 		}
 
 		if ( ! $term ) {
-			return new IXR_Error( 500, __( 'Sorry, your term could not be created.' ) );
+			return new IXR_Error( 500, __( 'Sorry, the term could not be created.' ) );
 		}
 
 		// Add term meta.
@@ -2877,7 +2881,7 @@ class wp_xmlrpc_server extends IXR_Server {
 		}
 
 		if ( ! $result ) {
-			return new IXR_Error( 500, __( 'Sorry, the user cannot be updated.' ) );
+			return new IXR_Error( 500, __( 'Sorry, the user could not be updated.' ) );
 		}
 
 		return true;
@@ -3376,10 +3380,10 @@ class wp_xmlrpc_server extends IXR_Server {
 			if ( 'term_exists' == $cat_id->get_error_code() ) {
 				return (int) $cat_id->get_error_data();
 			} else {
-				return new IXR_Error( 500, __( 'Sorry, the new category failed.' ) );
+				return new IXR_Error( 500, __( 'Sorry, the category could not be created.' ) );
 			}
 		} elseif ( ! $cat_id ) {
-			return new IXR_Error( 500, __( 'Sorry, the new category failed.' ) );
+			return new IXR_Error( 500, __( 'Sorry, the category could not be created.' ) );
 		}
 
 		/**
@@ -3762,8 +3766,8 @@ class wp_xmlrpc_server extends IXR_Server {
 		if ( ! empty( $content_struct['date_created_gmt'] ) ) {
 			// We know this is supposed to be GMT, so we're going to slap that Z on there by force
 			$dateCreated                 = rtrim( $content_struct['date_created_gmt']->getIso(), 'Z' ) . 'Z';
-			$comment['comment_date']     = get_date_from_gmt( iso8601_to_datetime( $dateCreated ) );
-			$comment['comment_date_gmt'] = iso8601_to_datetime( $dateCreated, 'GMT' );
+			$comment['comment_date']     = get_date_from_gmt( $dateCreated );
+			$comment['comment_date_gmt'] = iso8601_to_datetime( $dateCreated, 'gmt' );
 		}
 
 		if ( isset( $content_struct['content'] ) ) {
@@ -3788,7 +3792,7 @@ class wp_xmlrpc_server extends IXR_Server {
 		}
 
 		if ( ! $result ) {
-			return new IXR_Error( 500, __( 'Sorry, the comment could not be edited.' ) );
+			return new IXR_Error( 500, __( 'Sorry, the comment could not be updated.' ) );
 		}
 
 		/**
@@ -4979,7 +4983,7 @@ class wp_xmlrpc_server extends IXR_Server {
 	 * @return IXR_Error Error object.
 	 */
 	public function blogger_getTemplate( $args ) {
-		return new IXR_Error( 403, __( 'Sorry, that file cannot be edited.' ) );
+		return new IXR_Error( 403, __( 'Sorry, this method is not supported.' ) );
 	}
 
 	/**
@@ -4992,7 +4996,7 @@ class wp_xmlrpc_server extends IXR_Server {
 	 * @return IXR_Error Error object.
 	 */
 	public function blogger_setTemplate( $args ) {
-		return new IXR_Error( 403, __( 'Sorry, that file cannot be edited.' ) );
+		return new IXR_Error( 403, __( 'Sorry, this method is not supported.' ) );
 	}
 
 	/**
@@ -5052,7 +5056,7 @@ class wp_xmlrpc_server extends IXR_Server {
 		}
 
 		if ( ! $post_ID ) {
-			return new IXR_Error( 500, __( 'Sorry, your entry could not be posted.' ) );
+			return new IXR_Error( 500, __( 'Sorry, the post could not be created.' ) );
 		}
 
 		$this->attach_uploads( $post_ID, $post_content );
@@ -5132,7 +5136,7 @@ class wp_xmlrpc_server extends IXR_Server {
 		$result = wp_update_post( $postdata );
 
 		if ( ! $result ) {
-			return new IXR_Error( 500, __( 'For some strange yet very annoying reason, this post could not be edited.' ) );
+			return new IXR_Error( 500, __( 'Sorry, the post could not be updated.' ) );
 		}
 		$this->attach_uploads( $actual_post['ID'], $postdata['post_content'] );
 
@@ -5192,7 +5196,7 @@ class wp_xmlrpc_server extends IXR_Server {
 		$result = wp_delete_post( $post_ID );
 
 		if ( ! $result ) {
-			return new IXR_Error( 500, __( 'The post cannot be deleted.' ) );
+			return new IXR_Error( 500, __( 'Sorry, the post could not be deleted.' ) );
 		}
 
 		/**
@@ -5481,8 +5485,8 @@ class wp_xmlrpc_server extends IXR_Server {
 		}
 
 		if ( ! empty( $dateCreated ) ) {
-			$post_date     = get_date_from_gmt( iso8601_to_datetime( $dateCreated ) );
-			$post_date_gmt = iso8601_to_datetime( $dateCreated, 'GMT' );
+			$post_date     = iso8601_to_datetime( $dateCreated );
+			$post_date_gmt = iso8601_to_datetime( $dateCreated, 'gmt' );
 		} else {
 			$post_date     = '';
 			$post_date_gmt = '';
@@ -5544,7 +5548,7 @@ class wp_xmlrpc_server extends IXR_Server {
 		}
 
 		if ( ! $post_ID ) {
-			return new IXR_Error( 500, __( 'Sorry, your entry could not be posted.' ) );
+			return new IXR_Error( 500, __( 'Sorry, the post could not be created.' ) );
 		}
 
 		/**
@@ -5870,8 +5874,8 @@ class wp_xmlrpc_server extends IXR_Server {
 		$edit_date = false;
 
 		if ( ! empty( $dateCreated ) ) {
-			$post_date     = get_date_from_gmt( iso8601_to_datetime( $dateCreated ) );
-			$post_date_gmt = iso8601_to_datetime( $dateCreated, 'GMT' );
+			$post_date     = iso8601_to_datetime( $dateCreated );
+			$post_date_gmt = iso8601_to_datetime( $dateCreated, 'gmt' );
 
 			// Flag the post date to be edited.
 			$edit_date = true;
@@ -5889,7 +5893,7 @@ class wp_xmlrpc_server extends IXR_Server {
 		}
 
 		if ( ! $result ) {
-			return new IXR_Error( 500, __( 'Sorry, your entry could not be edited.' ) );
+			return new IXR_Error( 500, __( 'Sorry, the post could not be updated.' ) );
 		}
 
 		// Only posts can be sticky
@@ -6848,7 +6852,7 @@ class wp_xmlrpc_server extends IXR_Server {
 		$remote_ip = preg_replace( '/[^0-9a-fA-F:., ]/', '', $_SERVER['REMOTE_ADDR'] );
 
 		/** This filter is documented in wp-includes/class-http.php */
-		$user_agent = apply_filters( 'http_headers_useragent', 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ), $url );
+		$user_agent = apply_filters( 'http_headers_useragent', 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ), $pagelinkedfrom );
 
 		// Let's check the remote site
 		$http_api_args = array(

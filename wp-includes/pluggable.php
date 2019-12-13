@@ -1215,6 +1215,7 @@ if ( ! function_exists( 'wp_redirect' ) ) :
 	 *
 	 * @since 1.5.1
 	 * @since 5.1.0 The `$x_redirect_by` parameter was added.
+	 * @since 5.4.0 On invalid status codes, wp_die() is called.
 	 *
 	 * @global bool $is_IIS
 	 *
@@ -1248,6 +1249,10 @@ if ( ! function_exists( 'wp_redirect' ) ) :
 
 		if ( ! $location ) {
 			return false;
+		}
+
+		if ( $status < 300 || 399 < $status ) {
+			wp_die( __( 'HTTP redirect status code must be a redirection code, 3xx.' ) );
 		}
 
 		$location = wp_sanitize_redirect( $location );
@@ -1734,7 +1739,7 @@ if ( ! function_exists( 'wp_notify_moderator' ) ) :
 			$comment_author_domain = gethostbyaddr( $comment->comment_author_IP );
 		}
 
-		$comments_waiting = $wpdb->get_var( "SELECT count(comment_ID) FROM $wpdb->comments WHERE comment_approved = '0'" );
+		$comments_waiting = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->comments WHERE comment_approved = '0'" );
 
 		// The blogname option is escaped with esc_html on the way into the database in sanitize_option
 		// we want to reverse this for the plain text arena of emails.

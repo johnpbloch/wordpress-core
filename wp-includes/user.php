@@ -35,7 +35,7 @@ function wp_signon( $credentials = array(), $secure_cookie = '' ) {
 		$credentials = array(); // Back-compat for plugins passing an empty string.
 
 		if ( ! empty( $_POST['log'] ) ) {
-			$credentials['user_login'] = $_POST['log'];
+			$credentials['user_login'] = wp_unslash( $_POST['log'] );
 		}
 		if ( ! empty( $_POST['pwd'] ) ) {
 			$credentials['user_password'] = $_POST['pwd'];
@@ -395,10 +395,10 @@ function count_user_posts( $userid, $post_type = 'post', $public_only = false ) 
  *
  * @global wpdb $wpdb WordPress database abstraction object.
  *
- * @param array        $users       Array of user IDs.
- * @param string|array $post_type   Optional. Single post type or array of post types to check. Defaults to 'post'.
- * @param bool         $public_only Optional. Only return counts for public posts.  Defaults to false.
- * @return array Amount of posts each user has written.
+ * @param int[]           $users       Array of user IDs.
+ * @param string|string[] $post_type   Optional. Single post type or array of post types to check. Defaults to 'post'.
+ * @param bool            $public_only Optional. Only return counts for public posts.  Defaults to false.
+ * @return string[] Amount of posts each user has written, as strings, keyed by user ID.
  */
 function count_many_users_posts( $users, $post_type = 'post', $public_only = false ) {
 	global $wpdb;
@@ -865,7 +865,12 @@ function update_user_meta( $user_id, $meta_key, $meta_value, $prev_value = '' ) 
  * @param string   $strategy Optional. The computational strategy to use when counting the users.
  *                           Accepts either 'time' or 'memory'. Default 'time'.
  * @param int|null $site_id  Optional. The site ID to count users for. Defaults to the current site.
- * @return array Includes a grand total and an array of counts indexed by role strings.
+ * @return array {
+ *     User counts.
+ *
+ *     @type int   $total_users Total number of users on the site.
+ *     @type int[] $avail_roles Array of user counts keyed by user role.
+ * }
  */
 function count_users( $strategy = 'time', $site_id = null ) {
 	global $wpdb;
@@ -1579,7 +1584,7 @@ function wp_insert_user( $userdata ) {
 	 */
 	$illegal_logins = (array) apply_filters( 'illegal_user_logins', array() );
 
-	if ( in_array( strtolower( $user_login ), array_map( 'strtolower', $illegal_logins ) ) ) {
+	if ( in_array( strtolower( $user_login ), array_map( 'strtolower', $illegal_logins ), true ) ) {
 		return new WP_Error( 'invalid_username', __( 'Sorry, that username is not allowed.' ) );
 	}
 
@@ -2171,7 +2176,7 @@ function wp_create_user( $username, $password, $email = '' ) {
  * @access private
  *
  * @param WP_User $user WP_User instance.
- * @return array List of user keys to be populated in wp_update_user().
+ * @return string[] List of user keys to be populated in wp_update_user().
  */
 function _get_additional_user_keys( $user ) {
 	$keys = array( 'first_name', 'last_name', 'nickname', 'description', 'rich_editing', 'syntax_highlighting', 'comment_shortcuts', 'admin_color', 'use_ssl', 'show_admin_bar_front', 'locale' );
@@ -2186,7 +2191,7 @@ function _get_additional_user_keys( $user ) {
  * @since 3.7.0
  *
  * @param WP_User $user Optional. WP_User object.
- * @return array Array of contact methods and their labels.
+ * @return string[] Array of contact method labels keyed by contact method.
  */
 function wp_get_user_contact_methods( $user = null ) {
 	$methods = array();
@@ -2203,8 +2208,8 @@ function wp_get_user_contact_methods( $user = null ) {
 	 *
 	 * @since 2.9.0
 	 *
-	 * @param array   $methods Array of contact methods and their labels.
-	 * @param WP_User $user    WP_User object.
+	 * @param string[] $methods Array of contact method labels keyed by contact method.
+	 * @param WP_User  $user    WP_User object.
 	 */
 	return apply_filters( 'user_contactmethods', $methods, $user );
 }
@@ -2218,7 +2223,7 @@ function wp_get_user_contact_methods( $user = null ) {
  * @access private
  *
  * @param WP_User $user Optional. WP_User object. Default null.
- * @return array Array of contact methods and their labels.
+ * @return string[] Array of contact method labels keyed by contact method.
  */
 function _wp_get_user_contactmethods( $user = null ) {
 	return wp_get_user_contact_methods( $user );
@@ -2268,11 +2273,11 @@ function get_password_reset_key( $user ) {
 	 * Use the {@see 'retrieve_password'} hook instead.
 	 *
 	 * @since 1.5.0
-	 * @deprecated 1.5.1 Misspelled. Use 'retrieve_password' hook instead.
+	 * @deprecated 1.5.1 Misspelled. Use {@see 'retrieve_password'} hook instead.
 	 *
 	 * @param string $user_login The user login name.
 	 */
-	do_action( 'retreive_password', $user->user_login );
+	do_action_deprecated( 'retreive_password', array( $user->user_login ), '1.5.1', 'retrieve_password' );
 
 	/**
 	 * Fires before a new password is retrieved.
@@ -2445,8 +2450,8 @@ function reset_password( $user, $new_pass ) {
 	 *
 	 * @since 1.5.0
 	 *
-	 * @param object $user     The user.
-	 * @param string $new_pass New user password.
+	 * @param WP_User $user     The user.
+	 * @param string  $new_pass New user password.
 	 */
 	do_action( 'password_reset', $user, $new_pass );
 
@@ -2498,7 +2503,7 @@ function register_new_user( $user_login, $user_email ) {
 	} else {
 		/** This filter is documented in wp-includes/user.php */
 		$illegal_user_logins = (array) apply_filters( 'illegal_user_logins', array() );
-		if ( in_array( strtolower( $sanitized_user_login ), array_map( 'strtolower', $illegal_user_logins ) ) ) {
+		if ( in_array( strtolower( $sanitized_user_login ), array_map( 'strtolower', $illegal_user_logins ), true ) ) {
 			$errors->add( 'invalid_username', __( '<strong>ERROR</strong>: Sorry, that username is not allowed.' ) );
 		}
 	}
@@ -2660,7 +2665,7 @@ function wp_destroy_all_sessions() {
  * @since 4.9.0 The `$site_id` parameter was added to support multisite.
  *
  * @param int|null $site_id Optional. The site ID to get users with no role for. Defaults to the current site.
- * @return array Array of user IDs.
+ * @return string[] Array of user IDs as strings.
  */
 function wp_get_users_with_no_role( $site_id = null ) {
 	global $wpdb;

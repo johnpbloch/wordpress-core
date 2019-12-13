@@ -30,7 +30,7 @@ abstract class WP_Image_Editor {
 
 	/**
 	 * Checks to see if current environment supports the editor chosen.
-	 * Must be overridden in a sub-class.
+	 * Must be overridden in a subclass.
 	 *
 	 * @since 3.5.0
 	 *
@@ -45,7 +45,7 @@ abstract class WP_Image_Editor {
 
 	/**
 	 * Checks to see if editor supports the mime-type specified.
-	 * Must be overridden in a sub-class.
+	 * Must be overridden in a subclass.
 	 *
 	 * @since 3.5.0
 	 *
@@ -172,7 +172,12 @@ abstract class WP_Image_Editor {
 	 *
 	 * @since 3.5.0
 	 *
-	 * @return array {'width'=>int, 'height'=>int}
+	 * @return array {
+	 *     Dimensions of the image.
+	 *
+	 *     @type int $width  The image width.
+	 *     @type int $height The image height.
+	 * }
 	 */
 	public function get_size() {
 		return $this->size;

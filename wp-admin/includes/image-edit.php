@@ -287,12 +287,12 @@ function wp_stream_image( $image, $mime_type, $attachment_id ) {
 		 * Filters the GD image resource to be streamed to the browser.
 		 *
 		 * @since 2.9.0
-		 * @deprecated 3.5.0 Use image_editor_save_pre instead.
+		 * @deprecated 3.5.0 Use {@see 'image_editor_save_pre'} instead.
 		 *
 		 * @param resource $image         Image resource to be streamed.
 		 * @param int      $attachment_id The attachment post ID.
 		 */
-		$image = apply_filters( 'image_save_pre', $image, $attachment_id );
+		$image = apply_filters_deprecated( 'image_save_pre', array( $image, $attachment_id ), '3.5.0', 'image_editor_save_pre' );
 
 		switch ( $mime_type ) {
 			case 'image/jpeg':
@@ -353,7 +353,7 @@ function wp_save_image_file( $filename, $image, $mime_type, $post_id ) {
 		_deprecated_argument( __FUNCTION__, '3.5.0', sprintf( __( '%1$s needs to be a %2$s object.' ), '$image', 'WP_Image_Editor' ) );
 
 		/** This filter is documented in wp-admin/includes/image-edit.php */
-		$image = apply_filters( 'image_save_pre', $image, $post_id );
+		$image = apply_filters_deprecated( 'image_save_pre', array( $image, $post_id ), '3.5.0', 'image_editor_save_pre' );
 
 		/**
 		 * Filters whether to skip saving the image file.
@@ -362,7 +362,7 @@ function wp_save_image_file( $filename, $image, $mime_type, $post_id ) {
 		 * returning that value instead.
 		 *
 		 * @since 2.9.0
-		 * @deprecated 3.5.0 Use wp_save_image_editor_file instead.
+		 * @deprecated 3.5.0 Use {@see 'wp_save_image_editor_file'} instead.
 		 *
 		 * @param mixed           $override  Value to return instead of saving. Default null.
 		 * @param string          $filename  Name of the file to be saved.
@@ -370,7 +370,7 @@ function wp_save_image_file( $filename, $image, $mime_type, $post_id ) {
 		 * @param string          $mime_type Image mime type.
 		 * @param int             $post_id   Post ID.
 		 */
-		$saved = apply_filters( 'wp_save_image_file', null, $filename, $image, $mime_type, $post_id );
+		$saved = apply_filters_deprecated( 'wp_save_image_file', array( null, $filename, $image, $mime_type, $post_id ), '3.5.0', 'wp_save_image_editor_file' );
 
 		if ( null !== $saved ) {
 			return $saved;
@@ -565,12 +565,12 @@ function image_edit_apply_changes( $image, $changes ) {
 		 * Filters the GD image resource before applying changes to the image.
 		 *
 		 * @since 2.9.0
-		 * @deprecated 3.5.0 Use wp_image_editor_before_change instead.
+		 * @deprecated 3.5.0 Use {@see 'wp_image_editor_before_change'} instead.
 		 *
 		 * @param resource $image   GD image resource.
 		 * @param array    $changes Array of change operations.
 		 */
-		$image = apply_filters( 'image_edit_before_change', $image, $changes );
+		$image = apply_filters_deprecated( 'image_edit_before_change', array( $image, $changes ), '3.5.0', 'wp_image_editor_before_change' );
 	}
 
 	foreach ( $changes as $operation ) {

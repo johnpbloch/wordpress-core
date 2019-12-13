@@ -70,7 +70,7 @@ abstract class WP_REST_Meta_Fields {
 	 *
 	 * @param int             $object_id Object ID to fetch meta for.
 	 * @param WP_REST_Request $request   Full details about the request.
-	 * @return WP_Error|object Object containing the meta values by name, otherwise WP_Error object.
+	 * @return object|WP_Error Object containing the meta values by name, otherwise WP_Error object.
 	 */
 	public function get_value( $object_id, $request ) {
 		$fields   = $this->get_registered_fields();
@@ -126,9 +126,9 @@ abstract class WP_REST_Meta_Fields {
 	 *
 	 * @since 4.7.0
 	 *
-	 * @param array           $meta      Array of meta parsed from the request.
-	 * @param int             $object_id Object ID to fetch meta for.
-	 * @return WP_Error|null WP_Error if one occurs, null on success.
+	 * @param array $meta      Array of meta parsed from the request.
+	 * @param int   $object_id Object ID to fetch meta for.
+	 * @return null|WP_Error Null on success, WP_Error object on failure.
 	 */
 	public function update_value( $meta, $object_id ) {
 		$fields = $this->get_registered_fields();
@@ -435,7 +435,7 @@ abstract class WP_REST_Meta_Fields {
 
 			$rest_args['schema'] = $this->default_additional_properties_to_false( $rest_args['schema'] );
 
-			if ( ! in_array( $type, array( 'string', 'boolean', 'integer', 'number', 'array', 'object' ) ) ) {
+			if ( ! in_array( $type, array( 'string', 'boolean', 'integer', 'number', 'array', 'object' ), true ) ) {
 				continue;
 			}
 
@@ -520,7 +520,7 @@ abstract class WP_REST_Meta_Fields {
 	 * @param mixed           $value   The meta value submitted in the request.
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @param string          $param   The parameter name.
-	 * @return WP_Error|string The meta array, if valid, otherwise an error.
+	 * @return array|false The meta array, if valid, false otherwise.
 	 */
 	public function check_meta_is_array( $value, $request, $param ) {
 		if ( ! is_array( $value ) ) {
