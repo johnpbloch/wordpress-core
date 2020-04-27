@@ -311,7 +311,7 @@ class WP_Meta_Query {
 	 * @param string $primary_table     Database table where the object being filtered is stored (eg wp_users).
 	 * @param string $primary_id_column ID column for the filtered object in $primary_table.
 	 * @param object $context           Optional. The main query object.
-	 * @return false|array {
+	 * @return array|false {
 	 *     Array containing JOIN and WHERE SQL clauses to append to the main query.
 	 *
 	 *     @type string $join  SQL fragment to append to the main JOIN clause.
@@ -687,7 +687,7 @@ class WP_Meta_Query {
 		if ( array_key_exists( 'value', $clause ) ) {
 			$meta_value = $clause['value'];
 
-			if ( in_array( $meta_compare, array( 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN' ) ) ) {
+			if ( in_array( $meta_compare, array( 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN' ), true ) ) {
 				if ( ! is_array( $meta_value ) ) {
 					$meta_value = preg_split( '/[,\s]+/', $meta_value );
 				}
@@ -811,7 +811,7 @@ class WP_Meta_Query {
 
 			$clause_compare  = strtoupper( $clause['compare'] );
 			$sibling_compare = strtoupper( $sibling['compare'] );
-			if ( in_array( $clause_compare, $compatible_compares ) && in_array( $sibling_compare, $compatible_compares ) ) {
+			if ( in_array( $clause_compare, $compatible_compares, true ) && in_array( $sibling_compare, $compatible_compares, true ) ) {
 				$alias = $sibling['alias'];
 				break;
 			}

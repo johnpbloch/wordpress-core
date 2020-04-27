@@ -259,7 +259,9 @@ class WP_Date_Query {
 	 * @return string The comparison operator.
 	 */
 	public function get_compare( $query ) {
-		if ( ! empty( $query['compare'] ) && in_array( $query['compare'], array( '=', '!=', '>', '>=', '<', '<=', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN' ) ) ) {
+		if ( ! empty( $query['compare'] )
+			&& in_array( $query['compare'], array( '=', '!=', '>', '>=', '<', '<=', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN' ), true )
+		) {
 			return strtoupper( $query['compare'] );
 		}
 
@@ -273,7 +275,7 @@ class WP_Date_Query {
 	 * continue (though of course no items will be found for impossible dates).
 	 * This method only generates debug notices for these cases.
 	 *
-	 * @since  4.1.0
+	 * @since 4.1.0
 	 *
 	 * @param  array $date_query The date_query array.
 	 * @return bool  True if all values in the query are valid, false if one or more fail.
@@ -315,7 +317,7 @@ class WP_Date_Query {
 
 			$max_days_of_year = gmdate( 'z', mktime( 0, 0, 0, 12, 31, $_year ) ) + 1;
 		} else {
-			// otherwise we use the max of 366 (leap-year)
+			// Otherwise we use the max of 366 (leap-year).
 			$max_days_of_year = 366;
 		}
 
@@ -500,7 +502,7 @@ class WP_Date_Query {
 			 *                                'post_modified_gmt', 'comment_date', 'comment_date_gmt',
 			 *                                'user_registered'
 			 */
-			if ( ! in_array( $column, apply_filters( 'date_query_valid_columns', $valid_columns ) ) ) {
+			if ( ! in_array( $column, apply_filters( 'date_query_valid_columns', $valid_columns ), true ) ) {
 				$column = 'post_date';
 			}
 
@@ -526,7 +528,7 @@ class WP_Date_Query {
 
 			// If it's a known column name, add the appropriate table prefix.
 			foreach ( $known_columns as $table_name => $table_columns ) {
-				if ( in_array( $column, $table_columns ) ) {
+				if ( in_array( $column, $table_columns, true ) ) {
 					$column = $table_name . '.' . $column;
 					break;
 				}
@@ -675,7 +677,7 @@ class WP_Date_Query {
 	 * A wrapper for get_sql_for_clause(), included here for backward
 	 * compatibility while retaining the naming convention across Query classes.
 	 *
-	 * @since  3.7.0
+	 * @since 3.7.0
 	 *
 	 * @param  array $query Date query arguments.
 	 * @return array {
@@ -692,7 +694,7 @@ class WP_Date_Query {
 	/**
 	 * Turns a first-order date query into SQL for a WHERE clause.
 	 *
-	 * @since  4.1.0
+	 * @since 4.1.0
 	 *
 	 * @param  array $query        Date query clause.
 	 * @param  array $parent_query Parent query of the current date query.
@@ -745,7 +747,7 @@ class WP_Date_Query {
 			'WEEKDAY'        => array( 'dayofweek_iso' ),
 		);
 
-		// Check of the possible date units and add them to the query
+		// Check of the possible date units and add them to the query.
 		foreach ( $date_units as $sql_part => $query_parts ) {
 			foreach ( $query_parts as $query_part ) {
 				if ( isset( $query[ $query_part ] ) ) {
@@ -966,13 +968,13 @@ class WP_Date_Query {
 	public function build_time_query( $column, $compare, $hour = null, $minute = null, $second = null ) {
 		global $wpdb;
 
-		// Have to have at least one
+		// Have to have at least one.
 		if ( ! isset( $hour ) && ! isset( $minute ) && ! isset( $second ) ) {
 			return false;
 		}
 
-		// Complex combined queries aren't supported for multi-value queries
-		if ( in_array( $compare, array( 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN' ) ) ) {
+		// Complex combined queries aren't supported for multi-value queries.
+		if ( in_array( $compare, array( 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN' ), true ) ) {
 			$return = array();
 
 			$value = $this->build_value( $compare, $hour );
@@ -993,7 +995,7 @@ class WP_Date_Query {
 			return implode( ' AND ', $return );
 		}
 
-		// Cases where just one unit is set
+		// Cases where just one unit is set.
 		if ( isset( $hour ) && ! isset( $minute ) && ! isset( $second ) ) {
 			$value = $this->build_value( $compare, $hour );
 			if ( false !== $value ) {
@@ -1019,7 +1021,7 @@ class WP_Date_Query {
 		$format = '';
 		$time   = '';
 
-		// Hour
+		// Hour.
 		if ( null !== $hour ) {
 			$format .= '%H.';
 			$time   .= sprintf( '%02d', $hour ) . '.';
@@ -1028,7 +1030,7 @@ class WP_Date_Query {
 			$time   .= '0.';
 		}
 
-		// Minute
+		// Minute.
 		$format .= '%i';
 		$time   .= sprintf( '%02d', $minute );
 

@@ -34,7 +34,7 @@ class WP_Theme_Install_List_Table extends WP_Themes_List_Table {
 	 * @global array  $theme_field_defaults
 	 */
 	public function prepare_items() {
-		include( ABSPATH . 'wp-admin/includes/theme-install.php' );
+		require ABSPATH . 'wp-admin/includes/theme-install.php';
 
 		global $tabs, $tab, $paged, $type, $theme_field_defaults;
 		wp_reset_vars( array( 'tab' ) );
@@ -82,7 +82,7 @@ class WP_Theme_Install_List_Table extends WP_Themes_List_Table {
 		$nonmenu_tabs = apply_filters( 'install_themes_nonmenu_tabs', $nonmenu_tabs );
 
 		// If a non-valid menu tab has been selected, And it's not a non-menu action.
-		if ( empty( $tab ) || ( ! isset( $tabs[ $tab ] ) && ! in_array( $tab, (array) $nonmenu_tabs ) ) ) {
+		if ( empty( $tab ) || ( ! isset( $tabs[ $tab ] ) && ! in_array( $tab, (array) $nonmenu_tabs, true ) ) ) {
 			$tab = key( $tabs );
 		}
 
@@ -231,7 +231,7 @@ class WP_Theme_Install_List_Table extends WP_Themes_List_Table {
 				?>
 				</div>
 			<?php
-		} // end foreach $theme_names
+		} // End foreach $theme_names.
 
 		$this->theme_installer();
 	}

@@ -368,7 +368,7 @@ function wp_http_supports( $capabilities = array(), $url = null ) {
 
 	$count = count( $capabilities );
 
-	// If we have a numeric $capabilities array, spoof a wp_remote_request() associative $args array
+	// If we have a numeric $capabilities array, spoof a wp_remote_request() associative $args array.
 	if ( $count && count( array_filter( array_keys( $capabilities ), 'is_numeric' ) ) == $count ) {
 		$capabilities = array_combine( array_values( $capabilities ), array_fill( 0, $count, true ) );
 	}
@@ -417,7 +417,7 @@ function get_allowed_http_origins() {
 	$admin_origin = parse_url( admin_url() );
 	$home_origin  = parse_url( home_url() );
 
-	// @todo preserve port?
+	// @todo Preserve port?
 	$allowed_origins = array_unique(
 		array(
 			'http://' . $admin_origin['host'],
@@ -459,7 +459,7 @@ function is_allowed_http_origin( $origin = null ) {
 		$origin = get_http_origin();
 	}
 
-	if ( $origin && ! in_array( $origin, get_allowed_http_origins() ) ) {
+	if ( $origin && ! in_array( $origin, get_allowed_http_origins(), true ) ) {
 		$origin = '';
 	}
 
@@ -513,7 +513,7 @@ function send_origin_headers() {
  * @since 3.5.2
  *
  * @param string $url Request URL.
- * @return false|string URL or false on failure.
+ * @return string|false URL or false on failure.
  */
 function wp_http_validate_url( $url ) {
 	$original_url = $url;
@@ -522,7 +522,7 @@ function wp_http_validate_url( $url ) {
 		return false;
 	}
 
-	$parsed_url = @parse_url( $url );
+	$parsed_url = parse_url( $url );
 	if ( ! $parsed_url || empty( $parsed_url['host'] ) ) {
 		return false;
 	}
@@ -535,7 +535,7 @@ function wp_http_validate_url( $url ) {
 		return false;
 	}
 
-	$parsed_home = @parse_url( get_option( 'home' ) );
+	$parsed_home = parse_url( get_option( 'home' ) );
 
 	if ( isset( $parsed_home['host'] ) ) {
 		$same_host = strtolower( $parsed_home['host'] ) === strtolower( $parsed_url['host'] );
@@ -549,7 +549,7 @@ function wp_http_validate_url( $url ) {
 			$ip = $host;
 		} else {
 			$ip = gethostbyname( $host );
-			if ( $ip === $host ) { // Error condition for gethostbyname()
+			if ( $ip === $host ) { // Error condition for gethostbyname().
 				return false;
 			}
 		}
@@ -632,7 +632,7 @@ function ms_allowed_http_request_hosts( $is_external, $host ) {
 	if ( $is_external ) {
 		return $is_external;
 	}
-	if ( $host === get_network()->domain ) {
+	if ( get_network()->domain === $host ) {
 		return true;
 	}
 	if ( isset( $queried[ $host ] ) ) {
@@ -654,13 +654,10 @@ function ms_allowed_http_request_hosts( $is_external, $host ) {
  * in the query are being handled inconsistently. This function works around those
  * differences as well.
  *
- * Error suppression is used as prior to PHP 5.3.3, an E_WARNING would be generated
- * when URL parsing failed.
- *
  * @since 4.4.0
  * @since 4.7.0 The `$component` parameter was added for parity with PHP's `parse_url()`.
  *
- * @link https://secure.php.net/manual/en/function.parse-url.php
+ * @link https://www.php.net/manual/en/function.parse-url.php
  *
  * @param string $url       The URL to parse.
  * @param int    $component The specific component to retrieve. Use one of the PHP
@@ -684,7 +681,7 @@ function wp_parse_url( $url, $component = -1 ) {
 		$url        = 'placeholder://placeholder' . $url;
 	}
 
-	$parts = @parse_url( $url );
+	$parts = parse_url( $url );
 
 	if ( false === $parts ) {
 		// Parsing failure.
@@ -707,7 +704,7 @@ function wp_parse_url( $url, $component = -1 ) {
  * @since 4.7.0
  * @access private
  *
- * @link https://secure.php.net/manual/en/function.parse-url.php
+ * @link https://www.php.net/manual/en/function.parse-url.php
  *
  * @param array|false $url_parts The parsed URL. Can be false if the URL failed to parse.
  * @param int         $component The specific component to retrieve. Use one of the PHP
@@ -739,7 +736,7 @@ function _get_component_from_parsed_url_array( $url_parts, $component = -1 ) {
  * @since 4.7.0
  * @access private
  *
- * @link https://secure.php.net/manual/en/url.constants.php
+ * @link https://www.php.net/manual/en/url.constants.php
  *
  * @param int $constant PHP_URL_* constant.
  * @return string|false The named key or false.

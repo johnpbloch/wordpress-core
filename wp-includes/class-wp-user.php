@@ -160,7 +160,7 @@ class WP_User {
 	/**
 	 * Sets up object properties, including capabilities.
 	 *
-	 * @since  3.3.0
+	 * @since 3.3.0
 	 *
 	 * @param object $data    User DB row object.
 	 * @param int    $site_id Optional. The site ID to initialize for.
@@ -493,7 +493,7 @@ class WP_User {
 	 */
 	public function get_role_caps() {
 		$switch_site = false;
-		if ( is_multisite() && $this->site_id != get_current_blog_id() ) {
+		if ( is_multisite() && get_current_blog_id() != $this->site_id ) {
 			$switch_site = true;
 
 			switch_to_blog( $this->site_id );
@@ -559,7 +559,7 @@ class WP_User {
 	 * @param string $role Role name.
 	 */
 	public function remove_role( $role ) {
-		if ( ! in_array( $role, $this->roles ) ) {
+		if ( ! in_array( $role, $this->roles, true ) ) {
 			return;
 		}
 		unset( $this->caps[ $role ] );
@@ -590,7 +590,7 @@ class WP_User {
 	 * @param string $role Role name.
 	 */
 	public function set_role( $role ) {
-		if ( 1 == count( $this->roles ) && $role == current( $this->roles ) ) {
+		if ( 1 == count( $this->roles ) && current( $this->roles ) == $role ) {
 			return;
 		}
 
@@ -750,7 +750,7 @@ class WP_User {
 
 		// Multisite super admin has all caps by definition, Unless specifically denied.
 		if ( is_multisite() && is_super_admin( $this->ID ) ) {
-			if ( in_array( 'do_not_allow', $caps ) ) {
+			if ( in_array( 'do_not_allow', $caps, true ) ) {
 				return false;
 			}
 			return true;

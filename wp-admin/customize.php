@@ -10,7 +10,7 @@
 define( 'IFRAME_REQUEST', true );
 
 /** Load WordPress Administration Bootstrap */
-require_once( dirname( __FILE__ ) . '/admin.php' );
+require_once __DIR__ . '/admin.php';
 
 if ( ! current_user_can( 'customize' ) ) {
 	wp_die(
@@ -150,7 +150,7 @@ $body_class .= ' locale-' . sanitize_html_class( strtolower( str_replace( '_', '
 $admin_title = sprintf( $wp_customize->get_document_title_template(), __( 'Loading&hellip;' ) );
 
 ?>
-<title><?php echo $admin_title; ?></title>
+<title><?php echo esc_html( $admin_title ); ?></title>
 
 <script type="text/javascript">
 var ajaxurl = <?php echo wp_json_encode( admin_url( 'admin-ajax.php', 'relative' ) ); ?>,

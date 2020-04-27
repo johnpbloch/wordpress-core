@@ -58,7 +58,7 @@ class WP_User_Query {
 
 	private $compat_fields = array( 'results', 'total_users' );
 
-	// SQL clauses
+	// SQL clauses.
 	public $query_fields;
 	public $query_from;
 	public $query_where;
@@ -439,7 +439,7 @@ class WP_User_Query {
 			}
 		}
 
-		// sorting
+		// Sorting.
 		$qv['order'] = isset( $qv['order'] ) ? strtoupper( $qv['order'] ) : '';
 		$order       = $this->parse_order( $qv['order'] );
 
@@ -489,7 +489,7 @@ class WP_User_Query {
 
 		$this->query_orderby = 'ORDER BY ' . implode( ', ', $orderby_array );
 
-		// limit
+		// Limit.
 		if ( isset( $qv['number'] ) && $qv['number'] > 0 ) {
 			if ( $qv['offset'] ) {
 				$this->query_limit = $wpdb->prepare( 'LIMIT %d, %d', $qv['offset'], $qv['number'] );
@@ -756,14 +756,14 @@ class WP_User_Query {
 		$meta_query_clauses = $this->meta_query->get_clauses();
 
 		$_orderby = '';
-		if ( in_array( $orderby, array( 'login', 'nicename', 'email', 'url', 'registered' ) ) ) {
+		if ( in_array( $orderby, array( 'login', 'nicename', 'email', 'url', 'registered' ), true ) ) {
 			$_orderby = 'user_' . $orderby;
-		} elseif ( in_array( $orderby, array( 'user_login', 'user_nicename', 'user_email', 'user_url', 'user_registered' ) ) ) {
+		} elseif ( in_array( $orderby, array( 'user_login', 'user_nicename', 'user_email', 'user_url', 'user_registered' ), true ) ) {
 			$_orderby = $orderby;
 		} elseif ( 'name' == $orderby || 'display_name' == $orderby ) {
 			$_orderby = 'display_name';
 		} elseif ( 'post_count' == $orderby ) {
-			// todo: avoid the JOIN
+			// @todo Avoid the JOIN.
 			$where             = get_posts_by_author_sql( 'post' );
 			$this->query_from .= " LEFT OUTER JOIN (
 				SELECT post_author, COUNT(*) as post_count
@@ -828,7 +828,7 @@ class WP_User_Query {
 	 * @return mixed Property.
 	 */
 	public function __get( $name ) {
-		if ( in_array( $name, $this->compat_fields ) ) {
+		if ( in_array( $name, $this->compat_fields, true ) ) {
 			return $this->$name;
 		}
 	}
@@ -843,7 +843,7 @@ class WP_User_Query {
 	 * @return mixed Newly-set property.
 	 */
 	public function __set( $name, $value ) {
-		if ( in_array( $name, $this->compat_fields ) ) {
+		if ( in_array( $name, $this->compat_fields, true ) ) {
 			return $this->$name = $value;
 		}
 	}
@@ -857,7 +857,7 @@ class WP_User_Query {
 	 * @return bool Whether the property is set.
 	 */
 	public function __isset( $name ) {
-		if ( in_array( $name, $this->compat_fields ) ) {
+		if ( in_array( $name, $this->compat_fields, true ) ) {
 			return isset( $this->$name );
 		}
 	}
@@ -870,7 +870,7 @@ class WP_User_Query {
 	 * @param string $name Property to unset.
 	 */
 	public function __unset( $name ) {
-		if ( in_array( $name, $this->compat_fields ) ) {
+		if ( in_array( $name, $this->compat_fields, true ) ) {
 			unset( $this->$name );
 		}
 	}

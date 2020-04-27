@@ -52,11 +52,11 @@ function get_bookmark( $bookmark, $output = OBJECT, $filter = 'raw' ) {
 
 	$_bookmark = sanitize_bookmark( $_bookmark, $filter );
 
-	if ( $output == OBJECT ) {
+	if ( OBJECT == $output ) {
 		return $_bookmark;
-	} elseif ( $output == ARRAY_A ) {
+	} elseif ( ARRAY_A == $output ) {
 		return get_object_vars( $_bookmark );
-	} elseif ( $output == ARRAY_N ) {
+	} elseif ( ARRAY_N == $output ) {
 		return array_values( get_object_vars( $_bookmark ) );
 	} else {
 		return $_bookmark;
@@ -167,8 +167,8 @@ function get_bookmarks( $args = '' ) {
 			 *
 			 * @see get_bookmarks()
 			 *
-			 * @param array $bookmarks List of the cached bookmarks.
-			 * @param array $parsed_args         An array of bookmark query arguments.
+			 * @param array $bookmarks   List of the cached bookmarks.
+			 * @param array $parsed_args An array of bookmark query arguments.
 			 */
 			return apply_filters( 'get_bookmarks', $bookmarks, $parsed_args );
 		}
@@ -180,7 +180,7 @@ function get_bookmarks( $args = '' ) {
 
 	$inclusions = '';
 	if ( ! empty( $parsed_args['include'] ) ) {
-		$parsed_args['exclude']       = '';  //ignore exclude, category, and category_name params if using include
+		$parsed_args['exclude']       = '';  // Ignore exclude, category, and category_name params if using include.
 		$parsed_args['category']      = '';
 		$parsed_args['category_name'] = '';
 
@@ -279,9 +279,9 @@ function get_bookmarks( $args = '' ) {
 			foreach ( explode( ',', $orderby ) as $ordparam ) {
 				$ordparam = trim( $ordparam );
 
-				if ( in_array( 'link_' . $ordparam, $keys ) ) {
+				if ( in_array( 'link_' . $ordparam, $keys, true ) ) {
 					$orderparams[] = 'link_' . $ordparam;
-				} elseif ( in_array( $ordparam, $keys ) ) {
+				} elseif ( in_array( $ordparam, $keys, true ) ) {
 					$orderparams[] = $ordparam;
 				}
 			}
@@ -293,7 +293,7 @@ function get_bookmarks( $args = '' ) {
 	}
 
 	$order = strtoupper( $parsed_args['order'] );
-	if ( '' !== $order && ! in_array( $order, array( 'ASC', 'DESC' ) ) ) {
+	if ( '' !== $order && ! in_array( $order, array( 'ASC', 'DESC' ), true ) ) {
 		$order = 'ASC';
 	}
 
@@ -305,7 +305,7 @@ function get_bookmarks( $args = '' ) {
 	$query  = "SELECT * $length $recently_updated_test $get_updated FROM $wpdb->links $join WHERE 1=1 $visible $category_query";
 	$query .= " $exclusions $inclusions $search";
 	$query .= " ORDER BY $orderby $order";
-	if ( $parsed_args['limit'] != -1 ) {
+	if ( -1 != $parsed_args['limit'] ) {
 		$query .= ' LIMIT ' . $parsed_args['limit'];
 	}
 
@@ -404,7 +404,7 @@ function sanitize_bookmark_field( $field, $value, $bookmark_id, $context ) {
 		case 'link_category': // array( ints )
 			$value = array_map( 'absint', (array) $value );
 			// We return here so that the categories aren't filtered.
-			// The 'link_category' filter is for the name of a link category, not an array of a link's link categories
+			// The 'link_category' filter is for the name of a link category, not an array of a link's link categories.
 			return $value;
 
 		case 'link_visible': // bool stored as Y|N
@@ -412,7 +412,7 @@ function sanitize_bookmark_field( $field, $value, $bookmark_id, $context ) {
 			break;
 		case 'link_target': // "enum"
 			$targets = array( '_top', '_blank' );
-			if ( ! in_array( $value, $targets ) ) {
+			if ( ! in_array( $value, $targets, true ) ) {
 				$value = '';
 			}
 			break;

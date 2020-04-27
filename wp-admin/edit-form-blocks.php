@@ -8,7 +8,7 @@
  * @subpackage Administration
  */
 
-// don't load directly
+// Don't load directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	die( '-1' );
 }
@@ -132,9 +132,10 @@ wp_localize_script( 'wp-editor', '_wpMetaBoxUrl', $meta_box_url );
  * Initialize the editor.
  */
 
-$align_wide    = get_theme_support( 'align-wide' );
-$color_palette = current( (array) get_theme_support( 'editor-color-palette' ) );
-$font_sizes    = current( (array) get_theme_support( 'editor-font-sizes' ) );
+$align_wide       = get_theme_support( 'align-wide' );
+$color_palette    = current( (array) get_theme_support( 'editor-color-palette' ) );
+$font_sizes       = current( (array) get_theme_support( 'editor-font-sizes' ) );
+$gradient_presets = current( (array) get_theme_support( 'editor-gradient-presets' ) );
 
 /**
  * Filters the allowed block types for the editor, defaulting to true (all
@@ -148,10 +149,12 @@ $font_sizes    = current( (array) get_theme_support( 'editor-font-sizes' ) );
  */
 $allowed_block_types = apply_filters( 'allowed_block_types', true, $post );
 
-// Get all available templates for the post/page attributes meta-box.
-// The "Default template" array element should only be added if the array is
-// not empty so we do not trigger the template select element without any options
-// besides the default value.
+/*
+ * Get all available templates for the post/page attributes meta-box.
+ * The "Default template" array element should only be added if the array is
+ * not empty so we do not trigger the template select element without any options
+ * besides the default value.
+ */
 $available_templates = wp_get_theme()->get_page_templates( get_post( $post->ID ) );
 $available_templates = ! empty( $available_templates ) ? array_merge(
 	array(
@@ -224,6 +227,15 @@ foreach ( $image_size_names as $image_size_slug => $image_size_name ) {
 	);
 }
 
+$image_dimensions = array();
+$all_sizes        = wp_get_registered_image_subsizes();
+foreach ( $available_image_sizes as $size ) {
+	$key = $size['slug'];
+	if ( isset( $all_sizes[ $key ] ) ) {
+		$image_dimensions[ $key ] = $all_sizes[ $key ];
+	}
+}
+
 // Lock settings.
 $user_id = wp_check_post_lock( $post->ID );
 if ( $user_id ) {
@@ -276,6 +288,7 @@ $editor_settings = array(
 	'allowedBlockTypes'      => $allowed_block_types,
 	'disableCustomColors'    => get_theme_support( 'disable-custom-colors' ),
 	'disableCustomFontSizes' => get_theme_support( 'disable-custom-font-sizes' ),
+	'disableCustomGradients' => get_theme_support( 'disable-custom-gradients' ),
 	'disablePostFormats'     => ! current_theme_supports( 'post-formats' ),
 	/** This filter is documented in wp-admin/edit-form-advanced.php */
 	'titlePlaceholder'       => apply_filters( 'enter_title_here', __( 'Add title' ), $post ),
@@ -286,6 +299,7 @@ $editor_settings = array(
 	'allowedMimeTypes'       => get_allowed_mime_types(),
 	'styles'                 => $styles,
 	'imageSizes'             => $available_image_sizes,
+	'imageDimensions'        => $image_dimensions,
 	'richEditingEnabled'     => user_can_richedit(),
 	'postLock'               => $lock_details,
 	'postLockUtils'          => array(
@@ -316,6 +330,10 @@ if ( false !== $color_palette ) {
 
 if ( false !== $font_sizes ) {
 	$editor_settings['fontSizes'] = $font_sizes;
+}
+
+if ( false !== $gradient_presets ) {
+	$editor_settings['gradients'] = $gradient_presets;
 }
 
 if ( ! empty( $post_type_object->template ) ) {
@@ -361,7 +379,7 @@ wp_enqueue_style( 'wp-format-library' );
 do_action( 'enqueue_block_editor_assets' );
 
 // In order to duplicate classic meta box behaviour, we need to run the classic meta box actions.
-require_once( ABSPATH . 'wp-admin/includes/meta-boxes.php' );
+require_once ABSPATH . 'wp-admin/includes/meta-boxes.php';
 register_and_do_post_meta_boxes( $post );
 
 // Check if the Custom Fields meta box has been removed at some point.
@@ -399,7 +417,7 @@ $script = sprintf(
 );
 wp_add_inline_script( 'wp-edit-post', $script );
 
-require_once( ABSPATH . 'wp-admin/admin-header.php' );
+require_once ABSPATH . 'wp-admin/admin-header.php';
 ?>
 
 <div class="block-editor">

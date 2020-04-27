@@ -119,6 +119,9 @@ function twentytwenty_theme_support() {
 	// Add support for full and wide align images.
 	add_theme_support( 'align-wide' );
 
+	// Add support for responsive embeds.
+	add_theme_support( 'responsive-embeds' );
+
 	/*
 	 * Adds starter content to highlight the theme on fresh sites.
 	 * This is done conditionally to avoid loading the starter content on every
@@ -324,7 +327,7 @@ add_filter( 'get_custom_logo', 'twentytwenty_get_custom_logo' );
 if ( ! function_exists( 'wp_body_open' ) ) {
 
 	/**
-	 * Shim for wp_body_open, ensuring backwards compatibility with versions of WordPress older than 5.2.
+	 * Shim for wp_body_open, ensuring backward compatibility with versions of WordPress older than 5.2.
 	 */
 	function wp_body_open() {
 		do_action( 'wp_body_open' );
@@ -388,10 +391,8 @@ add_action( 'widgets_init', 'twentytwenty_sidebar_registration' );
  */
 function twentytwenty_block_editor_styles() {
 
-	$css_dependencies = array();
-
 	// Enqueue the editor styles.
-	wp_enqueue_style( 'twentytwenty-block-editor-styles', get_theme_file_uri( '/assets/css/editor-style-block.css' ), $css_dependencies, wp_get_theme()->get( 'Version' ), 'all' );
+	wp_enqueue_style( 'twentytwenty-block-editor-styles', get_theme_file_uri( '/assets/css/editor-style-block.css' ), array(), wp_get_theme()->get( 'Version' ), 'all' );
 	wp_style_add_data( 'twentytwenty-block-editor-styles', 'rtl', 'replace' );
 
 	// Add inline style from the Customizer.
@@ -551,6 +552,8 @@ function twentytwenty_block_editor_settings() {
 			),
 		)
 	);
+
+	add_theme_support( 'editor-styles' );
 
 	// If we have a dark background color then add support for dark editor style.
 	// We can determine if the background color is dark by checking if the text-color is white.

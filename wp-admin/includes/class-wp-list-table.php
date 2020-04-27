@@ -181,7 +181,7 @@ class WP_List_Table {
 	 * @return mixed Property.
 	 */
 	public function __get( $name ) {
-		if ( in_array( $name, $this->compat_fields ) ) {
+		if ( in_array( $name, $this->compat_fields, true ) ) {
 			return $this->$name;
 		}
 	}
@@ -196,7 +196,7 @@ class WP_List_Table {
 	 * @return mixed Newly-set property.
 	 */
 	public function __set( $name, $value ) {
-		if ( in_array( $name, $this->compat_fields ) ) {
+		if ( in_array( $name, $this->compat_fields, true ) ) {
 			return $this->$name = $value;
 		}
 	}
@@ -210,7 +210,7 @@ class WP_List_Table {
 	 * @return bool Whether the property is set.
 	 */
 	public function __isset( $name ) {
-		if ( in_array( $name, $this->compat_fields ) ) {
+		if ( in_array( $name, $this->compat_fields, true ) ) {
 			return isset( $this->$name );
 		}
 	}
@@ -223,7 +223,7 @@ class WP_List_Table {
 	 * @param string $name Property to unset.
 	 */
 	public function __unset( $name ) {
-		if ( in_array( $name, $this->compat_fields ) ) {
+		if ( in_array( $name, $this->compat_fields, true ) ) {
 			unset( $this->$name );
 		}
 	}
@@ -238,7 +238,7 @@ class WP_List_Table {
 	 * @return mixed|bool Return value of the callback, false otherwise.
 	 */
 	public function __call( $name, $arguments ) {
-		if ( in_array( $name, $this->compat_methods ) ) {
+		if ( in_array( $name, $this->compat_methods, true ) ) {
 			return $this->$name( ...$arguments );
 		}
 		return false;
@@ -451,7 +451,7 @@ class WP_List_Table {
 			 *
 			 * @param string[] $actions An array of the available bulk actions.
 			 */
-			$this->_actions = apply_filters( "bulk_actions-{$this->screen->id}", $this->_actions );  // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
+			$this->_actions = apply_filters( "bulk_actions-{$this->screen->id}", $this->_actions ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 			$two            = '';
 		} else {
 			$two = '2';
@@ -830,18 +830,18 @@ class WP_List_Table {
 		$disable_prev  = false;
 		$disable_next  = false;
 
-		if ( $current == 1 ) {
+		if ( 1 == $current ) {
 			$disable_first = true;
 			$disable_prev  = true;
 		}
-		if ( $current == 2 ) {
+		if ( 2 == $current ) {
 			$disable_first = true;
 		}
-		if ( $current == $total_pages ) {
+		if ( $total_pages == $current ) {
 			$disable_last = true;
 			$disable_next = true;
 		}
-		if ( $current == $total_pages - 1 ) {
+		if ( $total_pages - 1 == $current ) {
 			$disable_last = true;
 		}
 
@@ -1004,8 +1004,8 @@ class WP_List_Table {
 		$columns = get_column_headers( $this->screen );
 		$default = $this->get_default_primary_column_name();
 
-		// If the primary column doesn't exist fall back to the
-		// first non-checkbox column.
+		// If the primary column doesn't exist,
+		// fall back to the first non-checkbox column.
 		if ( ! isset( $columns[ $default ] ) ) {
 			$default = WP_List_Table::get_default_primary_column_name();
 		}
@@ -1035,7 +1035,7 @@ class WP_List_Table {
 	 * @return array
 	 */
 	protected function get_column_info() {
-		// $_column_headers is already set / cached
+		// $_column_headers is already set / cached.
 		if ( isset( $this->_column_headers ) && is_array( $this->_column_headers ) ) {
 			// Back-compat for list tables that have been manually setting $_column_headers for horse reasons.
 			// In 4.3, we added a fourth argument for primary column.
@@ -1133,13 +1133,13 @@ class WP_List_Table {
 		foreach ( $columns as $column_key => $column_display_name ) {
 			$class = array( 'manage-column', "column-$column_key" );
 
-			if ( in_array( $column_key, $hidden ) ) {
+			if ( in_array( $column_key, $hidden, true ) ) {
 				$class[] = 'hidden';
 			}
 
 			if ( 'cb' === $column_key ) {
 				$class[] = 'check-column';
-			} elseif ( in_array( $column_key, array( 'posts', 'comments', 'links' ) ) ) {
+			} elseif ( in_array( $column_key, array( 'posts', 'comments', 'links' ), true ) ) {
 				$class[] = 'num';
 			}
 
@@ -1329,7 +1329,7 @@ class WP_List_Table {
 				$classes .= ' has-row-actions column-primary';
 			}
 
-			if ( in_array( $column_name, $hidden ) ) {
+			if ( in_array( $column_name, $hidden, true ) ) {
 				$classes .= ' hidden';
 			}
 
@@ -1373,7 +1373,8 @@ class WP_List_Table {
 	 * @param object $item        The item being acted upon.
 	 * @param string $column_name Current column name.
 	 * @param string $primary     Primary column name.
-	 * @return string The row actions HTML, or an empty string if the current column is the primary column.
+	 * @return string The row actions HTML, or an empty string
+	 *                if the current column is not the primary column.
 	 */
 	protected function handle_row_actions( $item, $column_name, $primary ) {
 		return $column_name === $primary ? '<button type="button" class="toggle-row"><span class="screen-reader-text">' . __( 'Show more details' ) . '</span></button>' : '';

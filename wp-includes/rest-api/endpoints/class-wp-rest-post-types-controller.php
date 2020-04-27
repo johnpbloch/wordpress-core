@@ -81,13 +81,19 @@ class WP_REST_Post_Types_Controller extends WP_REST_Controller {
 	 */
 	public function get_items_permissions_check( $request ) {
 		if ( 'edit' === $request['context'] ) {
-			foreach ( get_post_types( array(), 'object' ) as $post_type ) {
-				if ( ! empty( $post_type->show_in_rest ) && current_user_can( $post_type->cap->edit_posts ) ) {
+			$types = get_post_types( array( 'show_in_rest' => true ), 'objects' );
+
+			foreach ( $types as $type ) {
+				if ( current_user_can( $type->cap->edit_posts ) ) {
 					return true;
 				}
 			}
 
-			return new WP_Error( 'rest_cannot_view', __( 'Sorry, you are not allowed to edit posts in this post type.' ), array( 'status' => rest_authorization_required_code() ) );
+			return new WP_Error(
+				'rest_cannot_view',
+				__( 'Sorry, you are not allowed to edit posts in this post type.' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
 		}
 
 		return true;
@@ -102,15 +108,16 @@ class WP_REST_Post_Types_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_items( $request ) {
-		$data = array();
+		$data  = array();
+		$types = get_post_types( array( 'show_in_rest' => true ), 'objects' );
 
-		foreach ( get_post_types( array(), 'object' ) as $obj ) {
-			if ( empty( $obj->show_in_rest ) || ( 'edit' === $request['context'] && ! current_user_can( $obj->cap->edit_posts ) ) ) {
+		foreach ( $types as $type ) {
+			if ( 'edit' === $request['context'] && ! current_user_can( $type->cap->edit_posts ) ) {
 				continue;
 			}
 
-			$post_type          = $this->prepare_item_for_response( $obj, $request );
-			$data[ $obj->name ] = $this->prepare_response_for_collection( $post_type );
+			$post_type           = $this->prepare_item_for_response( $type, $request );
+			$data[ $type->name ] = $this->prepare_response_for_collection( $post_type );
 		}
 
 		return rest_ensure_response( $data );
@@ -128,15 +135,27 @@ class WP_REST_Post_Types_Controller extends WP_REST_Controller {
 		$obj = get_post_type_object( $request['type'] );
 
 		if ( empty( $obj ) ) {
-			return new WP_Error( 'rest_type_invalid', __( 'Invalid post type.' ), array( 'status' => 404 ) );
+			return new WP_Error(
+				'rest_type_invalid',
+				__( 'Invalid post type.' ),
+				array( 'status' => 404 )
+			);
 		}
 
 		if ( empty( $obj->show_in_rest ) ) {
-			return new WP_Error( 'rest_cannot_read_type', __( 'Cannot view post type.' ), array( 'status' => rest_authorization_required_code() ) );
+			return new WP_Error(
+				'rest_cannot_read_type',
+				__( 'Cannot view post type.' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
 		}
 
 		if ( 'edit' === $request['context'] && ! current_user_can( $obj->cap->edit_posts ) ) {
-			return new WP_Error( 'rest_forbidden_context', __( 'Sorry, you are not allowed to edit posts in this post type.' ), array( 'status' => rest_authorization_required_code() ) );
+			return new WP_Error(
+				'rest_forbidden_context',
+				__( 'Sorry, you are not allowed to edit posts in this post type.' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
 		}
 
 		$data = $this->prepare_item_for_response( $obj, $request );
@@ -318,6 +337,7 @@ class WP_REST_Post_Types_Controller extends WP_REST_Controller {
 		);
 
 		$this->schema = $schema;
+
 		return $this->add_additional_fields_schema( $this->schema );
 	}
 

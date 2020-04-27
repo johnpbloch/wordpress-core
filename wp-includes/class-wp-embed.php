@@ -28,18 +28,18 @@ class WP_Embed {
 	 * Constructor
 	 */
 	public function __construct() {
-		// Hack to get the [embed] shortcode to run before wpautop()
+		// Hack to get the [embed] shortcode to run before wpautop().
 		add_filter( 'the_content', array( $this, 'run_shortcode' ), 8 );
 		add_filter( 'widget_text_content', array( $this, 'run_shortcode' ), 8 );
 
-		// Shortcode placeholder for strip_shortcodes()
+		// Shortcode placeholder for strip_shortcodes().
 		add_shortcode( 'embed', '__return_false' );
 
-		// Attempts to embed all URLs in a post
+		// Attempts to embed all URLs in a post.
 		add_filter( 'the_content', array( $this, 'autoembed' ), 8 );
 		add_filter( 'widget_text_content', array( $this, 'autoembed' ), 8 );
 
-		// After a post is saved, cache oEmbed items via Ajax
+		// After a post is saved, cache oEmbed items via Ajax.
 		add_action( 'edit_form_advanced', array( $this, 'maybe_run_ajax_cache' ) );
 		add_action( 'edit_page_form', array( $this, 'maybe_run_ajax_cache' ) );
 	}
@@ -59,16 +59,16 @@ class WP_Embed {
 	public function run_shortcode( $content ) {
 		global $shortcode_tags;
 
-		// Back up current registered shortcodes and clear them all out
+		// Back up current registered shortcodes and clear them all out.
 		$orig_shortcode_tags = $shortcode_tags;
 		remove_all_shortcodes();
 
 		add_shortcode( 'embed', array( $this, 'shortcode' ) );
 
-		// Do the shortcode (only the [embed] one is registered)
+		// Do the shortcode (only the [embed] one is registered).
 		$content = do_shortcode( $content, true );
 
-		// Put the original shortcodes back
+		// Put the original shortcodes back.
 		$shortcode_tags = $orig_shortcode_tags;
 
 		return $content;
@@ -161,11 +161,11 @@ class WP_Embed {
 
 		$this->last_attr = $attr;
 
-		// kses converts & into &amp; and we need to undo this
+		// KSES converts & into &amp; and we need to undo this.
 		// See https://core.trac.wordpress.org/ticket/11311
 		$url = str_replace( '&amp;', '&', $url );
 
-		// Look for known internal handlers
+		// Look for known internal handlers.
 		ksort( $this->handlers );
 		foreach ( $this->handlers as $priority => $handlers ) {
 			foreach ( $handlers as $id => $handler ) {
@@ -339,7 +339,7 @@ class WP_Embed {
 			return apply_filters( 'embed_oembed_html', $html, $url, $attr, $post_ID );
 		}
 
-		// Still unknown
+		// Still unknown.
 		return $this->maybe_make_link( $url );
 	}
 
@@ -370,6 +370,7 @@ class WP_Embed {
 		$post = get_post( $post_ID );
 
 		$post_types = get_post_types( array( 'show_ui' => true ) );
+
 		/**
 		 * Filters the array of post types to cache oEmbed results for.
 		 *
@@ -377,11 +378,13 @@ class WP_Embed {
 		 *
 		 * @param string[] $post_types Array of post type names to cache oEmbed results for. Defaults to post types with `show_ui` set to true.
 		 */
-		if ( empty( $post->ID ) || ! in_array( $post->post_type, apply_filters( 'embed_cache_oembed_types', $post_types ) ) ) {
+		$cache_oembed_types = apply_filters( 'embed_cache_oembed_types', $post_types );
+
+		if ( empty( $post->ID ) || ! in_array( $post->post_type, $cache_oembed_types, true ) ) {
 			return;
 		}
 
-		// Trigger a caching
+		// Trigger a caching.
 		if ( ! empty( $post->post_content ) ) {
 			$this->post_ID  = $post->ID;
 			$this->usecache = false;
@@ -435,7 +438,7 @@ class WP_Embed {
 	 * Conditionally makes a hyperlink based on an internal class variable.
 	 *
 	 * @param string $url URL to potentially be linked.
-	 * @return false|string Linked URL or the original URL. False if 'return_false_on_fail' is true.
+	 * @return string|false Linked URL or the original URL. False if 'return_false_on_fail' is true.
 	 */
 	public function maybe_make_link( $url ) {
 		if ( $this->return_false_on_fail ) {
@@ -486,7 +489,7 @@ class WP_Embed {
 		);
 
 		if ( ! empty( $oembed_post_query->posts ) ) {
-			// Note: 'fields'=>'ids' is not being used in order to cache the post object as it will be needed.
+			// Note: 'fields' => 'ids' is not being used in order to cache the post object as it will be needed.
 			$oembed_post_id = $oembed_post_query->posts[0]->ID;
 			wp_cache_set( $cache_key, $oembed_post_id, $cache_group );
 

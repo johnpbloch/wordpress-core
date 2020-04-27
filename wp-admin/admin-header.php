@@ -8,7 +8,7 @@
 
 header( 'Content-Type: ' . get_option( 'html_type' ) . '; charset=' . get_option( 'blog_charset' ) );
 if ( ! defined( 'WP_ADMIN' ) ) {
-	require_once( dirname( __FILE__ ) . '/admin.php' );
+	require_once __DIR__ . '/admin.php';
 }
 
 /**
@@ -32,14 +32,14 @@ if ( empty( $current_screen ) ) {
 }
 
 get_admin_page_title();
-$title = esc_html( strip_tags( $title ) );
+$title = strip_tags( $title );
 
 if ( is_network_admin() ) {
 	/* translators: Network admin screen title. %s: Network title. */
-	$admin_title = sprintf( __( 'Network Admin: %s' ), esc_html( get_network()->site_name ) );
+	$admin_title = sprintf( __( 'Network Admin: %s' ), get_network()->site_name );
 } elseif ( is_user_admin() ) {
 	/* translators: User dashboard screen title. %s: Network title. */
-	$admin_title = sprintf( __( 'User Dashboard: %s' ), esc_html( get_network()->site_name ) );
+	$admin_title = sprintf( __( 'User Dashboard: %s' ), get_network()->site_name );
 } else {
 	$admin_title = get_bloginfo( 'name' );
 }
@@ -71,7 +71,7 @@ wp_user_settings();
 
 _wp_admin_html_begin();
 ?>
-<title><?php echo $admin_title; ?></title>
+<title><?php echo esc_html( $admin_title ); ?></title>
 <?php
 
 wp_enqueue_style( 'colors' );
@@ -233,7 +233,7 @@ if ( current_user_can( 'customize' ) ) {
 ?>
 
 <div id="wpwrap">
-<?php require( ABSPATH . 'wp-admin/menu-header.php' ); ?>
+<?php require ABSPATH . 'wp-admin/menu-header.php'; ?>
 <div id="wpcontent">
 
 <?php
@@ -288,6 +288,6 @@ if ( is_network_admin() ) {
  */
 do_action( 'all_admin_notices' );
 
-if ( $parent_file == 'options-general.php' ) {
-	require( ABSPATH . 'wp-admin/options-head.php' );
+if ( 'options-general.php' === $parent_file ) {
+	require ABSPATH . 'wp-admin/options-head.php';
 }

@@ -504,7 +504,7 @@ class WP_Tax_Query {
 	protected function find_compatible_table_alias( $clause, $parent_query ) {
 		$alias = false;
 
-		// Sanity check. Only IN queries use the JOIN syntax .
+		// Sanity check. Only IN queries use the JOIN syntax.
 		if ( ! isset( $clause['operator'] ) || 'IN' !== $clause['operator'] ) {
 			return $alias;
 		}
@@ -526,7 +526,7 @@ class WP_Tax_Query {
 			}
 
 			// The sibling must both have compatible operator to share its alias.
-			if ( in_array( strtoupper( $sibling['operator'] ), $compatible_operators ) ) {
+			if ( in_array( strtoupper( $sibling['operator'] ), $compatible_operators, true ) ) {
 				$alias = $sibling['alias'];
 				break;
 			}
@@ -549,7 +549,7 @@ class WP_Tax_Query {
 				return;
 			}
 
-			// so long as there are shared terms, include_children requires that a taxonomy is set
+			// So long as there are shared terms, 'include_children' requires that a taxonomy is set.
 			$query['include_children'] = false;
 		} elseif ( ! taxonomy_exists( $query['taxonomy'] ) ) {
 			$query = new WP_Error( 'invalid_taxonomy', __( 'Invalid taxonomy.' ) );

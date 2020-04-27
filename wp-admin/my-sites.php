@@ -7,7 +7,7 @@
  * @since 3.0.0
  */
 
-require_once( dirname( __FILE__ ) . '/admin.php' );
+require_once __DIR__ . '/admin.php';
 
 if ( ! is_multisite() ) {
 	wp_die( __( 'Multisite support is not enabled.' ) );
@@ -52,7 +52,7 @@ get_current_screen()->set_help_sidebar(
 	'<p>' . __( '<a href="https://wordpress.org/support/">Support</a>' ) . '</p>'
 );
 
-require_once( ABSPATH . 'wp-admin/admin-header.php' );
+require_once ABSPATH . 'wp-admin/admin-header.php';
 
 if ( $updated ) { ?>
 	<div id="message" class="updated notice is-dismissible"><p><strong><?php _e( 'Settings saved.' ); ?></strong></p></div>
@@ -66,7 +66,7 @@ echo esc_html( $title );
 </h1>
 
 <?php
-if ( in_array( get_site_option( 'registration' ), array( 'all', 'blog' ) ) ) {
+if ( in_array( get_site_option( 'registration' ), array( 'all', 'blog' ), true ) ) {
 	/** This filter is documented in wp-login.php */
 	$sign_up_url = apply_filters( 'wp_signup_location', network_site_url( 'wp-signup.php' ) );
 	printf( ' <a href="%s" class="page-title-action">%s</a>', esc_url( $sign_up_url ), esc_html_x( 'Add New', 'site' ) );
@@ -107,7 +107,7 @@ else :
 	 * @param string $context       Context of the setting (global or site-specific). Default 'global'.
 	 */
 	$settings_html = apply_filters( 'myblogs_options', '', 'global' );
-	if ( $settings_html != '' ) {
+	if ( '' != $settings_html ) {
 		echo '<h3>' . __( 'Global Settings' ) . '</h3>';
 		echo $settings_html;
 	}
@@ -157,4 +157,4 @@ else :
 <?php endif; ?>
 	</div>
 <?php
-include( ABSPATH . 'wp-admin/admin-footer.php' );
+require_once ABSPATH . 'wp-admin/admin-footer.php';

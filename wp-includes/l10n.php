@@ -22,8 +22,8 @@
  *
  * @since 1.5.0
  *
- * @global string $locale
- * @global string $wp_local_package
+ * @global string $locale           The current locale.
+ * @global string $wp_local_package Locale code of the package.
  *
  * @return string The locale of the blog or from the {@see 'locale'} hook.
  */
@@ -62,12 +62,12 @@ function get_locale() {
 			}
 		}
 
-		if ( $ms_locale !== false ) {
+		if ( false !== $ms_locale ) {
 			$locale = $ms_locale;
 		}
 	} else {
 		$db_locale = get_option( 'WPLANG' );
-		if ( $db_locale !== false ) {
+		if ( false !== $db_locale ) {
 			$locale = $db_locale;
 		}
 	}
@@ -926,8 +926,7 @@ function load_child_theme_textdomain( $domain, $path = false ) {
  * @param string $handle Name of the script to register a translation domain to.
  * @param string $domain Optional. Text domain. Default 'default'.
  * @param string $path   Optional. The full file path to the directory containing translation files.
- *
- * @return false|string False if the script textdomain could not be loaded, the translated strings
+ * @return string|false False if the script textdomain could not be loaded, the translated strings
  *                      in JSON encoding otherwise.
  */
 function load_script_textdomain( $handle, $domain = 'default', $path = null ) {
@@ -941,7 +940,7 @@ function load_script_textdomain( $handle, $domain = 'default', $path = null ) {
 	$locale = determine_locale();
 
 	// If a path was given and the handle file exists simply return it.
-	$file_base       = $domain === 'default' ? $locale : $domain . '-' . $locale;
+	$file_base       = 'default' === $domain ? $locale : $domain . '-' . $locale;
 	$handle_filename = $file_base . '-' . $handle . '.json';
 
 	if ( $path ) {
@@ -1016,8 +1015,8 @@ function load_script_textdomain( $handle, $domain = 'default', $path = null ) {
 	 *
 	 * @since 5.0.2
 	 *
-	 * @param string $relative The relative path of the script. False if it could not be determined.
-	 * @param string $src      The full source url of the script.
+	 * @param string|false $relative The relative path of the script. False if it could not be determined.
+	 * @param string       $src      The full source URL of the script.
 	 */
 	$relative = apply_filters( 'load_script_textdomain_relative_path', $relative, $src );
 
@@ -1209,12 +1208,12 @@ function _get_path_to_translation_from_lang_dir( $domain ) {
 	$mofile = "{$domain}-{$locale}.mo";
 
 	$path = WP_LANG_DIR . '/plugins/' . $mofile;
-	if ( in_array( $path, $cached_mofiles ) ) {
+	if ( in_array( $path, $cached_mofiles, true ) ) {
 		return $path;
 	}
 
 	$path = WP_LANG_DIR . '/themes/' . $mofile;
-	if ( in_array( $path, $cached_mofiles ) ) {
+	if ( in_array( $path, $cached_mofiles, true ) ) {
 		return $path;
 	}
 
@@ -1336,7 +1335,7 @@ function get_available_languages( $dir = null ) {
  * @return array Array of language data.
  */
 function wp_get_installed_translations( $type ) {
-	if ( $type !== 'themes' && $type !== 'plugins' && $type !== 'core' ) {
+	if ( 'themes' !== $type && 'plugins' !== $type && 'core' !== $type ) {
 		return array();
 	}
 
@@ -1367,7 +1366,7 @@ function wp_get_installed_translations( $type ) {
 		if ( ! preg_match( '/(?:(.+)-)?([a-z]{2,3}(?:_[A-Z]{2})?(?:_[a-z0-9]+)?).po/', $file, $match ) ) {
 			continue;
 		}
-		if ( ! in_array( substr( $file, 0, -3 ) . '.mo', $files ) ) {
+		if ( ! in_array( substr( $file, 0, -3 ) . '.mo', $files, true ) ) {
 			continue;
 		}
 
@@ -1432,7 +1431,7 @@ function wp_get_pomo_file_data( $po_file ) {
  *     @type bool     $show_option_site_default     Whether to show an option to fall back to the site's locale. Default false.
  *     @type bool     $show_option_en_us            Whether to show an option for English (United States). Default true.
  * }
- * @return string HTML content
+ * @return string HTML dropdown list of languages.
  */
 function wp_dropdown_languages( $args = array() ) {
 
@@ -1463,7 +1462,7 @@ function wp_dropdown_languages( $args = array() ) {
 
 	$translations = $parsed_args['translations'];
 	if ( empty( $translations ) ) {
-		require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
+		require_once ABSPATH . 'wp-admin/includes/translation-install.php';
 		$translations = wp_get_available_translations();
 	}
 

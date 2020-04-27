@@ -40,7 +40,7 @@ function wp_styles() {
  * @return string[] On success, an array of handles of processed WP_Dependencies items; otherwise, an empty array.
  */
 function wp_print_styles( $handles = false ) {
-	if ( '' === $handles ) { // for wp_head
+	if ( '' === $handles ) { // For 'wp_head'.
 		$handles = false;
 	}
 
@@ -222,7 +222,7 @@ function wp_style_is( $handle, $list = 'enqueued' ) {
  * 'alt'         bool        For rel="alternate stylesheet".
  * 'title'       string      For preferred/alternate stylesheets.
  *
- * @see WP_Dependency::add_data()
+ * @see WP_Dependencies::add_data()
  *
  * @since 3.6.0
  *

@@ -7,7 +7,7 @@
  */
 
 /** WordPress Administration Bootstrap */
-require_once( dirname( __FILE__ ) . '/admin.php' );
+require_once __DIR__ . '/admin.php';
 
 if ( ! $taxnow ) {
 	wp_die( __( 'Invalid taxonomy.' ) );
@@ -19,7 +19,7 @@ if ( ! $tax ) {
 	wp_die( __( 'Invalid taxonomy.' ) );
 }
 
-if ( ! in_array( $tax->name, get_taxonomies( array( 'show_ui' => true ) ) ) ) {
+if ( ! in_array( $tax->name, get_taxonomies( array( 'show_ui' => true ) ), true ) ) {
 	wp_die( __( 'Sorry, you are not allowed to edit terms in this taxonomy.' ) );
 }
 
@@ -204,7 +204,7 @@ switch ( $wp_list_table->current_action() ) {
 		$tags   = (array) $_REQUEST['delete_tags'];
 
 		/** This action is documented in wp-admin/edit.php */
-		$location = apply_filters( "handle_bulk_actions-{$screen}", $location, $wp_list_table->current_action(), $tags );  // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
+		$location = apply_filters( "handle_bulk_actions-{$screen}", $location, $wp_list_table->current_action(), $tags ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 		break;
 }
 
@@ -318,10 +318,10 @@ if ( 'category' === $taxonomy || 'link_category' === $taxonomy || 'post_tag' ===
 	unset( $help );
 }
 
-require_once( ABSPATH . 'wp-admin/admin-header.php' );
+require_once ABSPATH . 'wp-admin/admin-header.php';
 
 /** Also used by the Edit Tag  form */
-require_once( ABSPATH . 'wp-admin/includes/edit-tag-messages.php' );
+require_once ABSPATH . 'wp-admin/includes/edit-tag-messages.php';
 
 $class = ( isset( $_REQUEST['error'] ) ) ? 'error' : 'updated';
 
@@ -658,4 +658,4 @@ endif;
 
 $wp_list_table->inline_edit();
 
-include( ABSPATH . 'wp-admin/admin-footer.php' );
+require_once ABSPATH . 'wp-admin/admin-footer.php';

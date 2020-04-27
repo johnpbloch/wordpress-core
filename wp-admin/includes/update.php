@@ -56,7 +56,7 @@ function get_core_updates( $options = array() ) {
 	$updates = $from_api->updates;
 	$result  = array();
 	foreach ( $updates as $update ) {
-		if ( $update->response == 'autoupdate' ) {
+		if ( 'autoupdate' === $update->response ) {
 			continue;
 		}
 
@@ -90,7 +90,7 @@ function find_core_auto_update() {
 		return false;
 	}
 
-	include_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
+	require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
 	$auto_update = false;
 	$upgrader    = new WP_Automatic_Updater;
@@ -276,7 +276,7 @@ function core_update_footer( $msg = '' ) {
  * @since 2.3.0
  *
  * @global string $pagenow
- * @return false|void
+ * @return void|false
  */
 function update_nag() {
 	if ( is_multisite() && ! current_user_can( 'update_core' ) ) {
@@ -291,7 +291,7 @@ function update_nag() {
 
 	$cur = get_preferred_from_update_core();
 
-	if ( ! isset( $cur->response ) || $cur->response != 'upgrade' ) {
+	if ( ! isset( $cur->response ) || 'upgrade' !== $cur->response ) {
 		return false;
 	}
 
@@ -337,7 +337,7 @@ function update_right_now_message() {
 	if ( current_user_can( 'update_core' ) ) {
 		$cur = get_preferred_from_update_core();
 
-		if ( isset( $cur->response ) && $cur->response == 'upgrade' ) {
+		if ( isset( $cur->response ) && 'upgrade' === $cur->response ) {
 			$msg .= sprintf(
 				'<a href="%s" class="button" aria-describedby="wp-version">%s</a> ',
 				network_admin_url( 'update-core.php' ),
@@ -409,7 +409,7 @@ function wp_plugin_update_rows() {
  *
  * @param string $file        Plugin basename.
  * @param array  $plugin_data Plugin information.
- * @return false|void
+ * @return void|false
  */
 function wp_plugin_update_row( $file, $plugin_data ) {
 	$current = get_site_transient( 'update_plugins' );
@@ -611,7 +611,7 @@ function wp_theme_update_rows() {
  *
  * @param string   $theme_key Theme stylesheet.
  * @param WP_Theme $theme     Theme object.
- * @return false|void
+ * @return void|false
  */
 function wp_theme_update_row( $theme_key, $theme ) {
 	$current = get_site_transient( 'update_themes' );
@@ -720,10 +720,11 @@ function wp_theme_update_row( $theme_key, $theme ) {
  * @since 2.7.0
  *
  * @global int $upgrading
- * @return false|void
+ * @return void|false
  */
 function maintenance_nag() {
-	include( ABSPATH . WPINC . '/version.php' ); // include an unmodified $wp_version
+	// Include an unmodified $wp_version.
+	require ABSPATH . WPINC . '/version.php';
 	global $upgrading;
 	$nag = isset( $upgrading );
 	if ( ! $nag ) {

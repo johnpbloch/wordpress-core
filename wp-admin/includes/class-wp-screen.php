@@ -226,7 +226,7 @@ final class WP_Screen {
 		// For those pesky meta boxes.
 		if ( $hook_name && post_type_exists( $hook_name ) ) {
 			$post_type = $id;
-			$id        = 'post'; // changes later. ends up being $base.
+			$id        = 'post'; // Changes later. Ends up being $base.
 		} else {
 			if ( '.php' == substr( $id, -4 ) ) {
 				$id = substr( $id, 0, -4 );
@@ -373,7 +373,7 @@ final class WP_Screen {
 
 		if ( isset( self::$_registry[ $id ] ) ) {
 			$screen = self::$_registry[ $id ];
-			if ( $screen === get_current_screen() ) {
+			if ( get_current_screen() === $screen ) {
 				return $screen;
 			}
 		} else {
@@ -454,7 +454,7 @@ final class WP_Screen {
 	 * @return bool True if the block editor is being loaded, false otherwise.
 	 */
 	public function is_block_editor( $set = null ) {
-		if ( $set !== null ) {
+		if ( null !== $set ) {
 			$this->is_block_editor = (bool) $set;
 		}
 
@@ -923,7 +923,7 @@ final class WP_Screen {
 				</div>
 			</div>
 		<?php
-		// Setup layout columns
+		// Setup layout columns.
 
 		/**
 		 * Filters the array of screen layout columns.
@@ -952,7 +952,7 @@ final class WP_Screen {
 		}
 		$GLOBALS['screen_layout_columns'] = $this->columns; // Set the global for back-compat.
 
-		// Add screen options
+		// Add screen options.
 		if ( $this->show_screen_options() ) {
 			$this->render_screen_options();
 		}
@@ -1156,8 +1156,8 @@ final class WP_Screen {
 		$special = array( '_title', 'cb', 'comment', 'media', 'name', 'title', 'username', 'blogname' );
 
 		foreach ( $columns as $column => $title ) {
-			// Can't hide these for they are special
-			if ( in_array( $column, $special ) ) {
+			// Can't hide these for they are special.
+			if ( in_array( $column, $special, true ) ) {
 				continue;
 			}
 
@@ -1174,7 +1174,7 @@ final class WP_Screen {
 
 			$id = "$column-hide";
 			echo '<label>';
-			echo '<input class="hide-column-tog" name="' . $id . '" type="checkbox" id="' . $id . '" value="' . $column . '"' . checked( ! in_array( $column, $hidden ), true, false ) . ' />';
+			echo '<input class="hide-column-tog" name="' . $id . '" type="checkbox" id="' . $id . '" value="' . $column . '"' . checked( ! in_array( $column, $hidden, true ), true, false ) . ' />';
 			echo "$title</label>\n";
 		}
 		?>
@@ -1255,13 +1255,13 @@ final class WP_Screen {
 			$per_page = apply_filters( "{$option}", $per_page );
 		}
 
-		// Back compat
+		// Back compat.
 		if ( isset( $this->post_type ) ) {
 			/** This filter is documented in wp-admin/includes/post.php */
 			$per_page = apply_filters( 'edit_posts_per_page', $per_page, $this->post_type );
 		}
 
-		// This needs a submit button
+		// This needs a submit button.
 		add_filter( 'screen_options_show_submit', '__return_true' );
 
 		?>
@@ -1288,7 +1288,7 @@ final class WP_Screen {
 	public function render_view_mode() {
 		$screen = get_current_screen();
 
-		// Currently only enabled for posts lists
+		// Currently only enabled for posts lists.
 		if ( 'edit' !== $screen->base ) {
 			return;
 		}
@@ -1310,13 +1310,13 @@ final class WP_Screen {
 		 */
 		$view_mode_post_types = apply_filters( 'view_mode_post_types', $view_mode_post_types );
 
-		if ( ! in_array( $this->post_type, $view_mode_post_types ) ) {
+		if ( ! in_array( $this->post_type, $view_mode_post_types, true ) ) {
 			return;
 		}
 
 		global $mode;
 
-		// This needs a submit button
+		// This needs a submit button.
 		add_filter( 'screen_options_show_submit', '__return_true' );
 		?>
 		<fieldset class="metabox-prefs view-mode">

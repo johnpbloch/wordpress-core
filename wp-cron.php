@@ -41,7 +41,7 @@ define( 'DOING_CRON', true );
 
 if ( ! defined( 'ABSPATH' ) ) {
 	/** Set up WordPress environment */
-	require_once( dirname( __FILE__ ) . '/wp-load.php' );
+	require_once __DIR__ . '/wp-load.php';
 }
 
 /**
@@ -105,7 +105,7 @@ if ( empty( $doing_wp_cron ) ) {
  * The cron lock (a unix timestamp set when the cron was spawned),
  * must match $doing_wp_cron (the "key").
  */
-if ( $doing_cron_transient != $doing_wp_cron ) {
+if ( $doing_cron_transient !== $doing_wp_cron ) {
 	return;
 }
 
@@ -138,14 +138,14 @@ foreach ( $crons as $timestamp => $cronhooks ) {
 			do_action_ref_array( $hook, $v['args'] );
 
 			// If the hook ran too long and another cron process stole the lock, quit.
-			if ( _get_cron_lock() != $doing_wp_cron ) {
+			if ( _get_cron_lock() !== $doing_wp_cron ) {
 				return;
 			}
 		}
 	}
 }
 
-if ( _get_cron_lock() == $doing_wp_cron ) {
+if ( _get_cron_lock() === $doing_wp_cron ) {
 	delete_transient( 'doing_cron' );
 }
 

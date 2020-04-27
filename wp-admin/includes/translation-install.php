@@ -17,10 +17,11 @@
  * @return object|WP_Error On success an object of translations, WP_Error on failure.
  */
 function translations_api( $type, $args = null ) {
-	include( ABSPATH . WPINC . '/version.php' ); // include an unmodified $wp_version
+	// Include an unmodified $wp_version.
+	require ABSPATH . WPINC . '/version.php';
 
-	if ( ! in_array( $type, array( 'plugins', 'themes', 'core' ) ) ) {
-		return  new WP_Error( 'invalid_type', __( 'Invalid translation type.' ) );
+	if ( ! in_array( $type, array( 'plugins', 'themes', 'core' ), true ) ) {
+		return new WP_Error( 'invalid_type', __( 'Invalid translation type.' ) );
 	}
 
 	/**
@@ -47,12 +48,12 @@ function translations_api( $type, $args = null ) {
 			'body'    => array(
 				'wp_version' => $wp_version,
 				'locale'     => get_locale(),
-				'version'    => $args['version'], // Version of plugin, theme or core
+				'version'    => $args['version'], // Version of plugin, theme or core.
 			),
 		);
 
 		if ( 'core' !== $type ) {
-			$options['body']['slug'] = $args['slug']; // Plugin or theme slug
+			$options['body']['slug'] = $args['slug']; // Plugin or theme slug.
 		}
 
 		$request = wp_remote_post( $url, $options );
@@ -126,7 +127,8 @@ function wp_get_available_translations() {
 		}
 	}
 
-	include( ABSPATH . WPINC . '/version.php' ); // include an unmodified $wp_version
+	// Include an unmodified $wp_version.
+	require ABSPATH . WPINC . '/version.php';
 
 	$api = translations_api( 'core', array( 'version' => $wp_version ) );
 
@@ -152,7 +154,7 @@ function wp_get_available_translations() {
  *
  * @since 4.0.0
  *
- * @global string $wp_local_package
+ * @global string $wp_local_package Locale code of the package.
  *
  * @param array[] $languages Array of available languages (populated via the Translation API).
  */
@@ -174,7 +176,7 @@ function wp_install_language_form( $languages ) {
 				esc_attr( $language['language'] ),
 				esc_attr( current( $language['iso'] ) ),
 				esc_attr( $language['strings']['continue'] ?: 'Continue' ),
-				in_array( $language['language'], $installed_languages ) ? ' data-installed="1"' : '',
+				in_array( $language['language'], $installed_languages, true ) ? ' data-installed="1"' : '',
 				esc_html( $language['native_name'] )
 			);
 
@@ -188,7 +190,7 @@ function wp_install_language_form( $languages ) {
 			esc_attr( $language['language'] ),
 			esc_attr( current( $language['iso'] ) ),
 			esc_attr( $language['strings']['continue'] ?: 'Continue' ),
-			in_array( $language['language'], $installed_languages ) ? ' data-installed="1"' : '',
+			in_array( $language['language'], $installed_languages, true ) ? ' data-installed="1"' : '',
 			esc_html( $language['native_name'] )
 		);
 	}
@@ -209,7 +211,7 @@ function wp_install_language_form( $languages ) {
  */
 function wp_download_language_pack( $download ) {
 	// Check if the translation is already installed.
-	if ( in_array( $download, get_available_languages() ) ) {
+	if ( in_array( $download, get_available_languages(), true ) ) {
 		return $download;
 	}
 

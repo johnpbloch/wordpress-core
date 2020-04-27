@@ -7,7 +7,7 @@
  */
 
 /** WordPress Administration Bootstrap */
-require_once( dirname( __FILE__ ) . '/admin.php' );
+require_once __DIR__ . '/admin.php';
 
 if ( ! current_user_can( 'manage_options' ) ) {
 	wp_die( __( 'Sorry, you are not allowed to manage options for this site.' ) );
@@ -32,7 +32,7 @@ get_current_screen()->add_help_tab(
 		'title'   => __( 'Permalink Settings' ),
 		'content' => '<p>' . __( 'Permalinks can contain useful information, such as the post date, title, or other elements. You can choose from any of the suggested permalink formats, or you can craft your own if you select Custom Structure.' ) . '</p>' .
 			'<p>' . sprintf(
-				/* translators: '%' character. */
+				/* translators: %s: Percent sign (%). */
 				__( 'If you pick an option other than Plain, your general URL path with structure tags (terms surrounded by %s) will also appear in the custom structure field and your path can be further modified there.' ),
 				'<code>%</code>'
 			) . '</p>' .
@@ -183,7 +183,7 @@ if ( isset( $_POST['permalink_structure'] ) || isset( $_POST['category_base'] ) 
 
 flush_rewrite_rules();
 
-require( ABSPATH . 'wp-admin/admin-header.php' );
+require_once ABSPATH . 'wp-admin/admin-header.php';
 ?>
 <div class="wrap">
 <h1><?php echo esc_html( $title ); ?></h1>
@@ -240,7 +240,7 @@ $structures = array(
 	</tr>
 	<tr>
 		<th scope="row">
-			<label><input name="selection" id="custom_selection" type="radio" value="custom" <?php checked( ! in_array( $permalink_structure, $structures ) ); ?> />
+			<label><input name="selection" id="custom_selection" type="radio" value="custom" <?php checked( ! in_array( $permalink_structure, $structures, true ) ); ?> />
 			<?php _e( 'Custom Structure' ); ?>
 			</label>
 		</th>
@@ -419,8 +419,8 @@ else :
 </form>
 	<?php endif; ?>
 <?php endif; ?>
-<?php } // multisite ?>
+<?php } // End if ! is_multisite(). ?>
 
 </div>
 
-<?php require( ABSPATH . 'wp-admin/admin-footer.php' ); ?>
+<?php require_once ABSPATH . 'wp-admin/admin-footer.php'; ?>

@@ -45,7 +45,7 @@ class WP_MS_Themes_List_Table extends WP_List_Table {
 		);
 
 		$status = isset( $_REQUEST['theme_status'] ) ? $_REQUEST['theme_status'] : 'all';
-		if ( ! in_array( $status, array( 'all', 'enabled', 'disabled', 'upgrade', 'search', 'broken' ) ) ) {
+		if ( ! in_array( $status, array( 'all', 'enabled', 'disabled', 'upgrade', 'search', 'broken' ), true ) ) {
 			$status = 'all';
 		}
 
@@ -62,7 +62,7 @@ class WP_MS_Themes_List_Table extends WP_List_Table {
 	 * @return array
 	 */
 	protected function get_table_classes() {
-		// todo: remove and add CSS for .themes
+		// @todo Remove and add CSS for .themes.
 		return array( 'widefat', 'plugins' );
 	}
 
@@ -143,7 +143,7 @@ class WP_MS_Themes_List_Table extends WP_List_Table {
 			$totals[ $type ] = count( $list );
 		}
 
-		if ( empty( $themes[ $status ] ) && ! in_array( $status, array( 'all', 'search' ) ) ) {
+		if ( empty( $themes[ $status ] ) && ! in_array( $status, array( 'all', 'search' ), true ) ) {
 			$status = 'all';
 		}
 
@@ -166,7 +166,7 @@ class WP_MS_Themes_List_Table extends WP_List_Table {
 			$orderby = ucfirst( $orderby );
 			$order   = strtoupper( $order );
 
-			if ( $orderby === 'Name' ) {
+			if ( 'Name' === $orderby ) {
 				if ( 'ASC' === $order ) {
 					$this->items = array_reverse( $this->items );
 				}
@@ -502,7 +502,7 @@ class WP_MS_Themes_List_Table extends WP_List_Table {
 			);
 		}
 
-		if ( ! $allowed && current_user_can( 'delete_themes' ) && ! $this->is_site_themes && $stylesheet != get_option( 'stylesheet' ) && $stylesheet != get_option( 'template' ) ) {
+		if ( ! $allowed && current_user_can( 'delete_themes' ) && ! $this->is_site_themes && get_option( 'stylesheet' ) !== $stylesheet && get_option( 'template' ) !== $stylesheet ) {
 			$url = add_query_arg(
 				array(
 					'action'       => 'delete-selected',
@@ -580,7 +580,7 @@ class WP_MS_Themes_List_Table extends WP_List_Table {
 	public function column_description( $theme ) {
 		global $status, $totals;
 		if ( $theme->errors() ) {
-			$pre = $status === 'broken' ? __( 'Broken Theme:' ) . ' ' : '';
+			$pre = 'broken' === $status ? __( 'Broken Theme:' ) . ' ' : '';
 			echo '<p><strong class="error-message">' . $pre . $theme->errors()->get_error_message() . '</strong></p>';
 		}
 
@@ -674,7 +674,7 @@ class WP_MS_Themes_List_Table extends WP_List_Table {
 
 		foreach ( $columns as $column_name => $column_display_name ) {
 			$extra_classes = '';
-			if ( in_array( $column_name, $hidden ) ) {
+			if ( in_array( $column_name, $hidden, true ) ) {
 				$extra_classes .= ' hidden';
 			}
 

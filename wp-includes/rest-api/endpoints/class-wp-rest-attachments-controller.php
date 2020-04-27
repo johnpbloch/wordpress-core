@@ -16,6 +16,13 @@
  */
 class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 
+	/**
+	 * Registers the routes for attachments.
+	 *
+	 * @since 5.3.0
+	 *
+	 * @see register_rest_route()
+	 */
 	public function register_routes() {
 		parent::register_routes();
 		register_rest_route(
@@ -94,7 +101,11 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 		}
 
 		if ( ! current_user_can( 'upload_files' ) ) {
-			return new WP_Error( 'rest_cannot_create', __( 'Sorry, you are not allowed to upload media on this site.' ), array( 'status' => 400 ) );
+			return new WP_Error(
+				'rest_cannot_create',
+				__( 'Sorry, you are not allowed to upload media on this site.' ),
+				array( 'status' => 400 )
+			);
 		}
 
 		// Attaching media to a post requires ability to edit said post.
@@ -103,7 +114,11 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 			$post_parent_type = get_post_type_object( $parent->post_type );
 
 			if ( ! current_user_can( $post_parent_type->cap->edit_post, $request['post'] ) ) {
-				return new WP_Error( 'rest_cannot_edit', __( 'Sorry, you are not allowed to upload media to this post.' ), array( 'status' => rest_authorization_required_code() ) );
+				return new WP_Error(
+					'rest_cannot_edit',
+					__( 'Sorry, you are not allowed to upload media to this post.' ),
+					array( 'status' => rest_authorization_required_code() )
+				);
 			}
 		}
 
@@ -119,9 +134,12 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
-
 		if ( ! empty( $request['post'] ) && in_array( get_post_type( $request['post'] ), array( 'revision', 'attachment' ), true ) ) {
-			return new WP_Error( 'rest_invalid_param', __( 'Invalid parent type.' ), array( 'status' => 400 ) );
+			return new WP_Error(
+				'rest_invalid_param',
+				__( 'Invalid parent type.' ),
+				array( 'status' => 400 )
+			);
 		}
 
 		$insert = $this->insert_attachment( $request );
@@ -130,12 +148,22 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 			return $insert;
 		}
 
+		$schema = $this->get_item_schema();
+
 		// Extract by name.
 		$attachment_id = $insert['attachment_id'];
 		$file          = $insert['file'];
 
 		if ( isset( $request['alt_text'] ) ) {
 			update_post_meta( $attachment_id, '_wp_attachment_image_alt', sanitize_text_field( $request['alt_text'] ) );
+		}
+
+		if ( ! empty( $schema['properties']['meta'] ) && isset( $request['meta'] ) ) {
+			$meta_update = $this->meta->update_value( $request['meta'], $attachment_id );
+
+			if ( is_wp_error( $meta_update ) ) {
+				return $meta_update;
+			}
 		}
 
 		$attachment    = get_post( $attachment_id );
@@ -164,10 +192,11 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 			header( 'X-WP-Upload-Attachment-ID: ' . $attachment_id );
 		}
 
-		// Include admin function to get access to wp_generate_attachment_metadata().
+		// Include media and image functions to get access to wp_generate_attachment_metadata().
 		require_once ABSPATH . 'wp-admin/includes/media.php';
+		require_once ABSPATH . 'wp-admin/includes/image.php';
 
-		// Post-process the upload (create image sub-sizes, make PDF thumbnalis, etc.) and insert attachment meta.
+		// Post-process the upload (create image sub-sizes, make PDF thumbnails, etc.) and insert attachment meta.
 		// At this point the server may run out of resources and post-processing of uploaded images may fail.
 		wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $file ) );
 
@@ -213,7 +242,7 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 		// Include image functions to get access to wp_read_image_metadata().
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 
-		// use image exif/iptc data for title and caption defaults if possible
+		// Use image exif/iptc data for title and caption defaults if possible.
 		$image_meta = wp_read_image_metadata( $file );
 
 		if ( ! empty( $image_meta ) ) {
@@ -278,7 +307,11 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 	 */
 	public function update_item( $request ) {
 		if ( ! empty( $request['post'] ) && in_array( get_post_type( $request['post'] ), array( 'revision', 'attachment' ), true ) ) {
-			return new WP_Error( 'rest_invalid_param', __( 'Invalid parent type.' ), array( 'status' => 400 ) );
+			return new WP_Error(
+				'rest_invalid_param',
+				__( 'Invalid parent type.' ),
+				array( 'status' => 400 )
+			);
 		}
 
 		$response = parent::update_item( $request );
@@ -318,8 +351,8 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 	 *
 	 * @since 5.3.0
 	 *
-	 * @param WP_REST_Request $request
-	 * @return WP_REST_Response|WP_Error
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, WP_Error object on failure.
 	 */
 	public function post_process_item( $request ) {
 		switch ( $request['action'] ) {
@@ -357,7 +390,7 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 	protected function prepare_item_for_database( $request ) {
 		$prepared_attachment = parent::prepare_item_for_database( $request );
 
-		// Attachment caption (post_excerpt internally)
+		// Attachment caption (post_excerpt internally).
 		if ( isset( $request['caption'] ) ) {
 			if ( is_string( $request['caption'] ) ) {
 				$prepared_attachment->post_excerpt = $request['caption'];
@@ -366,7 +399,7 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 			}
 		}
 
-		// Attachment description (post_content internally)
+		// Attachment description (post_content internally).
 		if ( isset( $request['description'] ) ) {
 			if ( is_string( $request['description'] ) ) {
 				$prepared_attachment->post_content = $request['description'];
@@ -539,8 +572,8 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 			'type'        => 'object',
 			'context'     => array( 'view', 'edit', 'embed' ),
 			'arg_options' => array(
-				'sanitize_callback' => null, // Note: sanitization implemented in self::prepare_item_for_database()
-				'validate_callback' => null, // Note: validation implemented in self::prepare_item_for_database()
+				'sanitize_callback' => null, // Note: sanitization implemented in self::prepare_item_for_database().
+				'validate_callback' => null, // Note: validation implemented in self::prepare_item_for_database().
 			),
 			'properties'  => array(
 				'raw'      => array(
@@ -562,8 +595,8 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 			'type'        => 'object',
 			'context'     => array( 'view', 'edit' ),
 			'arg_options' => array(
-				'sanitize_callback' => null, // Note: sanitization implemented in self::prepare_item_for_database()
-				'validate_callback' => null, // Note: validation implemented in self::prepare_item_for_database()
+				'sanitize_callback' => null, // Note: sanitization implemented in self::prepare_item_for_database().
+				'validate_callback' => null, // Note: validation implemented in self::prepare_item_for_database().
 			),
 			'properties'  => array(
 				'raw'      => array(
@@ -627,6 +660,7 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 		unset( $schema['properties']['password'] );
 
 		$this->schema = $schema;
+
 		return $this->add_additional_fields_schema( $this->schema );
 	}
 
@@ -641,21 +675,37 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 	 */
 	protected function upload_from_data( $data, $headers ) {
 		if ( empty( $data ) ) {
-			return new WP_Error( 'rest_upload_no_data', __( 'No data supplied.' ), array( 'status' => 400 ) );
+			return new WP_Error(
+				'rest_upload_no_data',
+				__( 'No data supplied.' ),
+				array( 'status' => 400 )
+			);
 		}
 
 		if ( empty( $headers['content_type'] ) ) {
-			return new WP_Error( 'rest_upload_no_content_type', __( 'No Content-Type supplied.' ), array( 'status' => 400 ) );
+			return new WP_Error(
+				'rest_upload_no_content_type',
+				__( 'No Content-Type supplied.' ),
+				array( 'status' => 400 )
+			);
 		}
 
 		if ( empty( $headers['content_disposition'] ) ) {
-			return new WP_Error( 'rest_upload_no_content_disposition', __( 'No Content-Disposition supplied.' ), array( 'status' => 400 ) );
+			return new WP_Error(
+				'rest_upload_no_content_disposition',
+				__( 'No Content-Disposition supplied.' ),
+				array( 'status' => 400 )
+			);
 		}
 
 		$filename = self::get_filename_from_disposition( $headers['content_disposition'] );
 
 		if ( empty( $filename ) ) {
-			return new WP_Error( 'rest_upload_invalid_disposition', __( 'Invalid Content-Disposition supplied. Content-Disposition needs to be formatted as `attachment; filename="image.png"` or similar.' ), array( 'status' => 400 ) );
+			return new WP_Error(
+				'rest_upload_invalid_disposition',
+				__( 'Invalid Content-Disposition supplied. Content-Disposition needs to be formatted as `attachment; filename="image.png"` or similar.' ),
+				array( 'status' => 400 )
+			);
 		}
 
 		if ( ! empty( $headers['content_md5'] ) ) {
@@ -664,14 +714,18 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 			$actual      = md5( $data );
 
 			if ( $expected !== $actual ) {
-				return new WP_Error( 'rest_upload_hash_mismatch', __( 'Content hash did not match expected.' ), array( 'status' => 412 ) );
+				return new WP_Error(
+					'rest_upload_hash_mismatch',
+					__( 'Content hash did not match expected.' ),
+					array( 'status' => 412 )
+				);
 			}
 		}
 
 		// Get the content-type.
 		$type = array_shift( $headers['content_type'] );
 
-		/** Include admin functions to get access to wp_tempnam() and wp_handle_sideload(). */
+		// Include filesystem functions to get access to wp_tempnam() and wp_handle_sideload().
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 
 		// Save the file.
@@ -680,7 +734,11 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 		$fp = fopen( $tmpfname, 'w+' );
 
 		if ( ! $fp ) {
-			return new WP_Error( 'rest_upload_file_error', __( 'Could not open file handle.' ), array( 'status' => 500 ) );
+			return new WP_Error(
+				'rest_upload_file_error',
+				__( 'Could not open file handle.' ),
+				array( 'status' => 500 )
+			);
 		}
 
 		fwrite( $fp, $data );
@@ -708,7 +766,11 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 		if ( isset( $sideloaded['error'] ) ) {
 			@unlink( $tmpfname );
 
-			return new WP_Error( 'rest_upload_sideload_error', $sideloaded['error'], array( 'status' => 500 ) );
+			return new WP_Error(
+				'rest_upload_sideload_error',
+				$sideloaded['error'],
+				array( 'status' => 500 )
+			);
 		}
 
 		return $sideloaded;
@@ -824,7 +886,11 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 	 */
 	protected function upload_from_file( $files, $headers ) {
 		if ( empty( $files ) ) {
-			return new WP_Error( 'rest_upload_no_data', __( 'No data supplied.' ), array( 'status' => 400 ) );
+			return new WP_Error(
+				'rest_upload_no_data',
+				__( 'No data supplied.' ),
+				array( 'status' => 400 )
+			);
 		}
 
 		// Verify hash, if given.
@@ -834,7 +900,11 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 			$actual      = md5_file( $files['file']['tmp_name'] );
 
 			if ( $expected !== $actual ) {
-				return new WP_Error( 'rest_upload_hash_mismatch', __( 'Content hash did not match expected.' ), array( 'status' => 412 ) );
+				return new WP_Error(
+					'rest_upload_hash_mismatch',
+					__( 'Content hash did not match expected.' ),
+					array( 'status' => 412 )
+				);
 			}
 		}
 
@@ -853,13 +923,17 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 			return $size_check;
 		}
 
-		/** Include admin function to get access to wp_handle_upload(). */
+		// Include filesystem functions to get access to wp_handle_upload().
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 
 		$file = wp_handle_upload( $files['file'], $overrides );
 
 		if ( isset( $file['error'] ) ) {
-			return new WP_Error( 'rest_upload_unknown_error', $file['error'], array( 'status' => 500 ) );
+			return new WP_Error(
+				'rest_upload_unknown_error',
+				$file['error'],
+				array( 'status' => 500 )
+			);
 		}
 
 		return $file;
@@ -912,22 +986,36 @@ class WP_REST_Attachments_Controller extends WP_REST_Posts_Controller {
 		$space_left = get_upload_space_available();
 
 		$file_size = filesize( $file['tmp_name'] );
+
 		if ( $space_left < $file_size ) {
-			/* translators: %s: Required disk space in kilobytes. */
-			return new WP_Error( 'rest_upload_limited_space', sprintf( __( 'Not enough space to upload. %s KB needed.' ), number_format( ( $file_size - $space_left ) / KB_IN_BYTES ) ), array( 'status' => 400 ) );
+			return new WP_Error(
+				'rest_upload_limited_space',
+				/* translators: %s: Required disk space in kilobytes. */
+				sprintf( __( 'Not enough space to upload. %s KB needed.' ), number_format( ( $file_size - $space_left ) / KB_IN_BYTES ) ),
+				array( 'status' => 400 )
+			);
 		}
 
 		if ( $file_size > ( KB_IN_BYTES * get_site_option( 'fileupload_maxk', 1500 ) ) ) {
-			/* translators: %s: Maximum allowed file size in kilobytes. */
-			return new WP_Error( 'rest_upload_file_too_big', sprintf( __( 'This file is too big. Files must be less than %s KB in size.' ), get_site_option( 'fileupload_maxk', 1500 ) ), array( 'status' => 400 ) );
+			return new WP_Error(
+				'rest_upload_file_too_big',
+				/* translators: %s: Maximum allowed file size in kilobytes. */
+				sprintf( __( 'This file is too big. Files must be less than %s KB in size.' ), get_site_option( 'fileupload_maxk', 1500 ) ),
+				array( 'status' => 400 )
+			);
 		}
 
-		// Include admin function to get access to upload_is_user_over_quota().
+		// Include multisite admin functions to get access to upload_is_user_over_quota().
 		require_once ABSPATH . 'wp-admin/includes/ms.php';
 
 		if ( upload_is_user_over_quota( false ) ) {
-			return new WP_Error( 'rest_upload_user_quota_exceeded', __( 'You have used your space quota. Please delete files before uploading.' ), array( 'status' => 400 ) );
+			return new WP_Error(
+				'rest_upload_user_quota_exceeded',
+				__( 'You have used your space quota. Please delete files before uploading.' ),
+				array( 'status' => 400 )
+			);
 		}
+
 		return true;
 	}
 

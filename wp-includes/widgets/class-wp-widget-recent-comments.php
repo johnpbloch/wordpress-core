@@ -49,7 +49,7 @@ class WP_Widget_Recent_Comments extends WP_Widget {
 		 * @param bool   $active  Whether the widget is active. Default true.
 		 * @param string $id_base The widget ID.
 		 */
-		if ( ! current_theme_supports( 'widgets' ) // Temp hack #14876
+		if ( ! current_theme_supports( 'widgets' ) // Temp hack #14876.
 			|| ! apply_filters( 'show_recent_comments_widget_style', true, $this->id_base ) ) {
 			return;
 		}
@@ -66,12 +66,18 @@ class WP_Widget_Recent_Comments extends WP_Widget {
 	 * Outputs the content for the current Recent Comments widget instance.
 	 *
 	 * @since 2.8.0
+	 * @since 5.4.0 Creates a unique HTML ID for the `<ul>` element
+	 *              if more than one instance is displayed on the page.
+	 *
+	 * @staticvar bool $first_instance
 	 *
 	 * @param array $args     Display arguments including 'before_title', 'after_title',
 	 *                        'before_widget', and 'after_widget'.
 	 * @param array $instance Settings for the current Recent Comments widget instance.
 	 */
 	public function widget( $args, $instance ) {
+		static $first_instance = true;
+
 		if ( ! isset( $args['widget_id'] ) ) {
 			$args['widget_id'] = $this->id;
 		}
@@ -116,7 +122,10 @@ class WP_Widget_Recent_Comments extends WP_Widget {
 			$output .= $args['before_title'] . $title . $args['after_title'];
 		}
 
-		$output .= '<ul id="recentcomments">';
+		$recent_comments_id = ( $first_instance ) ? 'recentcomments' : "recentcomments-{$this->number}";
+		$first_instance     = false;
+
+		$output .= '<ul id="' . esc_attr( $recent_comments_id ) . '">';
 		if ( is_array( $comments ) && $comments ) {
 			// Prime cache for associated posts. (Prime post term cache if we need it for permalinks.)
 			$post_ids = array_unique( wp_list_pluck( $comments, 'comment_post_ID' ) );
@@ -167,11 +176,15 @@ class WP_Widget_Recent_Comments extends WP_Widget {
 		$title  = isset( $instance['title'] ) ? $instance['title'] : '';
 		$number = isset( $instance['number'] ) ? absint( $instance['number'] ) : 5;
 		?>
-		<p><label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label>
-		<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" /></p>
+		<p>
+			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
+		</p>
 
-		<p><label for="<?php echo $this->get_field_id( 'number' ); ?>"><?php _e( 'Number of comments to show:' ); ?></label>
-		<input class="tiny-text" id="<?php echo $this->get_field_id( 'number' ); ?>" name="<?php echo $this->get_field_name( 'number' ); ?>" type="number" step="1" min="1" value="<?php echo $number; ?>" size="3" /></p>
+		<p>
+			<label for="<?php echo $this->get_field_id( 'number' ); ?>"><?php _e( 'Number of comments to show:' ); ?></label>
+			<input class="tiny-text" id="<?php echo $this->get_field_id( 'number' ); ?>" name="<?php echo $this->get_field_name( 'number' ); ?>" type="number" step="1" min="1" value="<?php echo $number; ?>" size="3" />
+		</p>
 		<?php
 	}
 

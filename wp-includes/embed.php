@@ -102,7 +102,7 @@ function wp_embed_defaults( $url = '' ) {
  * @param string $url  The URL that should be embedded.
  * @param array  $args Optional. Additional arguments and parameters for retrieving embed HTML.
  *                     Default empty.
- * @return false|string False on failure or the embed HTML on success.
+ * @return string|false The embed HTML on success, false on failure.
  */
 function wp_oembed_get( $url, $args = '' ) {
 	$oembed = _wp_oembed_get_object();
@@ -614,7 +614,7 @@ function get_oembed_response_data_for_url( $url, $args ) {
 		$sites = get_sites( $qv );
 		$site  = reset( $sites );
 
-		if ( $site && (int) $site->blog_id !== get_current_blog_id() ) {
+		if ( $site && get_current_blog_id() !== (int) $site->blog_id ) {
 			switch_to_blog( $site->blog_id );
 			$switched_blog = true;
 		}
@@ -801,7 +801,7 @@ function _oembed_create_xml( $data, $node = null ) {
  * @return string The filtered oEmbed result.
  */
 function wp_filter_oembed_iframe_title_attribute( $result, $data, $url ) {
-	if ( false === $result || ! in_array( $data->type, array( 'rich', 'video' ) ) ) {
+	if ( false === $result || ! in_array( $data->type, array( 'rich', 'video' ), true ) ) {
 		return $result;
 	}
 
@@ -855,7 +855,7 @@ function wp_filter_oembed_iframe_title_attribute( $result, $data, $url ) {
  * @return string The filtered and sanitized oEmbed result.
  */
 function wp_filter_oembed_result( $result, $data, $url ) {
-	if ( false === $result || ! in_array( $data->type, array( 'rich', 'video' ) ) ) {
+	if ( false === $result || ! in_array( $data->type, array( 'rich', 'video' ), true ) ) {
 		return $result;
 	}
 

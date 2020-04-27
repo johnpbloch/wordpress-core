@@ -385,7 +385,7 @@ function update_site_cache( $sites, $update_meta_cache = true ) {
  * @since 5.1.0
  *
  * @param array $site_ids List of site IDs.
- * @return array|false Returns false if there is nothing to update. Returns an array of metadata on success.
+ * @return array|false An array of metadata on success, false if there is nothing to update.
  */
 function update_sitemeta_cache( $site_ids ) {
 	// Ensure this filter is hooked in even if the function is called early.
@@ -717,7 +717,7 @@ function wp_initialize_site( $site_id, array $args = array() ) {
 		switch_to_blog( $site->id );
 	}
 
-	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 	// Set up the database tables.
 	make_db_current_silent( 'blog' );
@@ -761,8 +761,8 @@ function wp_initialize_site( $site_id, array $args = array() ) {
 
 	// Remove all permissions that may exist for the site.
 	$table_prefix = $wpdb->get_blog_prefix();
-	delete_metadata( 'user', 0, $table_prefix . 'user_level', null, true ); // delete all
-	delete_metadata( 'user', 0, $table_prefix . 'capabilities', null, true ); // delete all
+	delete_metadata( 'user', 0, $table_prefix . 'user_level', null, true );   // Delete all.
+	delete_metadata( 'user', 0, $table_prefix . 'capabilities', null, true ); // Delete all.
 
 	// Install default site content.
 	wp_install_defaults( $args['user_id'] );
@@ -863,7 +863,7 @@ function wp_uninitialize_site( $site_id ) {
 	$index   = 0;
 
 	while ( $index < count( $stack ) ) {
-		// Get indexed directory from stack
+		// Get indexed directory from stack.
 		$dir = $stack[ $index ];
 
 		// phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
@@ -889,7 +889,7 @@ function wp_uninitialize_site( $site_id ) {
 		$index++;
 	}
 
-	$stack = array_reverse( $stack ); // Last added dirs are deepest
+	$stack = array_reverse( $stack ); // Last added directories are deepest.
 	foreach ( (array) $stack as $dir ) {
 		if ( $dir != $top_dir ) {
 			@rmdir( $dir );
@@ -932,7 +932,8 @@ function wp_is_site_initialized( $site_id ) {
 	 *
 	 * @since 5.1.0
 	 *
-	 * @param bool|null $pre     The value to return, if not null.
+	 * @param bool|null $pre     The value to return instead. Default null
+	 *                           to continue with the check.
 	 * @param int       $site_id The site ID that is being checked.
 	 */
 	$pre = apply_filters( 'pre_wp_is_site_initialized', null, $site_id );
@@ -1005,8 +1006,6 @@ function clean_blog_cache( $blog ) {
 	wp_cache_delete( $blog_id . 'short', 'blog-details' );
 	wp_cache_delete( $domain_path_key, 'blog-lookup' );
 	wp_cache_delete( $domain_path_key, 'blog-id-cache' );
-	wp_cache_delete( 'current_blog_' . $blog->domain, 'site-options' );
-	wp_cache_delete( 'current_blog_' . $blog->domain . $blog->path, 'site-options' );
 	wp_cache_delete( $blog_id, 'blog_meta' );
 
 	/**
@@ -1060,8 +1059,9 @@ function add_site_meta( $site_id, $meta_key, $meta_value, $unique = false ) {
  *
  * @param int    $site_id    Site ID.
  * @param string $meta_key   Metadata name.
- * @param mixed  $meta_value Optional. Metadata value. Must be serializable if
- *                           non-scalar. Default empty.
+ * @param mixed  $meta_value Optional. Metadata value. If provided,
+ *                           rows will only be removed that match the value.
+ *                           Must be serializable if non-scalar. Default empty.
  * @return bool True on success, false on failure.
  */
 function delete_site_meta( $site_id, $meta_key, $meta_value = '' ) {
@@ -1074,11 +1074,13 @@ function delete_site_meta( $site_id, $meta_key, $meta_value = '' ) {
  * @since 5.1.0
  *
  * @param int    $site_id Site ID.
- * @param string $key     Optional. The meta key to retrieve. By default, returns
- *                        data for all keys. Default empty.
- * @param bool   $single  Optional. Whether to return a single value. Default false.
- * @return mixed Will be an array if $single is false. Will be value of meta data
- *               field if $single is true.
+ * @param string $key     Optional. The meta key to retrieve. By default,
+ *                        returns data for all keys. Default empty.
+ * @param bool   $single  Optional. Whether to return a single value.
+ *                        This parameter has no effect if $key is not specified.
+ *                        Default false.
+ * @return mixed An array if $single is false. The value of meta data field
+ *               if $single is true.
  */
 function get_site_meta( $site_id, $key = '', $single = false ) {
 	return get_metadata( 'blog', $site_id, $key, $single );
@@ -1097,7 +1099,7 @@ function get_site_meta( $site_id, $key = '', $single = false ) {
  * @param int    $site_id    Site ID.
  * @param string $meta_key   Metadata key.
  * @param mixed  $meta_value Metadata value. Must be serializable if non-scalar.
- * @param mixed  $prev_value Optional. Previous value to check before removing.
+ * @param mixed  $prev_value Optional. Previous value to check before updating.
  *                           Default empty.
  * @return int|bool Meta ID if the key didn't exist, true on successful update,
  *                  false on failure.

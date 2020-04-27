@@ -7,14 +7,14 @@
  */
 
 /** Load WordPress Administration Bootstrap */
-require_once( dirname( __FILE__ ) . '/admin.php' );
+require_once __DIR__ . '/admin.php';
 if ( ! current_user_can( 'manage_links' ) ) {
 	wp_die( __( 'Sorry, you are not allowed to edit the links for this site.' ) );
 }
 
 $wp_list_table = _get_list_table( 'WP_Links_List_Table' );
 
-// Handle bulk deletes
+// Handle bulk deletes.
 $doaction = $wp_list_table->current_action();
 
 if ( $doaction && isset( $_REQUEST['linkcheck'] ) ) {
@@ -85,7 +85,7 @@ get_current_screen()->set_screen_reader_content(
 	)
 );
 
-include_once( ABSPATH . 'wp-admin/admin-header.php' );
+require_once ABSPATH . 'wp-admin/admin-header.php';
 
 if ( ! current_user_can( 'manage_links' ) ) {
 	wp_die( __( 'Sorry, you are not allowed to edit the links for this site.' ) );
@@ -134,4 +134,4 @@ if ( isset( $_REQUEST['deleted'] ) ) {
 </div>
 
 <?php
-include( ABSPATH . 'wp-admin/admin-footer.php' );
+require_once ABSPATH . 'wp-admin/admin-footer.php';
