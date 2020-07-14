@@ -37,6 +37,8 @@ class WP_Sitemaps_Posts extends WP_Sitemaps_Provider {
 		$post_types = get_post_types( array( 'public' => true ), 'objects' );
 		unset( $post_types['attachment'] );
 
+		$post_types = array_filter( $post_types, 'is_post_type_viewable' );
+
 		/**
 		 * Filters the list of post object sub types available within the sitemap.
 		 *
@@ -101,7 +103,7 @@ class WP_Sitemaps_Posts extends WP_Sitemaps_Provider {
 		if ( 'page' === $post_type && 1 === $page_num && 'posts' === get_option( 'show_on_front' ) ) {
 			// Extract the data needed for home URL to add to the array.
 			$sitemap_entry = array(
-				'loc' => home_url(),
+				'loc' => home_url( '/' ),
 			);
 
 			/**
