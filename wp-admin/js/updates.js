@@ -504,7 +504,7 @@
 						'aria-label',
 						sprintf(
 							/* translators: %s: Plugin name and version. */
-							_x( '%s update failed', 'plugin' ),
+							_x( '%s update failed.', 'plugin' ),
 							response.pluginName
 						)
 					);
@@ -529,7 +529,7 @@
 						'aria-label',
 						sprintf(
 							/* translators: %s: Plugin name and version. */
-							_x( '%s update failed', 'plugin' ),
+							_x( '%s update failed.', 'plugin' ),
 							response.pluginName
 						)
 					);
@@ -727,7 +727,7 @@
 					$button.data( 'name' )
 				)
 			)
-			.text( __( 'Installation Failed!' ) );
+			.text( __( 'Installation failed' ) );
 
 		wp.a11y.speak( errorMessage, 'assertive' );
 
@@ -1364,7 +1364,7 @@
 					$button.data( 'name' )
 				)
 			)
-			.text( __( 'Installation Failed!' ) );
+			.text( __( 'Installation failed' ) );
 
 		wp.a11y.speak( errorMessage, 'assertive' );
 
