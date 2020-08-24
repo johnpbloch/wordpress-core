@@ -1002,6 +1002,7 @@ function wp_get_attachment_image_src( $attachment_id, $size = 'thumbnail', $icon
  * browser scale down the image.
  *
  * @since 2.5.0
+ * @since 4.4.0 The `$srcset` and `$sizes` attributes were added.
  * @since 5.5.0 The `$loading` attribute was added.
  *
  * @param int          $attachment_id Image attachment ID.
@@ -1683,12 +1684,13 @@ function wp_image_add_srcset_and_sizes( $image, $image_meta, $attachment_id ) {
 }
 
 /**
- * Determine whether to add the `loading` attribute to the specified tag in the specified context.
+ * Determines whether to add the `loading` attribute to the specified tag in the specified context.
  *
  * @since 5.5.0
  *
  * @param string $tag_name The tag name.
- * @param string $context  Additional context, like the current filter name or the function name from where this was called.
+ * @param string $context  Additional context, like the current filter name
+ *                         or the function name from where this was called.
  * @return bool Whether to add the attribute.
  */
 function wp_lazy_loading_enabled( $tag_name, $context ) {
@@ -1703,7 +1705,8 @@ function wp_lazy_loading_enabled( $tag_name, $context ) {
 	 *
 	 * @param bool   $default  Default value.
 	 * @param string $tag_name The tag name.
-	 * @param string $context  Additional context, like the current filter name or the function name from where this was called.
+	 * @param string $context  Additional context, like the current filter name
+	 *                         or the function name from where this was called.
 	 */
 	return (bool) apply_filters( 'wp_lazy_loading_enabled', $default, $tag_name, $context );
 }
@@ -1816,7 +1819,7 @@ function wp_img_tag_add_loading_attr( $image, $context ) {
 	 * @since 5.5.0
 	 *
 	 * @param string|bool $value   The `loading` attribute value. Returning a falsey value will result in
-	 *                             the attribute being omitted for the image. Default is `lazy`.
+	 *                             the attribute being omitted for the image. Default 'lazy'.
 	 * @param string      $image   The HTML `img` tag to be filtered.
 	 * @param string      $context Additional context about how the function was called or where the img tag is.
 	 */
