@@ -87,8 +87,8 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 			</div>
 			<div class="about__section has-2-columns is-wider-left has-transparent-background-color">
 				<div class="column">
-					<h2><?php _e( 'Caption videos—right in the block editor' ); ?></h2>
-					<p><?php _e( 'Adding captions to your videos has landed in the block editor, with special attention to accessibility. Whether you’re navigating with a keyboard or a mouse, whether or not you use a screen reader, captions are easier to include than ever.' ); ?></p>
+					<h2><?php _e( 'Upload video captions directly in the block editor' ); ?></h2>
+					<p><?php _e( 'To help you add subtitles or captions to your videos, you can now upload them within your post or page. This makes it easier than ever to make your videos accessible for anyone who needs or prefers to use subtitles.' ); ?></p>
 				</div>
 			</div>
 		</div>
@@ -119,8 +119,9 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 				<p>
 					<?php
 					printf(
-						/* translators: %s: WCAG information link. */
-						__( 'What’s more, this default theme puts accessibility at the heart of your website. It conforms to <a href="%s">Web Content Accessibility Guidelines (WCAG) 2.1</a> at Level AAA right out of the box, so you can meet the highest level of international accessibility standards. Just add the necessary elements to your plugins, pictures, and other content, and you’re ready to go!' ),
+						/* translators: 1: WordPress accessibility-ready guidelines link, 2: WCAG information link. */
+						__( 'What’s more, this default theme puts accessibility at the heart of your website. It conforms to the <a href="%1$s">WordPress accessibility-ready guidelines</a> and addresses several more specialized standards from the <a href="%2$s">Web Content Accessibility Guidelines (WCAG) 2.1 at level AAA</a>. It will help you meet the highest level of international accessibility standards when you create accessible content and choose plugins which are accessible too!' ),
+						'https://make.wordpress.org/themes/handbook/review/accessibility/',
 						'https://www.w3.org/WAI/WCAG2AAA-Conformance'
 					);
 					?>
@@ -165,7 +166,15 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 			</div>
 			<div class="column has-border" style="background-color:#e4d1d1;background-color:var(--global--color-red)">
 				<h3><?php _e( 'Accessibility statement template' ); ?></h3>
-				<p><?php _e( 'Even if you’re not an expert, you can start letting folks know about your site’s commitment to accessibility at the click of a button! The new <a href="%s">feature plugin</a> includes template copy for you to update and publish, and it’s written to support different contexts and jurisdictions.', '#' ); ?></p>
+				<p>
+					<?php
+					printf(
+						/* translators: %s: Accessibility statement feature plugin link. */
+						__( 'Even if you’re not an expert, you can start letting folks know about your site’s commitment to accessibility at the click of a button! The new <a href="%s">feature plugin</a> includes template copy for you to update and publish, and it’s written to support different contexts and jurisdictions.' ),
+						'#'
+					);
+					?>
+				</p>
 			</div>
 			<div class="column has-border" style="background-color:#d1d1e4;background-color:var(--global--color-purple)">
 				<h3><?php _e( 'Built-in patterns' ); ?></h3>
