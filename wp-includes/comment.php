@@ -2408,7 +2408,7 @@ function wp_set_comment_status( $comment_id, $comment_status, $wp_error = false 
 	 *
 	 * @param int    $comment_id     Comment ID.
 	 * @param string $comment_status Current comment status. Possible values include
-	 *                               'hold', '0', 'approve', '1, 'spam', and 'trash'.
+	 *                               'hold', '0', 'approve', '1', 'spam', and 'trash'.
 	 */
 	do_action( 'wp_set_comment_status', $comment->comment_ID, $comment_status );
 
@@ -2716,7 +2716,7 @@ function wp_update_comment_count_now( $post_id ) {
  * @since 1.5.0
  *
  * @param string $url        URL to ping.
- * @param int    $deprecated Not Used.
+ * @param string $deprecated Not Used.
  * @return string|false String containing URI on success, false on failure.
  */
 function discover_pingback_server_uri( $url, $deprecated = '' ) {
