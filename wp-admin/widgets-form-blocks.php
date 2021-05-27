@@ -50,14 +50,19 @@ wp_add_inline_script(
 
 wp_enqueue_script( 'wp-edit-widgets' );
 wp_enqueue_script( 'admin-widgets' );
-wp_enqueue_script( 'wp-format-library' );
 wp_enqueue_style( 'wp-edit-widgets' );
-wp_enqueue_style( 'wp-format-library' );
 
 /** This action is documented in edit-form-blocks.php */
 do_action( 'enqueue_block_editor_assets' );
 
 require_once ABSPATH . 'wp-admin/admin-header.php';
+
+/**
+ * Fires before the Widgets administration page content loads.
+ *
+ * @since 3.0.0
+ */
+do_action( 'widgets_admin_page' );
 ?>
 
 <div id="widgets-editor" class="blocks-widgets-container"></div> 
