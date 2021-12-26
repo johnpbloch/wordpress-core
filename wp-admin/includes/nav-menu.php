@@ -1058,4 +1058,245 @@ function wp_get_nav_menu_to_edit( $menu_id = 0 ) {
 		 */
 		$walker_class_name = apply_filters( 'wp_edit_nav_menu_walker', 'Walker_Nav_Menu_Edit', $menu_id );
 
-		if ( class_exists( $walker_class_name ) 
+		if ( class_exists( $walker_class_name ) ) {
+			$walker = new $walker_class_name;
+		} else {
+			return new WP_Error(
+				'menu_walker_not_exist',
+				sprintf(
+					/* translators: %s: Walker class name. */
+					__( 'The Walker class named %s does not exist.' ),
+					'<strong>' . $walker_class_name . '</strong>'
+				)
+			);
+		}
+
+		$some_pending_menu_items = false;
+		$some_invalid_menu_items = false;
+		foreach ( (array) $menu_items as $menu_item ) {
+			if ( isset( $menu_item->post_status ) && 'draft' === $menu_item->post_status ) {
+				$some_pending_menu_items = true;
+			}
+			if ( ! empty( $menu_item->_invalid ) ) {
+				$some_invalid_menu_items = true;
+			}
+		}
+
+		if ( $some_pending_menu_items ) {
+			$result .= '<div class="notice notice-info notice-alt inline"><p>' . __( 'Click Save Menu to make pending menu items public.' ) . '</p></div>';
+		}
+
+		if ( $some_invalid_menu_items ) {
+			$result .= '<div class="notice notice-error notice-alt inline"><p>' . __( 'There are some invalid menu items. Please check or delete them.' ) . '</p></div>';
+		}
+
+		$result .= '<ul class="menu" id="menu-to-edit"> ';
+		$result .= walk_nav_menu_tree( array_map( 'wp_setup_nav_menu_item', $menu_items ), 0, (object) array( 'walker' => $walker ) );
+		$result .= ' </ul> ';
+		return $result;
+	} elseif ( is_wp_error( $menu ) ) {
+		return $menu;
+	}
+
+}
+
+/**
+ * Returns the columns for the nav menus page.
+ *
+ * @since 3.0.0
+ *
+ * @return string[] Array of column titles keyed by their column name.
+ */
+function wp_nav_menu_manage_columns() {
+	return array(
+		'_title'          => __( 'Show advanced menu properties' ),
+		'cb'              => '<input type="checkbox" />',
+		'link-target'     => __( 'Link Target' ),
+		'title-attribute' => __( 'Title Attribute' ),
+		'css-classes'     => __( 'CSS Classes' ),
+		'xfn'             => __( 'Link Relationship (XFN)' ),
+		'description'     => __( 'Description' ),
+	);
+}
+
+/**
+ * Deletes orphaned draft menu items
+ *
+ * @access private
+ * @since 3.0.0
+ *
+ * @global wpdb $wpdb WordPress database abstraction object.
+ */
+function _wp_delete_orphaned_draft_menu_items() {
+	global $wpdb;
+	$delete_timestamp = time() - ( DAY_IN_SECONDS * EMPTY_TRASH_DAYS );
+
+	// Delete orphaned draft menu items.
+	$menu_items_to_delete = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts AS p LEFT JOIN $wpdb->postmeta AS m ON p.ID = m.post_id WHERE post_type = 'nav_menu_item' AND post_status = 'draft' AND meta_key = '_menu_item_orphaned' AND meta_value < %d", $delete_timestamp ) );
+
+	foreach ( (array) $menu_items_to_delete as $menu_item_id ) {
+		wp_delete_post( $menu_item_id, true );
+	}
+}
+
+/**
+ * Saves nav menu items
+ *
+ * @since 3.6.0
+ *
+ * @param int|string $nav_menu_selected_id    ID, slug, or name of the currently-selected menu.
+ * @param string     $nav_menu_selected_title Title of the currently-selected menu.
+ * @return array The menu updated message
+ */
+function wp_nav_menu_update_menu_items( $nav_menu_selected_id, $nav_menu_selected_title ) {
+	$unsorted_menu_items = wp_get_nav_menu_items(
+		$nav_menu_selected_id,
+		array(
+			'orderby'     => 'ID',
+			'output'      => ARRAY_A,
+			'output_key'  => 'ID',
+			'post_status' => 'draft,publish',
+		)
+	);
+
+	$messages   = array();
+	$menu_items = array();
+
+	// Index menu items by DB ID.
+	foreach ( $unsorted_menu_items as $_item ) {
+		$menu_items[ $_item->db_id ] = $_item;
+	}
+
+	$post_fields = array(
+		'menu-item-db-id',
+		'menu-item-object-id',
+		'menu-item-object',
+		'menu-item-parent-id',
+		'menu-item-position',
+		'menu-item-type',
+		'menu-item-title',
+		'menu-item-url',
+		'menu-item-description',
+		'menu-item-attr-title',
+		'menu-item-target',
+		'menu-item-classes',
+		'menu-item-xfn',
+	);
+
+	wp_defer_term_counting( true );
+
+	// Loop through all the menu items' POST variables.
+	if ( ! empty( $_POST['menu-item-db-id'] ) ) {
+		foreach ( (array) $_POST['menu-item-db-id'] as $_key => $k ) {
+
+			// Menu item title can't be blank.
+			if ( ! isset( $_POST['menu-item-title'][ $_key ] ) || '' === $_POST['menu-item-title'][ $_key ] ) {
+				continue;
+			}
+
+			$args = array();
+			foreach ( $post_fields as $field ) {
+				$args[ $field ] = isset( $_POST[ $field ][ $_key ] ) ? $_POST[ $field ][ $_key ] : '';
+			}
+
+			$menu_item_db_id = wp_update_nav_menu_item( $nav_menu_selected_id, ( $_POST['menu-item-db-id'][ $_key ] != $_key ? 0 : $_key ), $args );
+
+			if ( is_wp_error( $menu_item_db_id ) ) {
+				$messages[] = '<div id="message" class="error"><p>' . $menu_item_db_id->get_error_message() . '</p></div>';
+			} else {
+				unset( $menu_items[ $menu_item_db_id ] );
+			}
+		}
+	}
+
+	// Remove menu items from the menu that weren't in $_POST.
+	if ( ! empty( $menu_items ) ) {
+		foreach ( array_keys( $menu_items ) as $menu_item_id ) {
+			if ( is_nav_menu_item( $menu_item_id ) ) {
+				wp_delete_post( $menu_item_id );
+			}
+		}
+	}
+
+	// Store 'auto-add' pages.
+	$auto_add        = ! empty( $_POST['auto-add-pages'] );
+	$nav_menu_option = (array) get_option( 'nav_menu_options' );
+
+	if ( ! isset( $nav_menu_option['auto_add'] ) ) {
+		$nav_menu_option['auto_add'] = array();
+	}
+
+	if ( $auto_add ) {
+		if ( ! in_array( $nav_menu_selected_id, $nav_menu_option['auto_add'], true ) ) {
+			$nav_menu_option['auto_add'][] = $nav_menu_selected_id;
+		}
+	} else {
+		$key = array_search( $nav_menu_selected_id, $nav_menu_option['auto_add'], true );
+		if ( false !== $key ) {
+			unset( $nav_menu_option['auto_add'][ $key ] );
+		}
+	}
+
+	// Remove non-existent/deleted menus.
+	$nav_menu_option['auto_add'] = array_intersect( $nav_menu_option['auto_add'], wp_get_nav_menus( array( 'fields' => 'ids' ) ) );
+	update_option( 'nav_menu_options', $nav_menu_option );
+
+	wp_defer_term_counting( false );
+
+	/** This action is documented in wp-includes/nav-menu.php */
+	do_action( 'wp_update_nav_menu', $nav_menu_selected_id );
+
+	$messages[] = '<div id="message" class="updated notice is-dismissible"><p>' .
+		sprintf(
+			/* translators: %s: Nav menu title. */
+			__( '%s has been updated.' ),
+			'<strong>' . $nav_menu_selected_title . '</strong>'
+		) . '</p></div>';
+
+	unset( $menu_items, $unsorted_menu_items );
+
+	return $messages;
+}
+
+/**
+ * If a JSON blob of navigation menu data is in POST data, expand it and inject
+ * it into `$_POST` to avoid PHP `max_input_vars` limitations. See #14134.
+ *
+ * @ignore
+ * @since 4.5.3
+ * @access private
+ */
+function _wp_expand_nav_menu_post_data() {
+	if ( ! isset( $_POST['nav-menu-data'] ) ) {
+		return;
+	}
+
+	$data = json_decode( stripslashes( $_POST['nav-menu-data'] ) );
+
+	if ( ! is_null( $data ) && $data ) {
+		foreach ( $data as $post_input_data ) {
+			// For input names that are arrays (e.g. `menu-item-db-id[3][4][5]`),
+			// derive the array path keys via regex and set the value in $_POST.
+			preg_match( '#([^\[]*)(\[(.+)\])?#', $post_input_data->name, $matches );
+
+			$array_bits = array( $matches[1] );
+
+			if ( isset( $matches[3] ) ) {
+				$array_bits = array_merge( $array_bits, explode( '][', $matches[3] ) );
+			}
+
+			$new_post_data = array();
+
+			// Build the new array value from leaf to trunk.
+			for ( $i = count( $array_bits ) - 1; $i >= 0; $i-- ) {
+				if ( count( $array_bits ) - 1 == $i ) {
+					$new_post_data[ $array_bits[ $i ] ] = wp_slash( $post_input_data->value );
+				} else {
+					$new_post_data = array( $array_bits[ $i ] => $new_post_data );
+				}
+			}
+
+			$_POST = array_replace_recursive( $_POST, $new_post_data );
+		}
+	}
+}
