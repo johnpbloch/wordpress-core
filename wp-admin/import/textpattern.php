@@ -563,4 +563,111 @@ class Textpattern_Import {
 		echo '<h3>'.__('Preserving Authors').'</h3>';
 		echo '<p>'.__('Secondly, we have attempted to preserve post authors.  If you are the only author or contributor to your blog, then you are safe.  In most cases, we are successful in this preservation endeavor.  However, if we cannot ascertain the name of the writer due to discrepancies between database tables, we assign it to you, the administrative user.').'</p>';
 		echo '<h3>'.__('Textile').'</h3>';
-		echo '<p>'.__('Also, since you\'re coming from Textpattern, you probably have been using Textile to format your comment
+		echo '<p>'.__('Also, since you\'re coming from Textpattern, you probably have been using Textile to format your comments and posts.  If this is the case, we recommend downloading and installing <a href="http://www.huddledmasses.org/category/development/wordpress/textile/">Textile for WordPress</a>.  Trust me... You\'ll want it.').'</p>';
+		echo '<h3>'.__('WordPress Resources').'</h3>';
+		echo '<p>'.__('Finally, there are numerous WordPress resources around the internet.  Some of them are:').'</p>';
+		echo '<ul>';
+		echo '<li>'.__('<a href="http://www.wordpress.org">The official WordPress site</a>').'</li>';
+		echo '<li>'.__('<a href="http://wordpress.org/support/">The WordPress support forums</a>').'</li>';
+		echo '<li>'.__('<a href="http://codex.wordpress.org">The Codex (In other words, the WordPress Bible)</a>').'</li>';
+		echo '</ul>';
+		echo '<p>'.sprintf(__('That\'s it! What are you waiting for? Go <a href="%1$s">login</a>!'), '/wp-login.php').'</p>';
+	}
+
+	function db_form()
+	{
+		echo '<table class="editform">';
+		printf('<tr><th scope="row"><label for="dbuser">%s</label></th><td><input type="text" name="dbuser" id="dbuser" /></td></tr>', __('Textpattern Database User:'));
+		printf('<tr><th scope="row"><label for="dbpass">%s</label></th><td><input type="password" name="dbpass" id="dbpass" /></td></tr>', __('Textpattern Database Password:'));
+		printf('<tr><th scope="row"><label for="dbname">%s</label></th><td><input type="text" id="dbname" name="dbname" /></td></tr>', __('Textpattern Database Name:'));
+		printf('<tr><th scope="row"><label for="dbhost">%s</label></th><td><input type="text" id="dbhost" name="dbhost" value="localhost" /></td></tr>', __('Textpattern Database Host:'));
+		printf('<tr><th scope="row"><label for="dbprefix">%s</label></th><td><input type="text" name="dbprefix" id="dbprefix"  /></td></tr>', __('Textpattern Table prefix (if any):'));
+		echo '</table>';
+	}
+
+	function dispatch()
+	{
+
+		if (empty ($_GET['step']))
+			$step = 0;
+		else
+			$step = (int) $_GET['step'];
+		$this->header();
+
+		if ( $step > 0 )
+		{
+			check_admin_referer('import-textpattern');
+
+			if($_POST['dbuser'])
+			{
+				if(get_option('txpuser'))
+					delete_option('txpuser');
+				add_option('txpuser', sanitize_user($_POST['dbuser'], true));
+			}
+			if($_POST['dbpass'])
+			{
+				if(get_option('txppass'))
+					delete_option('txppass');
+				add_option('txppass',  sanitize_user($_POST['dbpass'], true));
+			}
+
+			if($_POST['dbname'])
+			{
+				if(get_option('txpname'))
+					delete_option('txpname');
+				add_option('txpname',  sanitize_user($_POST['dbname'], true));
+			}
+			if($_POST['dbhost'])
+			{
+				if(get_option('txphost'))
+					delete_option('txphost');
+				add_option('txphost',  sanitize_user($_POST['dbhost'], true));
+			}
+			if($_POST['dbprefix'])
+			{
+				if(get_option('tpre'))
+					delete_option('tpre');
+				add_option('tpre',  sanitize_user($_POST['dbprefix']));
+			}
+
+
+		}
+
+		switch ($step)
+		{
+			default:
+			case 0 :
+				$this->greet();
+				break;
+			case 1 :
+				$this->import_categories();
+				break;
+			case 2 :
+				$this->import_users();
+				break;
+			case 3 :
+				$this->import_posts();
+				break;
+			case 4 :
+				$this->import_comments();
+				break;
+			case 5 :
+				$this->import_links();
+				break;
+			case 6 :
+				$this->cleanup_txpimport();
+				break;
+		}
+
+		$this->footer();
+	}
+
+	function Textpattern_Import()
+	{
+		// Nothing.
+	}
+}
+
+$txp_import = new Textpattern_Import();
+register_importer('textpattern', __('Textpattern'), __('Import categories, users, posts, comments, and links from a Textpattern blog'), array ($txp_import, 'dispatch'));
+?>
