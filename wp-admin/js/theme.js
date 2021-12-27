@@ -1699,4 +1699,266 @@ themes.view.Installer = themes.view.Appearance.extend({
 
 		// Get the themes by sending Ajax POST request to api.wordpress.org/themes
 		// or searching the local cache
-		this.collection.query( reques
+		this.collection.query( request );
+	},
+
+	// Save the user's WordPress.org username and get his favorite themes.
+	saveUsername: function ( event ) {
+		var username = $( '#wporg-username-input' ).val(),
+			nonce = $( '#wporg-username-nonce' ).val(),
+			request = { browse: 'favorites', user: username },
+			that = this;
+
+		if ( event ) {
+			event.preventDefault();
+		}
+
+		// save username on enter
+		if ( event.type === 'keyup' && event.which !== 13 ) {
+			return;
+		}
+
+		return wp.ajax.send( 'save-wporg-username', {
+			data: {
+				_wpnonce: nonce,
+				username: username
+			},
+			success: function () {
+				// Get the themes by sending Ajax POST request to api.wordpress.org/themes
+				// or searching the local cache
+				that.collection.query( request );
+			}
+		} );
+	},
+
+	// Get the checked filters
+	// @return {array} of tags or false
+	filtersChecked: function() {
+		var items = $( '.filter-group' ).find( ':checkbox' ),
+			tags = [];
+
+		_.each( items.filter( ':checked' ), function( item ) {
+			tags.push( $( item ).prop( 'value' ) );
+		});
+
+		// When no filters are checked, restore initial state and return
+		if ( tags.length === 0 ) {
+			$( '.filter-drawer .apply-filters' ).find( 'span' ).text( '' );
+			$( '.filter-drawer .clear-filters' ).hide();
+			$( 'body' ).removeClass( 'filters-applied' );
+			return false;
+		}
+
+		$( '.filter-drawer .apply-filters' ).find( 'span' ).text( tags.length );
+		$( '.filter-drawer .clear-filters' ).css( 'display', 'inline-block' );
+
+		return tags;
+	},
+
+	activeClass: 'current',
+
+	// Overwrite search container class to append search
+	// in new location
+	searchContainer: $( '.wp-filter .search-form' ),
+
+	/*
+	 * When users press the "Upload Theme" button, show the upload form in place.
+	 */
+	uploader: function() {
+		var uploadViewToggle = $( '.upload-view-toggle' ),
+			$body = $( document.body );
+
+		uploadViewToggle.on( 'click', function() {
+			// Toggle the upload view.
+			$body.toggleClass( 'show-upload-view' );
+			// Toggle the `aria-expanded` button attribute.
+			uploadViewToggle.attr( 'aria-expanded', $body.hasClass( 'show-upload-view' ) );
+		});
+	},
+
+	// Toggle the full filters navigation
+	moreFilters: function( event ) {
+		event.preventDefault();
+
+		if ( $( 'body' ).hasClass( 'filters-applied' ) ) {
+			return this.backToFilters();
+		}
+
+		// If the filters section is opened and filters are checked
+		// run the relevant query collapsing to filtered-by state
+		if ( $( 'body' ).hasClass( 'show-filters' ) && this.filtersChecked() ) {
+			return this.addFilter();
+		}
+
+		this.clearSearch();
+
+		themes.router.navigate( themes.router.baseUrl( '' ) );
+		$( 'body' ).toggleClass( 'show-filters' );
+	},
+
+	// Clears all the checked filters
+	// @uses filtersChecked()
+	clearFilters: function( event ) {
+		var items = $( '.filter-group' ).find( ':checkbox' ),
+			self = this;
+
+		event.preventDefault();
+
+		_.each( items.filter( ':checked' ), function( item ) {
+			$( item ).prop( 'checked', false );
+			return self.filtersChecked();
+		});
+	},
+
+	backToFilters: function( event ) {
+		if ( event ) {
+			event.preventDefault();
+		}
+
+		$( 'body' ).removeClass( 'filters-applied' );
+	},
+
+	clearSearch: function() {
+		$( '#wp-filter-search-input').val( '' );
+	}
+});
+
+themes.InstallerRouter = Backbone.Router.extend({
+	routes: {
+		'theme-install.php?theme=:slug': 'preview',
+		'theme-install.php?browse=:sort': 'sort',
+		'theme-install.php?search=:query': 'search',
+		'theme-install.php': 'sort'
+	},
+
+	baseUrl: function( url ) {
+		return 'theme-install.php' + url;
+	},
+
+	themePath: '?theme=',
+	browsePath: '?browse=',
+	searchPath: '?search=',
+
+	search: function( query ) {
+		$( '.wp-filter-search' ).val( query );
+	},
+
+	navigate: function() {
+		if ( Backbone.history._hasPushState ) {
+			Backbone.Router.prototype.navigate.apply( this, arguments );
+		}
+	}
+});
+
+
+themes.RunInstaller = {
+
+	init: function() {
+		// Set up the view
+		// Passes the default 'section' as an option
+		this.view = new themes.view.Installer({
+			section: 'featured',
+			SearchView: themes.view.InstallerSearch
+		});
+
+		// Render results
+		this.render();
+
+	},
+
+	render: function() {
+
+		// Render results
+		this.view.render();
+		this.routes();
+
+		Backbone.history.start({
+			root: themes.data.settings.adminUrl,
+			pushState: true,
+			hashChange: false
+		});
+	},
+
+	routes: function() {
+		var self = this,
+			request = {};
+
+		// Bind to our global `wp.themes` object
+		// so that the router is available to sub-views
+		themes.router = new themes.InstallerRouter();
+
+		// Handles `theme` route event
+		// Queries the API for the passed theme slug
+		themes.router.on( 'route:preview', function( slug ) {
+			request.theme = slug;
+			self.view.collection.query( request );
+			self.view.collection.once( 'update', function() {
+				self.view.view.theme.preview();
+			});
+		});
+
+		// Handles sorting / browsing routes
+		// Also handles the root URL triggering a sort request
+		// for `featured`, the default view
+		themes.router.on( 'route:sort', function( sort ) {
+			if ( ! sort ) {
+				sort = 'featured';
+			}
+			self.view.sort( sort );
+			self.view.trigger( 'theme:close' );
+		});
+
+		// The `search` route event. The router populates the input field.
+		themes.router.on( 'route:search', function() {
+			$( '.wp-filter-search' ).focus().trigger( 'keyup' );
+		});
+
+		this.extraRoutes();
+	},
+
+	extraRoutes: function() {
+		return false;
+	}
+};
+
+// Ready...
+$( document ).ready(function() {
+	if ( themes.isInstall ) {
+		themes.RunInstaller.init();
+	} else {
+		themes.Run.init();
+	}
+
+	$( '.broken-themes .delete-theme' ).on( 'click', function() {
+		return confirm( _wpThemeSettings.settings.confirmDelete );
+	});
+});
+
+})( jQuery );
+
+// Align theme browser thickbox
+var tb_position;
+jQuery(document).ready( function($) {
+	tb_position = function() {
+		var tbWindow = $('#TB_window'),
+			width = $(window).width(),
+			H = $(window).height(),
+			W = ( 1040 < width ) ? 1040 : width,
+			adminbar_height = 0;
+
+		if ( $('#wpadminbar').length ) {
+			adminbar_height = parseInt( $('#wpadminbar').css('height'), 10 );
+		}
+
+		if ( tbWindow.size() ) {
+			tbWindow.width( W - 50 ).height( H - 45 - adminbar_height );
+			$('#TB_iframeContent').width( W - 50 ).height( H - 75 - adminbar_height );
+			tbWindow.css({'margin-left': '-' + parseInt( ( ( W - 50 ) / 2 ), 10 ) + 'px'});
+			if ( typeof document.body.style.maxWidth !== 'undefined' ) {
+				tbWindow.css({'top': 20 + adminbar_height + 'px', 'margin-top': '0'});
+			}
+		}
+	};
+
+	$(window).resize(function(){ tb_position(); });
+});
