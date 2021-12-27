@@ -181,45 +181,4 @@ $wpdb->query("INSERT INTO $wpdb->usermeta (user_id, meta_key, meta_value) VALUES
 $admin_caps = serialize(array('administrator' => true));
 $wpdb->query("INSERT INTO $wpdb->usermeta (user_id, meta_key, meta_value) VALUES ({$wpdb->insert_id}, '{$table_prefix}capabilities', '{$admin_caps}');");
 
-$message_headers = 'From: "' . $weblog_title . '" <wordpress@' . $_SERVER['SERVER_NAME'] . '>';
-$message = sprintf(__("Your new WordPress blog has been successfully set up at:
-
-%1\$s
-
-You can log in to the administrator account with the following information:
-
-Username: admin
-Password: %2\$s
-
-We hope you enjoy your new weblog. Thanks!
-
---The WordPress Team
-http://wordpress.org/
-"), $guessurl, $random_password);
-
-@wp_mail($admin_email, __('New WordPress Blog'), $message, $message_headers);
-
-wp_cache_flush();
-?>
-
-<p><em><?php _e('Finished!'); ?></em></p>
-
-<p><?php printf(__('Now you can <a href="%1$s">log in</a> with the <strong>username</strong> "<code>admin</code>" and <strong>password</strong> "<code>%2$s</code>".'), '../wp-login.php', $random_password); ?></p>
-<p><?php _e('<strong><em>Note that password</em></strong> carefully! It is a <em>random</em> password that was generated just for you. If you lose it, you will have to delete the tables from the database yourself, and re-install WordPress. So to review:'); ?>
-</p>
-<dl>
-<dt><?php _e('Username'); ?></dt>
-<dd><code>admin</code></dd>
-<dt><?php _e('Password'); ?></dt>
-<dd><code><?php echo $random_password; ?></code></dd>
-	<dt><?php _e('Login address'); ?></dt>
-<dd><a href="../wp-login.php">wp-login.php</a></dd>
-</dl>
-<p><?php _e('Were you expecting more steps? Sorry to disappoint. All done! :)'); ?></p>
-<?php
-	break;
-}
-?>
-<p id="footer"><?php _e('<a href="http://wordpress.org/">WordPress</a>, personal publishing platform.'); ?></p>
-</body>
-</html>
+$message_headers = 'From: "
