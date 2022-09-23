@@ -2223,6 +2223,11 @@ module.exports.remove = removeAccents;
 /******/ 		};
 /******/ 	}();
 /******/ 	
+/******/ 	/* webpack/runtime/nonce */
+/******/ 	!function() {
+/******/ 		__webpack_require__.nc = undefined;
+/******/ 	}();
+/******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be in strict mode.
@@ -2389,7 +2394,7 @@ __webpack_require__.d(__webpack_exports__, {
   "__experimentalUnitControl": function() { return /* reexport */ unit_control; },
   "__experimentalUseCustomUnits": function() { return /* reexport */ useCustomUnits; },
   "__experimentalUseNavigator": function() { return /* reexport */ use_navigator; },
-  "__experimentalUseSlot": function() { return /* reexport */ use_slot_useSlot; },
+  "__experimentalUseSlot": function() { return /* reexport */ useSlot; },
   "__experimentalVStack": function() { return /* reexport */ v_stack_component; },
   "__experimentalView": function() { return /* reexport */ component; },
   "__experimentalZStack": function() { return /* reexport */ z_stack_component; },
@@ -18055,6 +18060,65 @@ function ScrollLock() {
 }
 /* harmony default export */ var scroll_lock = (ScrollLock);
 
+;// CONCATENATED MODULE: ./node_modules/@wordpress/components/build-module/slot-fill/bubbles-virtually/slot-fill-context.js
+// @ts-nocheck
+
+/**
+ * WordPress dependencies
+ */
+
+
+const SlotFillContext = (0,external_wp_element_namespaceObject.createContext)({
+  slots: {},
+  fills: {},
+  registerSlot: () => {
+    typeof process !== "undefined" && process.env && "production" !== "production" ? 0 : void 0;
+  },
+  updateSlot: () => {},
+  unregisterSlot: () => {},
+  registerFill: () => {},
+  unregisterFill: () => {}
+});
+/* harmony default export */ var slot_fill_context = (SlotFillContext);
+
+;// CONCATENATED MODULE: ./node_modules/@wordpress/components/build-module/slot-fill/bubbles-virtually/use-slot.js
+// @ts-nocheck
+
+/**
+ * WordPress dependencies
+ */
+
+/**
+ * Internal dependencies
+ */
+
+
+function useSlot(name) {
+  const registry = (0,external_wp_element_namespaceObject.useContext)(slot_fill_context);
+  const slot = registry.slots[name] || {};
+  const slotFills = registry.fills[name];
+  const fills = (0,external_wp_element_namespaceObject.useMemo)(() => slotFills || [], [slotFills]);
+  const updateSlot = (0,external_wp_element_namespaceObject.useCallback)(fillProps => {
+    registry.updateSlot(name, fillProps);
+  }, [name, registry.updateSlot]);
+  const unregisterSlot = (0,external_wp_element_namespaceObject.useCallback)(slotRef => {
+    registry.unregisterSlot(name, slotRef);
+  }, [name, registry.unregisterSlot]);
+  const registerFill = (0,external_wp_element_namespaceObject.useCallback)(fillRef => {
+    registry.registerFill(name, fillRef);
+  }, [name, registry.registerFill]);
+  const unregisterFill = (0,external_wp_element_namespaceObject.useCallback)(fillRef => {
+    registry.unregisterFill(name, fillRef);
+  }, [name, registry.unregisterFill]);
+  return { ...slot,
+    updateSlot,
+    unregisterSlot,
+    fills,
+    registerFill,
+    unregisterFill
+  };
+}
+
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/components/build-module/slot-fill/context.js
 // @ts-nocheck
 
@@ -18062,7 +18126,7 @@ function ScrollLock() {
  * WordPress dependencies
  */
 
-const SlotFillContext = (0,external_wp_element_namespaceObject.createContext)({
+const context_SlotFillContext = (0,external_wp_element_namespaceObject.createContext)({
   registerSlot: () => {},
   unregisterSlot: () => {},
   registerFill: () => {},
@@ -18071,7 +18135,7 @@ const SlotFillContext = (0,external_wp_element_namespaceObject.createContext)({
   getFills: () => {},
   subscribe: () => {}
 });
-/* harmony default export */ var context = (SlotFillContext);
+/* harmony default export */ var context = (context_SlotFillContext);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/components/build-module/slot-fill/use-slot.js
 // @ts-nocheck
@@ -18092,7 +18156,7 @@ const SlotFillContext = (0,external_wp_element_namespaceObject.createContext)({
  * @return {Object} Slot object.
  */
 
-const useSlot = name => {
+const use_slot_useSlot = name => {
   const {
     getSlot,
     subscribe
@@ -18108,7 +18172,7 @@ const useSlot = name => {
   return slot;
 };
 
-/* harmony default export */ var use_slot = (useSlot);
+/* harmony default export */ var use_slot = (use_slot_useSlot);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/components/build-module/slot-fill/fill.js
 
@@ -18302,66 +18366,7 @@ const Slot = props => (0,external_wp_element_namespaceObject.createElement)(cont
 
 /* harmony default export */ var slot = (Slot);
 
-;// CONCATENATED MODULE: ./node_modules/@wordpress/components/build-module/slot-fill/bubbles-virtually/slot-fill-context.js
-// @ts-nocheck
-
-/**
- * WordPress dependencies
- */
-
-
-const slot_fill_context_SlotFillContext = (0,external_wp_element_namespaceObject.createContext)({
-  slots: {},
-  fills: {},
-  registerSlot: () => {
-    typeof process !== "undefined" && process.env && "production" !== "production" ? 0 : void 0;
-  },
-  updateSlot: () => {},
-  unregisterSlot: () => {},
-  registerFill: () => {},
-  unregisterFill: () => {}
-});
-/* harmony default export */ var slot_fill_context = (slot_fill_context_SlotFillContext);
-
-;// CONCATENATED MODULE: ./node_modules/@wordpress/components/build-module/slot-fill/bubbles-virtually/use-slot.js
-// @ts-nocheck
-
-/**
- * WordPress dependencies
- */
-
-/**
- * Internal dependencies
- */
-
-
-function use_slot_useSlot(name) {
-  const registry = (0,external_wp_element_namespaceObject.useContext)(slot_fill_context);
-  const slot = registry.slots[name] || {};
-  const slotFills = registry.fills[name];
-  const fills = (0,external_wp_element_namespaceObject.useMemo)(() => slotFills || [], [slotFills]);
-  const updateSlot = (0,external_wp_element_namespaceObject.useCallback)(fillProps => {
-    registry.updateSlot(name, fillProps);
-  }, [name, registry.updateSlot]);
-  const unregisterSlot = (0,external_wp_element_namespaceObject.useCallback)(slotRef => {
-    registry.unregisterSlot(name, slotRef);
-  }, [name, registry.unregisterSlot]);
-  const registerFill = (0,external_wp_element_namespaceObject.useCallback)(fillRef => {
-    registry.registerFill(name, fillRef);
-  }, [name, registry.registerFill]);
-  const unregisterFill = (0,external_wp_element_namespaceObject.useCallback)(fillRef => {
-    registry.unregisterFill(name, fillRef);
-  }, [name, registry.unregisterFill]);
-  return { ...slot,
-    updateSlot,
-    unregisterSlot,
-    fills,
-    registerFill,
-    unregisterFill
-  };
-}
-
-;// CONCATENATED MODULE: ./node_modules/uuid/dist/esm-browser/rng.js
+;// CONCATENATED MODULE: ./node_modules/@wordpress/components/node_modules/uuid/dist/esm-browser/rng.js
 // Unique ID creation requires a high quality random # generator. In the browser we therefore
 // require the crypto API and do not support built-in fallback to lower quality random number
 // generators (like Math.random()).
@@ -18381,9 +18386,9 @@ function rng() {
 
   return getRandomValues(rnds8);
 }
-;// CONCATENATED MODULE: ./node_modules/uuid/dist/esm-browser/regex.js
+;// CONCATENATED MODULE: ./node_modules/@wordpress/components/node_modules/uuid/dist/esm-browser/regex.js
 /* harmony default export */ var regex = (/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i);
-;// CONCATENATED MODULE: ./node_modules/uuid/dist/esm-browser/validate.js
+;// CONCATENATED MODULE: ./node_modules/@wordpress/components/node_modules/uuid/dist/esm-browser/validate.js
 
 
 function validate(uuid) {
@@ -18391,7 +18396,7 @@ function validate(uuid) {
 }
 
 /* harmony default export */ var esm_browser_validate = (validate);
-;// CONCATENATED MODULE: ./node_modules/uuid/dist/esm-browser/stringify.js
+;// CONCATENATED MODULE: ./node_modules/@wordpress/components/node_modules/uuid/dist/esm-browser/stringify.js
 
 /**
  * Convert array of 16 byte values to UUID string format of the form:
@@ -18422,7 +18427,7 @@ function stringify_stringify(arr) {
 }
 
 /* harmony default export */ var esm_browser_stringify = (stringify_stringify);
-;// CONCATENATED MODULE: ./node_modules/uuid/dist/esm-browser/v4.js
+;// CONCATENATED MODULE: ./node_modules/@wordpress/components/node_modules/uuid/dist/esm-browser/v4.js
 
 
 
@@ -18529,7 +18534,7 @@ function fill_Fill(_ref) {
     name,
     children
   } = _ref;
-  const slot = use_slot_useSlot(name);
+  const slot = useSlot(name);
   const ref = (0,external_wp_element_namespaceObject.useRef)({
     rerender: useForceUpdate()
   });
@@ -19413,7 +19418,7 @@ const UnforwardedPopover = (props, forwardedRef) => {
 
   const slotName = (0,external_wp_element_namespaceObject.useContext)(slotNameContext) || __unstableSlotName;
 
-  const slot = use_slot_useSlot(slotName);
+  const slot = useSlot(slotName);
   let onDialogClose;
 
   if (onClose || onFocusOutside) {
