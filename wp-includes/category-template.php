@@ -1342,4 +1342,66 @@ function the_terms( $id, $taxonomy, $before = '', $sep = ', ', $after = '' ) {
 	 * @param string $sep       String to use between the terms.
 	 * @param string $after     String to use after the terms.
 	 */
-	
+	echo apply_filters( 'the_terms', $term_list, $taxonomy, $before, $sep, $after );
+}
+
+/**
+ * Check if the current post has any of given category.
+ *
+ * @since 3.1.0
+ *
+ * @param string|int|array $category Optional. The category name/term_id/slug or array of them to check for.
+ * @param int|object $post Optional. Post to check instead of the current post.
+ * @return bool True if the current post has any of the given categories (or any category, if no category specified).
+ */
+function has_category( $category = '', $post = null ) {
+	return has_term( $category, 'category', $post );
+}
+
+/**
+ * Check if the current post has any of given tags.
+ *
+ * The given tags are checked against the post's tags' term_ids, names and slugs.
+ * Tags given as integers will only be checked against the post's tags' term_ids.
+ * If no tags are given, determines if post has any tags.
+ *
+ * Prior to v2.7 of WordPress, tags given as integers would also be checked against the post's tags' names and slugs (in addition to term_ids)
+ * Prior to v2.7, this function could only be used in the WordPress Loop.
+ * As of 2.7, the function can be used anywhere if it is provided a post ID or post object.
+ *
+ * @since 2.6.0
+ *
+ * @param string|int|array $tag Optional. The tag name/term_id/slug or array of them to check for.
+ * @param int|object $post Optional. Post to check instead of the current post. (since 2.7.0)
+ * @return bool True if the current post has any of the given tags (or any tag, if no tag specified).
+ */
+function has_tag( $tag = '', $post = null ) {
+	return has_term( $tag, 'post_tag', $post );
+}
+
+/**
+ * Check if the current post has any of given terms.
+ *
+ * The given terms are checked against the post's terms' term_ids, names and slugs.
+ * Terms given as integers will only be checked against the post's terms' term_ids.
+ * If no terms are given, determines if post has any terms.
+ *
+ * @since 3.1.0
+ *
+ * @param string|int|array $term Optional. The term name/term_id/slug or array of them to check for.
+ * @param string $taxonomy Taxonomy name
+ * @param int|object $post Optional. Post to check instead of the current post.
+ * @return bool True if the current post has any of the given tags (or any tag, if no tag specified).
+ */
+function has_term( $term = '', $taxonomy = '', $post = null ) {
+	$post = get_post($post);
+
+	if ( !$post )
+		return false;
+
+	$r = is_object_in_term( $post->ID, $taxonomy, $term );
+	if ( is_wp_error( $r ) )
+		return false;
+
+	return $r;
+}
