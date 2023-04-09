@@ -2438,4 +2438,206 @@ class wp_xmlrpc_server extends IXR_Server {
 
 		do_action('xmlrpc_call', 'pingback.ping');
 
-		$this->escap
+		$this->escape($args);
+
+		$pagelinkedfrom = $args[0];
+		$pagelinkedto   = $args[1];
+
+		$title = '';
+
+		$pagelinkedfrom = str_replace('&amp;', '&', $pagelinkedfrom);
+		$pagelinkedto = str_replace('&amp;', '&', $pagelinkedto);
+		$pagelinkedto = str_replace('&', '&amp;', $pagelinkedto);
+
+		// Check if the page linked to is in our site
+		$pos1 = strpos($pagelinkedto, str_replace(array('http://www.','http://','https://www.','https://'), '', get_option('home')));
+		if( !$pos1 )
+			return new IXR_Error(0, __('Is there no link to us?'));
+
+		// let's find which post is linked to
+		// FIXME: does url_to_postid() cover all these cases already?
+		//        if so, then let's use it and drop the old code.
+		$urltest = parse_url($pagelinkedto);
+		if ($post_ID = url_to_postid($pagelinkedto)) {
+			$way = 'url_to_postid()';
+		} elseif (preg_match('#p/[0-9]{1,}#', $urltest['path'], $match)) {
+			// the path defines the post_ID (archives/p/XXXX)
+			$blah = explode('/', $match[0]);
+			$post_ID = (int) $blah[1];
+			$way = 'from the path';
+		} elseif (preg_match('#p=[0-9]{1,}#', $urltest['query'], $match)) {
+			// the querystring defines the post_ID (?p=XXXX)
+			$blah = explode('=', $match[0]);
+			$post_ID = (int) $blah[1];
+			$way = 'from the querystring';
+		} elseif (isset($urltest['fragment'])) {
+			// an #anchor is there, it's either...
+			if (intval($urltest['fragment'])) {
+				// ...an integer #XXXX (simpliest case)
+				$post_ID = (int) $urltest['fragment'];
+				$way = 'from the fragment (numeric)';
+			} elseif (preg_match('/post-[0-9]+/',$urltest['fragment'])) {
+				// ...a post id in the form 'post-###'
+				$post_ID = preg_replace('/[^0-9]+/', '', $urltest['fragment']);
+				$way = 'from the fragment (post-###)';
+			} elseif (is_string($urltest['fragment'])) {
+				// ...or a string #title, a little more complicated
+				$title = preg_replace('/[^a-z0-9]/i', '.', $urltest['fragment']);
+				$sql = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_title RLIKE %s", $title);
+				if (! ($post_ID = $wpdb->get_var($sql)) ) {
+					// returning unknown error '0' is better than die()ing
+			  		return new IXR_Error(0, '');
+				}
+				$way = 'from the fragment (title)';
+			}
+		} else {
+			// TODO: Attempt to extract a post ID from the given URL
+	  		return new IXR_Error(33, __('The specified target URL cannot be used as a target. It either doesn\'t exist, or it is not a pingback-enabled resource.'));
+		}
+		$post_ID = (int) $post_ID;
+
+
+		logIO("O","(PB) URL='$pagelinkedto' ID='$post_ID' Found='$way'");
+
+		$post = get_post($post_ID);
+
+		if ( !$post ) // Post_ID not found
+	  		return new IXR_Error(33, __('The specified target URL cannot be used as a target. It either doesn\'t exist, or it is not a pingback-enabled resource.'));
+
+		if ( $post_ID == url_to_postid($pagelinkedfrom) )
+			return new IXR_Error(0, __('The source URL and the target URL cannot both point to the same resource.'));
+
+		// Check if pings are on
+		if ( 'closed' == $post->ping_status )
+	  		return new IXR_Error(33, __('The specified target URL cannot be used as a target. It either doesn\'t exist, or it is not a pingback-enabled resource.'));
+
+		// Let's check that the remote site didn't already pingback this entry
+		$wpdb->get_results( $wpdb->prepare("SELECT * FROM $wpdb->comments WHERE comment_post_ID = %d AND comment_author_url = %s", $post_ID, $pagelinkedfrom) );
+
+		if ( $wpdb->num_rows ) // We already have a Pingback from this URL
+	  		return new IXR_Error(48, __('The pingback has already been registered.'));
+
+		// very stupid, but gives time to the 'from' server to publish !
+		sleep(1);
+
+		// Let's check the remote site
+		$linea = wp_remote_fopen( $pagelinkedfrom );
+		if ( !$linea )
+	  		return new IXR_Error(16, __('The source URL does not exist.'));
+
+		$linea = apply_filters('pre_remote_source', $linea, $pagelinkedto);
+
+		// Work around bug in strip_tags():
+		$linea = str_replace('<!DOC', '<DOC', $linea);
+		$linea = preg_replace( '/[\s\r\n\t]+/', ' ', $linea ); // normalize spaces
+		$linea = preg_replace( "/ <(h1|h2|h3|h4|h5|h6|p|th|td|li|dt|dd|pre|caption|input|textarea|button|body)[^>]*>/", "\n\n", $linea );
+
+		preg_match('|<title>([^<]*?)</title>|is', $linea, $matchtitle);
+		$title = $matchtitle[1];
+		if ( empty( $title ) )
+			return new IXR_Error(32, __('We cannot find a title on that page.'));
+
+		$linea = strip_tags( $linea, '<a>' ); // just keep the tag we need
+
+		$p = explode( "\n\n", $linea );
+
+		$preg_target = preg_quote($pagelinkedto);
+
+		foreach ( $p as $para ) {
+			if ( strpos($para, $pagelinkedto) !== false ) { // it exists, but is it a link?
+				preg_match("|<a[^>]+?".$preg_target."[^>]*>([^>]+?)</a>|", $para, $context);
+
+				// If the URL isn't in a link context, keep looking
+				if ( empty($context) )
+					continue;
+
+				// We're going to use this fake tag to mark the context in a bit
+				// the marker is needed in case the link text appears more than once in the paragraph
+				$excerpt = preg_replace('|\</?wpcontext\>|', '', $para);
+
+				// prevent really long link text
+				if ( strlen($context[1]) > 100 )
+					$context[1] = substr($context[1], 0, 100) . '...';
+
+				$marker = '<wpcontext>'.$context[1].'</wpcontext>';    // set up our marker
+				$excerpt= str_replace($context[0], $marker, $excerpt); // swap out the link for our marker
+				$excerpt = strip_tags($excerpt, '<wpcontext>');        // strip all tags but our context marker
+				$excerpt = trim($excerpt);
+				$preg_marker = preg_quote($marker);
+				$excerpt = preg_replace("|.*?\s(.{0,100}$preg_marker.{0,100})\s.*|s", '$1', $excerpt);
+				$excerpt = strip_tags($excerpt); // YES, again, to remove the marker wrapper
+				break;
+			}
+		}
+
+		if ( empty($context) ) // Link to target not found
+			return new IXR_Error(17, __('The source URL does not contain a link to the target URL, and so cannot be used as a source.'));
+
+		$pagelinkedfrom = str_replace('&', '&amp;', $pagelinkedfrom);
+
+		$context = '[...] ' . wp_specialchars( $excerpt ) . ' [...]';
+		$pagelinkedfrom = $wpdb->escape( $pagelinkedfrom );
+
+		$comment_post_ID = (int) $post_ID;
+		$comment_author = $title;
+		$this->escape($comment_author);
+		$comment_author_url = $pagelinkedfrom;
+		$comment_content = $context;
+		$this->escape($comment_content);
+		$comment_type = 'pingback';
+
+		$commentdata = compact('comment_post_ID', 'comment_author', 'comment_author_url', 'comment_content', 'comment_type');
+
+		$comment_ID = wp_new_comment($commentdata);
+		do_action('pingback_post', $comment_ID);
+
+		return sprintf(__('Pingback from %1$s to %2$s registered. Keep the web talking! :-)'), $pagelinkedfrom, $pagelinkedto);
+	}
+
+
+	/* pingback.extensions.getPingbacks returns an array of URLs
+	that pingbacked the given URL
+	specs on http://www.aquarionics.com/misc/archives/blogite/0198.html */
+	function pingback_extensions_getPingbacks($args) {
+
+		global $wpdb;
+
+		do_action('xmlrpc_call', 'pingback.extensions.getPingsbacks');
+
+		$this->escape($args);
+
+		$url = $args;
+
+		$post_ID = url_to_postid($url);
+		if (!$post_ID) {
+			// We aren't sure that the resource is available and/or pingback enabled
+	  		return new IXR_Error(33, __('The specified target URL cannot be used as a target. It either doesn\'t exist, or it is not a pingback-enabled resource.'));
+		}
+
+		$actual_post = wp_get_single_post($post_ID, ARRAY_A);
+
+		if (!$actual_post) {
+			// No such post = resource not found
+	  		return new IXR_Error(32, __('The specified target URL does not exist.'));
+		}
+
+		$comments = $wpdb->get_results( $wpdb->prepare("SELECT comment_author_url, comment_content, comment_author_IP, comment_type FROM $wpdb->comments WHERE comment_post_ID = %d", $post_ID) );
+
+		if (!$comments) {
+			return array();
+		}
+
+		$pingbacks = array();
+		foreach($comments as $comment) {
+			if ( 'pingback' == $comment->comment_type )
+				$pingbacks[] = $comment->comment_author_url;
+		}
+
+		return $pingbacks;
+	}
+}
+
+
+$wp_xmlrpc_server = new wp_xmlrpc_server();
+
+?>
