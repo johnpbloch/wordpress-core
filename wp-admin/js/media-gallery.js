@@ -27,4 +27,17 @@ jQuery(function($) {
 			 * This Ajax action has been deprecated since 3.5.0, see custom-background.php
 			 */
 			jQuery.post(ajaxurl, {
-				
+				action: 'set-background-image',
+				attachment_id: id,
+				_ajax_nonce: nonceValue,
+				size: img_size
+			}, function() {
+				var win = window.dialogArguments || opener || parent || top;
+				win.tb_remove();
+				win.location.reload();
+			});
+
+			e.preventDefault();
+		}
+	});
+});
