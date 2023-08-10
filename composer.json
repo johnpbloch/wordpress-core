@@ -23,7 +23,7 @@
     "source": "https://core.trac.wordpress.org/browser"
   },
   "require": {
-    "php": ">=",
+    "php": ">=7.0.0",
     "ext-json": "*"
   },
   "provide": {
