@@ -23,7 +23,7 @@
     "source": "https://core.trac.wordpress.org/browser"
   },
   "require": {
-    "php": ">=5.3.2"
+    "php": ">="
   },
   "provide": {
     "wordpress/core-implementation": "3.8.x-dev"
