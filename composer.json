@@ -1,0 +1,32 @@
+{
+  "name": "johnpbloch/wordpress-core",
+  "description": "WordPress is open source software you can use to create a beautiful website, blog, or app.",
+  "keywords": [
+    "wordpress",
+    "blog",
+    "cms"
+  ],
+  "type": "wordpress-core",
+  "homepage": "https://wordpress.org/",
+  "license": "GPL-2.0-or-later",
+  "authors": [
+    {
+      "name": "WordPress Community",
+      "homepage": "https://wordpress.org/about/"
+    }
+  ],
+  "support": {
+    "issues": "https://core.trac.wordpress.org/",
+    "forum": "https://wordpress.org/support/",
+    "wiki": "https://codex.wordpress.org/",
+    "irc": "irc://irc.freenode.net/wordpress",
+    "source": "https://core.trac.wordpress.org/browser"
+  },
+  "require": {
+    "php": ">=7.0.0",
+    "ext-json": "*"
+  },
+  "provide": {
+    "wordpress/core-implementation": "6.4.3"
+  }
+}
