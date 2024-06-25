@@ -598,6 +598,9 @@ pre code {
 	padding: 0;
 }
 
+.entry-content > code {
+	display: block;
+}
 
 /* Media ------------------------------------- */
 
@@ -3031,6 +3034,11 @@ ol.wp-block-latest-comments {
 .wp-block-buttons[style*="text-transform"] .wp-block-button__link,
 .wp-block-button[style*="text-transform"] .wp-block-button__link {
 	text-transform: inherit;
+}
+
+.wp-block-buttons[style*="letter-spacing"] .wp-block-button__link,
+.wp-block-button[style*="letter-spacing"] .wp-block-button__link {
+	letter-spacing: inherit;
 }
 
 /* Block: Columns ---------------------------- */
