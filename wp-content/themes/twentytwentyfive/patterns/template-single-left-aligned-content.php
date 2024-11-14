@@ -12,7 +12,7 @@
  */
 
 ?>
-<!-- wp:template-part {"slug":"header"} /-->
+<!-- wp:template-part {"slug":"header-large-title"} /-->
 
 	<!-- wp:group {"tagName":"main","align":"wide","style":{"spacing":{"blockGap":"0"}},"layout":{"type":"default"}} -->
 	<main class="wp-block-group alignwide">
@@ -30,7 +30,7 @@
 							<!-- wp:paragraph -->
 							<p><?php echo esc_html_x( 'by', 'Prefix before the author name. The post author name is displayed in a separate block.', 'twentytwentyfive' ); ?></p>
 							<!-- /wp:paragraph -->
-							<!-- wp:post-author-name {"isLink":true,"style":{"typography":{"textDecoration":"underline"}},"fontSize":"small"} /-->
+							<!-- wp:post-author-name {"isLink":true,"fontSize":"small"} /-->
 						</div>
 						<!-- /wp:group -->
 					</div>
@@ -109,4 +109,4 @@
 	</main>
 	<!-- /wp:group -->
 
-<!-- wp:template-part {"slug":"footer"} /-->
+<!-- wp:template-part {"slug":"footer-columns"} /-->

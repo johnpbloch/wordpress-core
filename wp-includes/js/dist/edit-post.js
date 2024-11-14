@@ -1036,7 +1036,7 @@ const initializeMetaBoxes = () => ({
   actions_metaBoxesInitialized = true;
 
   // Save metaboxes on save completion, except for autosaves.
-  (0,external_wp_hooks_namespaceObject.addAction)('editor.savePost', 'core/edit-post/save-metaboxes', async options => {
+  (0,external_wp_hooks_namespaceObject.addAction)('editor.savePost', 'core/edit-post/save-metaboxes', async (post, options) => {
     if (!options.isAutosave && select.hasMetaBoxes()) {
       await dispatch.requestMetaBoxUpdates();
     }
@@ -2608,7 +2608,11 @@ function usePaddingAppender() {
   const registry = (0,external_wp_data_namespaceObject.useRegistry)();
   return (0,external_wp_compose_namespaceObject.useRefEffect)(node => {
     function onMouseDown(event) {
-      if (event.target !== node) {
+      if (event.target !== node &&
+      // Tests for the parent element because in the iframed editor if the click is
+      // below the padding the target will be the parent element (html) and should
+      // still be treated as intent to append.
+      event.target !== node.parentElement) {
         return;
       }
       const {
@@ -2631,7 +2635,7 @@ function usePaddingAppender() {
       if (event.clientY < lastChildRect.bottom) {
         return;
       }
-      event.stopPropagation();
+      event.preventDefault();
       const blockOrder = registry.select(external_wp_blockEditor_namespaceObject.store).getBlockOrder('');
       const lastBlockClientId = blockOrder[blockOrder.length - 1];
       const lastBlock = registry.select(external_wp_blockEditor_namespaceObject.store).getBlock(lastBlockClientId);
@@ -2645,9 +2649,14 @@ function usePaddingAppender() {
         insertDefaultBlock();
       }
     }
-    node.addEventListener('mousedown', onMouseDown);
+    const {
+      ownerDocument
+    } = node;
+    // Adds the listener on the document so that in the iframed editor clicks below the
+    // padding can be handled as they too should be treated as intent to append.
+    ownerDocument.addEventListener('mousedown', onMouseDown);
     return () => {
-      node.removeEventListener('mousedown', onMouseDown);
+      ownerDocument.removeEventListener('mousedown', onMouseDown);
     };
   }, [registry]);
 }
@@ -3063,7 +3072,7 @@ function MetaBoxesMain({
             })
           }), /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(external_wp_components_namespaceObject.VisuallyHidden, {
             id: separatorHelpId,
-            children: (0,external_wp_i18n_namespaceObject.__)('Use up and down arrow keys to resize the metabox pane.')
+            children: (0,external_wp_i18n_namespaceObject.__)('Use up and down arrow keys to resize the meta box panel.')
           })]
         })
       },
@@ -3149,12 +3158,16 @@ function Layout({
       canUser,
       getPostType
     } = select(external_wp_coreData_namespaceObject.store);
+    const {
+      __unstableGetEditorMode
+    } = unlock(select(external_wp_blockEditor_namespaceObject.store));
     const supportsTemplateMode = settings.supportsTemplateMode;
     const isViewable = (_getPostType$viewable = getPostType(currentPostType)?.viewable) !== null && _getPostType$viewable !== void 0 ? _getPostType$viewable : false;
     const canViewTemplate = canUser('read', {
       kind: 'postType',
       name: 'wp_template'
     });
+    const isZoomOut = __unstableGetEditorMode() === 'zoom-out';
     return {
       mode: select(external_wp_editor_namespaceObject.store).getEditorMode(),
       isFullscreenActive: select(store).isFeatureActive('fullscreenMode'),
@@ -3162,7 +3175,7 @@ function Layout({
       hasBlockSelected: !!select(external_wp_blockEditor_namespaceObject.store).getBlockSelectionStart(),
       showIconLabels: get('core', 'showIconLabels'),
       isDistractionFree: get('core', 'distractionFree'),
-      showMetaBoxes: !DESIGN_POST_TYPES.includes(currentPostType) && select(external_wp_editor_namespaceObject.store).getRenderingMode() === 'post-only',
+      showMetaBoxes: !DESIGN_POST_TYPES.includes(currentPostType) && select(external_wp_editor_namespaceObject.store).getRenderingMode() === 'post-only' && !isZoomOut,
       isWelcomeGuideVisible: isFeatureActive('welcomeGuide'),
       templateId: supportsTemplateMode && isViewable && canViewTemplate && !isEditingTemplate ? getEditedPostTemplateId() : null
     };
@@ -3212,7 +3225,7 @@ function Layout({
           const newItem = items[0];
           const title = typeof newItem.title === 'string' ? newItem.title : newItem.title?.rendered;
           createSuccessNotice((0,external_wp_i18n_namespaceObject.sprintf)(
-          // translators: %s: Title of the created post e.g: "Post 1".
+          // translators: %s: Title of the created post or template, e.g: "Hello world".
           (0,external_wp_i18n_namespaceObject.__)('"%s" successfully created.'), (0,external_wp_htmlEntities_namespaceObject.decodeEntities)(title)), {
             type: 'snackbar',
             id: 'duplicate-post-action',
@@ -3451,8 +3464,7 @@ function __experimentalPluginPostExcerpt() {
 
 const {
   BackButton: __experimentalMainDashboardButton,
-  registerCoreBlockBindingsSources,
-  bootstrapBlockBindingsSourcesFromServer
+  registerCoreBlockBindingsSources
 } = unlock(external_wp_editor_namespaceObject.privateApis);
 
 /**
@@ -3504,7 +3516,6 @@ function initializeEditor(id, postType, postId, settings, initialEdits) {
     (0,external_wp_data_namespaceObject.dispatch)(external_wp_editor_namespaceObject.store).setIsListViewOpened(true);
   }
   (0,external_wp_blockLibrary_namespaceObject.registerCoreBlocks)();
-  bootstrapBlockBindingsSourcesFromServer(settings?.blockBindingsSources);
   registerCoreBlockBindingsSources();
   (0,external_wp_widgets_namespaceObject.registerLegacyWidgetBlock)({
     inserter: false
