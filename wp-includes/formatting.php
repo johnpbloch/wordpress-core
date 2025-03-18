@@ -2116,6 +2116,29 @@ function sanitize_html_class( $class, $fallback = '' ) {
 }
 
 /**
+ * Strips out all characters not allowed in a locale name.
+ *
+ * @since 6.2.1
+ *
+ * @param string $locale_name The locale name to be sanitized.
+ * @return string The sanitized value.
+ */
+function sanitize_locale_name( $locale_name ) {
+	// Limit to A-Z, a-z, 0-9, '_', '-'.
+	$sanitized = preg_replace( '/[^A-Za-z0-9_-]/', '', $locale_name );
+
+	/**
+	 * Filters a sanitized locale name string.
+	 *
+	 * @since 6.2.1
+	 *
+	 * @param string $sanitized   The sanitized locale name.
+	 * @param string $locale_name The locale name before sanitization.
+	 */
+	return apply_filters( 'sanitize_locale_name', $sanitized, $locale_name );
+}
+
+/**
  * Converts lone & characters into `&#038;` (a.k.a. `&amp;`)
  *
  * @since 0.71
@@ -3337,6 +3360,7 @@ function wp_trim_excerpt( $text = '' ) {
 		$text = get_the_content('');
 
 		$text = strip_shortcodes( $text );
+		$text = excerpt_remove_blocks( $text );
 
 		/** This filter is documented in wp-includes/post-template.php */
 		$text = apply_filters( 'the_content', $text );
@@ -4422,6 +4446,31 @@ function wp_pre_kses_less_than_callback( $matches ) {
 	if ( false === strpos($matches[0], '>') )
 		return esc_html($matches[0]);
 	return $matches[0];
+}
+
+/**
+ * Remove non-allowable HTML from parsed block attribute values when filtering
+ * in the post context.
+ *
+ * @since 5.3.1
+ *
+ * @param string         $string            Content to be run through KSES.
+ * @param array[]|string $allowed_html      An array of allowed HTML elements
+ *                                          and attributes, or a context name
+ *                                          such as 'post'.
+ * @param string[]       $allowed_protocols Array of allowed URL protocols.
+ * @return string Filtered text to run through KSES.
+ */
+function wp_pre_kses_block_attributes( $string, $allowed_html, $allowed_protocols ) {
+	/*
+	 * `filter_block_content` is expected to call `wp_kses`. Temporarily remove
+	 * the filter to avoid recursion.
+	 */
+	remove_filter( 'pre_kses', 'wp_pre_kses_block_attributes', 10 );
+	$string = filter_block_content( $string, $allowed_html, $allowed_protocols );
+	add_filter( 'pre_kses', 'wp_pre_kses_block_attributes', 10, 3 );
+
+	return $string;
 }
 
 /**
