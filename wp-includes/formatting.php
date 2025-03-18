@@ -1502,7 +1502,7 @@ function utf8_uri_encode( $utf8_string, $length = 0, $encode_ascii_characters = 
  * | -------- | ----- | ----------- | --------------------------------------- |
  * | U+00B7   | l·l   | ll          | Flown dot (between two Ls)              |
  *
- * Serbian (`sr_RS`) locale:
+ * Serbian (`sr_RS`) and Bosnian (`bs_BA`) locales:
  *
  * |   Code   | Glyph | Replacement |               Description               |
  * | -------- | ----- | ----------- | --------------------------------------- |
@@ -1512,6 +1512,7 @@ function utf8_uri_encode( $utf8_string, $length = 0, $encode_ascii_characters = 
  * @since 1.2.1
  * @since 4.6.0 Added locale support for `de_CH`, `de_CH_informal`, and `ca`.
  * @since 4.7.0 Added locale support for `sr_RS`.
+ * @since 4.8.0 Added locale support for `bs_BA`.
  *
  * @param string $string Text that might have accent characters
  * @return string Filtered string with replaced "nice" characters.
@@ -1717,7 +1718,7 @@ function remove_accents( $string ) {
 			$chars[ 'å' ] = 'aa';
 		} elseif ( 'ca' === $locale ) {
 			$chars[ 'l·l' ] = 'll';
-		} elseif ( 'sr_RS' === $locale ) {
+		} elseif ( 'sr_RS' === $locale || 'bs_BA' === $locale ) {
 			$chars[ 'Đ' ] = 'DJ';
 			$chars[ 'đ' ] = 'dj';
 		}
@@ -2900,7 +2901,7 @@ function is_email( $email, $deprecated = false ) {
 		_deprecated_argument( __FUNCTION__, '3.0.0' );
 
 	// Test for the minimum length the email can be
-	if ( strlen( $email ) < 3 ) {
+	if ( strlen( $email ) < 6 ) {
 		/**
 		 * Filters whether an email address is valid.
 		 *
@@ -3137,7 +3138,7 @@ function iso8601_to_datetime( $date_string, $timezone = 'user' ) {
  */
 function sanitize_email( $email ) {
 	// Test for the minimum length the email can be
-	if ( strlen( $email ) < 3 ) {
+	if ( strlen( $email ) < 6 ) {
 		/**
 		 * Filters a sanitized email address.
 		 *
@@ -3405,7 +3406,7 @@ function wp_trim_words( $text, $num_words = 55, $more = null ) {
 	 * @since 3.3.0
 	 *
 	 * @param string $text          The trimmed text.
-	 * @param int    $num_words     The number of words to trim the text to. Default 5.
+	 * @param int    $num_words     The number of words to trim the text to. Default 55.
 	 * @param string $more          An optional string to append to the end of the trimmed text, e.g. &hellip;.
 	 * @param string $original_text The text before it was trimmed.
 	 */
@@ -3765,6 +3766,11 @@ function _deep_replace( $search, $subject ) {
  * Usually you should prepare queries using wpdb::prepare().
  * Sometimes, spot-escaping is required or useful. One example
  * is preparing an array for use in an IN clause.
+ *
+ * NOTE: Since 4.8.3, '%' characters will be replaced with a placeholder string,
+ * this prevents certain SQLi attacks from taking place. This change in behaviour
+ * may cause issues for code that expects the return value of esc_sql() to be useable
+ * for other purposes.
  *
  * @since 2.8.0
  *
@@ -5040,7 +5046,7 @@ function _print_emoji_detection_script() {
 		 *
 		 * @param string The emoji base URL for png images.
 		 */
-		'baseUrl' => apply_filters( 'emoji_url', 'https://s.w.org/images/core/emoji/2.2.1/72x72/' ),
+		'baseUrl' => apply_filters( 'emoji_url', 'https://s.w.org/images/core/emoji/2.3/72x72/' ),
 
 		/**
 		 * Filters the extension of the emoji png files.
@@ -5058,7 +5064,7 @@ function _print_emoji_detection_script() {
 		 *
 		 * @param string The emoji base URL for svg images.
 		 */
-		'svgUrl' => apply_filters( 'emoji_svg_url', 'https://s.w.org/images/core/emoji/2.2.1/svg/' ),
+		'svgUrl' => apply_filters( 'emoji_svg_url', 'https://s.w.org/images/core/emoji/2.3/svg/' ),
 
 		/**
 		 * Filters the extension of the emoji SVG files.
@@ -5105,7 +5111,7 @@ function _print_emoji_detection_script() {
 		?>
 		<script type="text/javascript">
 			window._wpemojiSettings = <?php echo wp_json_encode( $settings ); ?>;
-			!function(t,a,e){var r,n,i,o=a.createElement("canvas"),l=o.getContext&&o.getContext("2d");function c(t){var e=a.createElement("script");e.src=t,e.defer=e.type="text/javascript",a.getElementsByTagName("head")[0].appendChild(e)}for(i=Array("flag","emoji4"),e.supports={everything:!0,everythingExceptFlag:!0},n=0;n<i.length;n++)e.supports[i[n]]=function(t){var e,a=String.fromCharCode;if(!l||!l.fillText)return!1;switch(l.clearRect(0,0,o.width,o.height),l.textBaseline="top",l.font="600 32px Arial",t){case"flag":return(l.fillText(a(55356,56826,55356,56819),0,0),o.toDataURL().length<3e3)?!1:(l.clearRect(0,0,o.width,o.height),l.fillText(a(55356,57331,65039,8205,55356,57096),0,0),e=o.toDataURL(),l.clearRect(0,0,o.width,o.height),l.fillText(a(55356,57331,55356,57096),0,0),e!==o.toDataURL());case"emoji4":return l.fillText(a(55357,56425,55356,57341,8205,55357,56507),0,0),e=o.toDataURL(),l.clearRect(0,0,o.width,o.height),l.fillText(a(55357,56425,55356,57341,55357,56507),0,0),e!==o.toDataURL()}return!1}(i[n]),e.supports.everything=e.supports.everything&&e.supports[i[n]],"flag"!==i[n]&&(e.supports.everythingExceptFlag=e.supports.everythingExceptFlag&&e.supports[i[n]]);e.supports.everythingExceptFlag=e.supports.everythingExceptFlag&&!e.supports.flag,e.DOMReady=!1,e.readyCallback=function(){e.DOMReady=!0},e.supports.everything||(r=function(){e.readyCallback()},a.addEventListener?(a.addEventListener("DOMContentLoaded",r,!1),t.addEventListener("load",r,!1)):(t.attachEvent("onload",r),a.attachEvent("onreadystatechange",function(){"complete"===a.readyState&&e.readyCallback()})),(r=e.source||{}).concatemoji?c(r.concatemoji):r.wpemoji&&r.twemoji&&(c(r.twemoji),c(r.wpemoji)))}(window,document,window._wpemojiSettings);
+			!function(t,a,e){var r,i,n,o=a.createElement("canvas"),l=o.getContext&&o.getContext("2d");function c(t){var e=a.createElement("script");e.src=t,e.defer=e.type="text/javascript",a.getElementsByTagName("head")[0].appendChild(e)}for(n=Array("flag","emoji4"),e.supports={everything:!0,everythingExceptFlag:!0},i=0;i<n.length;i++)e.supports[n[i]]=function(t){var e,a=String.fromCharCode;if(!l||!l.fillText)return!1;switch(l.clearRect(0,0,o.width,o.height),l.textBaseline="top",l.font="600 32px Arial",t){case"flag":return(l.fillText(a(55356,56826,55356,56819),0,0),e=o.toDataURL(),l.clearRect(0,0,o.width,o.height),l.fillText(a(55356,56826,8203,55356,56819),0,0),e===o.toDataURL())?!1:(l.clearRect(0,0,o.width,o.height),l.fillText(a(55356,57332,56128,56423,56128,56418,56128,56421,56128,56430,56128,56423,56128,56447),0,0),e=o.toDataURL(),l.clearRect(0,0,o.width,o.height),l.fillText(a(55356,57332,8203,56128,56423,8203,56128,56418,8203,56128,56421,8203,56128,56430,8203,56128,56423,8203,56128,56447),0,0),e!==o.toDataURL());case"emoji4":return l.fillText(a(55358,56794,8205,9794,65039),0,0),e=o.toDataURL(),l.clearRect(0,0,o.width,o.height),l.fillText(a(55358,56794,8203,9794,65039),0,0),e!==o.toDataURL()}return!1}(n[i]),e.supports.everything=e.supports.everything&&e.supports[n[i]],"flag"!==n[i]&&(e.supports.everythingExceptFlag=e.supports.everythingExceptFlag&&e.supports[n[i]]);e.supports.everythingExceptFlag=e.supports.everythingExceptFlag&&!e.supports.flag,e.DOMReady=!1,e.readyCallback=function(){e.DOMReady=!0},e.supports.everything||(r=function(){e.readyCallback()},a.addEventListener?(a.addEventListener("DOMContentLoaded",r,!1),t.addEventListener("load",r,!1)):(t.attachEvent("onload",r),a.attachEvent("onreadystatechange",function(){"complete"===a.readyState&&e.readyCallback()})),(r=e.source||{}).concatemoji?c(r.concatemoji):r.wpemoji&&r.twemoji&&(c(r.twemoji),c(r.wpemoji)))}(window,document,window._wpemojiSettings);
 		</script>
 		<?php
 	}
@@ -5170,7 +5176,7 @@ function wp_staticize_emoji( $text ) {
 	$text = wp_encode_emoji( $text );
 
 	/** This filter is documented in wp-includes/formatting.php */
-	$cdn_url = apply_filters( 'emoji_url', 'https://s.w.org/images/core/emoji/2.2.1/72x72/' );
+	$cdn_url = apply_filters( 'emoji_url', 'https://s.w.org/images/core/emoji/2.3/72x72/' );
 
 	/** This filter is documented in wp-includes/formatting.php */
 	$ext = apply_filters( 'emoji_ext', '.png' );

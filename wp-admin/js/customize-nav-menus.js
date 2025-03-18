@@ -665,11 +665,19 @@
 
 		// Opens the panel.
 		open: function( menuControl ) {
+			var panel = this, close;
+
 			this.currentMenuControl = menuControl;
 
 			this.itemSectionHeight();
 
 			$( 'body' ).addClass( 'adding-menu-items' );
+
+			close = function() {
+				panel.close();
+				$( this ).off( 'click', close );
+			};
+			$( '#customize-preview' ).on( 'click', close );
 
 			// Collapse all controls.
 			_( this.currentMenuControl.getMenuItemControls() ).each( function( control ) {
@@ -2221,8 +2229,7 @@
 				}
 			} );
 
-			control.container.find( '.menu-delete-item' ).on( 'click', function( event ) {
-				event.stopPropagation();
+			control.container.find( '.menu-delete-item .button-link-delete' ).on( 'click', function( event ) {
 				event.preventDefault();
 				control.setting.set( false );
 			});

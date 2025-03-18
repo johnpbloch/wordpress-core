@@ -324,6 +324,11 @@ function get_rest_url( $blog_id = null, $path = '/', $scheme = 'rest' ) {
 		$url .= '/' . ltrim( $path, '/' );
 	} else {
 		$url = trailingslashit( get_home_url( $blog_id, '', $scheme ) );
+		// nginx only allows HTTP/1.0 methods when redirecting from / to /index.php
+		// To work around this, we manually add index.php to the URL, avoiding the redirect.
+		if ( 'index.php' !== substr( $url, 9 ) ) {
+			$url .= 'index.php';
+		}
 
 		$path = '/' . ltrim( $path, '/' );
 
@@ -335,6 +340,14 @@ function get_rest_url( $blog_id = null, $path = '/', $scheme = 'rest' ) {
 		if ( $_SERVER['SERVER_NAME'] === parse_url( get_home_url( $blog_id ), PHP_URL_HOST ) ) {
 			$url = set_url_scheme( $url, 'https' );
 		}
+	}
+
+	if ( is_admin() && force_ssl_admin() ) {
+		// In this situation the home URL may be http:, and `is_ssl()` may be
+		// false, but the admin is served over https: (one way or another), so
+		// REST API usage will be blocked by browsers unless it is also served
+		// over HTTPS.
+		$url = set_url_scheme( $url, 'https' );
 	}
 
 	/**
@@ -481,6 +494,9 @@ function rest_ensure_response( $response ) {
  * @param string $version     Version.
  */
 function rest_handle_deprecated_function( $function, $replacement, $version ) {
+	if ( ! WP_DEBUG || headers_sent() ) {
+		return;
+	}
 	if ( ! empty( $replacement ) ) {
 		/* translators: 1: function name, 2: WordPress version number, 3: new function name */
 		$string = sprintf( __( '%1$s (since %2$s; use %3$s instead)' ), $function, $version, $replacement );
@@ -502,6 +518,9 @@ function rest_handle_deprecated_function( $function, $replacement, $version ) {
  * @param string $version     Version.
  */
 function rest_handle_deprecated_argument( $function, $message, $version ) {
+	if ( ! WP_DEBUG || headers_sent() ) {
+		return;
+	}
 	if ( ! empty( $message ) ) {
 		/* translators: 1: function name, 2: WordPress version number, 3: error message */
 		$string = sprintf( __( '%1$s (since %2$s; %3$s)' ), $function, $version, $message );
@@ -525,7 +544,11 @@ function rest_send_cors_headers( $value ) {
 	$origin = get_http_origin();
 
 	if ( $origin ) {
-		header( 'Access-Control-Allow-Origin: ' . esc_url_raw( $origin ) );
+		// Requests from file:// and data: URLs send "Origin: null"
+		if ( 'null' !== $origin ) {
+			$origin = esc_url_raw( $origin );
+		}
+		header( 'Access-Control-Allow-Origin: ' . $origin );
 		header( 'Access-Control-Allow-Methods: OPTIONS, GET, POST, PUT, PATCH, DELETE' );
 		header( 'Access-Control-Allow-Credentials: true' );
 		header( 'Vary: Origin', false );
@@ -1001,7 +1024,7 @@ function rest_get_avatar_urls( $email ) {
  */
 function rest_get_avatar_sizes() {
 	/**
-	 * Filter the REST avatar sizes.
+	 * Filters the REST avatar sizes.
 	 *
 	 * Use this filter to adjust the array of sizes returned by the
 	 * `rest_get_avatar_sizes` function.
@@ -1016,6 +1039,8 @@ function rest_get_avatar_sizes() {
 
 /**
  * Validate a value based on a schema.
+ *
+ * @since 4.7.0
  *
  * @param mixed  $value The value to validate.
  * @param array  $args  Schema array to use for validation.
@@ -1074,11 +1099,7 @@ function rest_validate_value_from_schema( $value, $args, $param = '' ) {
 				break;
 
 			case 'email' :
-				// is_email() checks for 3 characters (a@b), but
-				// wp_handle_comment_submission() requires 6 characters (a@b.co)
-				//
-				// https://core.trac.wordpress.org/ticket/38506
-				if ( ! is_email( $value ) || strlen( $value ) < 6 ) {
+				if ( ! is_email( $value ) ) {
 					return new WP_Error( 'rest_invalid_email', __( 'Invalid email address.' ) );
 				}
 				break;
@@ -1095,18 +1116,18 @@ function rest_validate_value_from_schema( $value, $args, $param = '' ) {
 		if ( isset( $args['minimum'] ) && ! isset( $args['maximum'] ) ) {
 			if ( ! empty( $args['exclusiveMinimum'] ) && $value <= $args['minimum'] ) {
 				/* translators: 1: parameter, 2: minimum number */
-				return new WP_Error( 'rest_invalid_param', sprintf( __( '%1$s must be greater than %2$d (exclusive)' ), $param, $args['minimum'] ) );
+				return new WP_Error( 'rest_invalid_param', sprintf( __( '%1$s must be greater than %2$d' ), $param, $args['minimum'] ) );
 			} elseif ( empty( $args['exclusiveMinimum'] ) && $value < $args['minimum'] ) {
 				/* translators: 1: parameter, 2: minimum number */
-				return new WP_Error( 'rest_invalid_param', sprintf( __( '%1$s must be greater than %2$d (inclusive)' ), $param, $args['minimum'] ) );
+				return new WP_Error( 'rest_invalid_param', sprintf( __( '%1$s must be greater than or equal to %2$d' ), $param, $args['minimum'] ) );
 			}
 		} elseif ( isset( $args['maximum'] ) && ! isset( $args['minimum'] ) ) {
 			if ( ! empty( $args['exclusiveMaximum'] ) && $value >= $args['maximum'] ) {
 				/* translators: 1: parameter, 2: maximum number */
-				return new WP_Error( 'rest_invalid_param', sprintf( __( '%1$s must be less than %2$d (exclusive)' ), $param, $args['maximum'] ) );
+				return new WP_Error( 'rest_invalid_param', sprintf( __( '%1$s must be less than %2$d' ), $param, $args['maximum'] ) );
 			} elseif ( empty( $args['exclusiveMaximum'] ) && $value > $args['maximum'] ) {
 				/* translators: 1: parameter, 2: maximum number */
-				return new WP_Error( 'rest_invalid_param', sprintf( __( '%1$s must be less than %2$d (inclusive)' ), $param, $args['maximum'] ) );
+				return new WP_Error( 'rest_invalid_param', sprintf( __( '%1$s must be less than or equal to %2$d' ), $param, $args['maximum'] ) );
 			}
 		} elseif ( isset( $args['maximum'] ) && isset( $args['minimum'] ) ) {
 			if ( ! empty( $args['exclusiveMinimum'] ) && ! empty( $args['exclusiveMaximum'] ) ) {
@@ -1138,6 +1159,8 @@ function rest_validate_value_from_schema( $value, $args, $param = '' ) {
 
 /**
  * Sanitize a value based on a schema.
+ *
+ * @since 4.7.0
  *
  * @param mixed $value The value to sanitize.
  * @param array $args  Schema array to use for sanitization.

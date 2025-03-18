@@ -250,7 +250,9 @@ class WP_REST_Server {
 		 *
 		 * @param bool $rest_enabled Whether the REST API is enabled. Default true.
 		 */
-		apply_filters_deprecated( 'rest_enabled', array( true ), '4.7.0', 'rest_authentication_errors', __( 'The REST API can no longer be completely disabled, the rest_authentication_errors can be used to restrict access to the API, instead.' ) );
+		apply_filters_deprecated( 'rest_enabled', array( true ), '4.7.0', 'rest_authentication_errors',
+			__( 'The REST API can no longer be completely disabled, the rest_authentication_errors filter can be used to restrict access to the API, instead.' )
+		);
 
 		/**
 		 * Filters whether jsonp is enabled.
@@ -375,7 +377,11 @@ class WP_REST_Server {
 		// OR if the HTTP_X_HTTP_METHOD_OVERRIDE is used but resulted a 4xx response code.
 		if ( $send_no_cache_headers || ( true === $method_overridden && strpos( $code, '4' ) === 0 ) ) {
 			foreach ( wp_get_nocache_headers() as $header => $header_value ) {
-				$this->send_header( $header, $header_value );
+				if ( empty( $header_value ) ) {
+					$this->remove_header( $header );
+				} else {
+					$this->send_header( $header, $header_value );
+				}
 			}
 		}
 
@@ -386,6 +392,20 @@ class WP_REST_Server {
 
 			// Embed links inside the request.
 			$result = $this->response_to_data( $result, isset( $_GET['_embed'] ) );
+
+			/**
+			 * Filters the API response.
+			 *
+			 * Allows modification of the response data after inserting
+			 * embedded data (if any) and before echoing the response data.
+			 *
+			 * @since 4.8.1
+			 *
+			 * @param array            $result  Response data to send to the client.
+			 * @param WP_REST_Server   $this    Server instance.
+			 * @param WP_REST_Request  $request Request used to generate the response.
+			 */
+			$result = apply_filters( 'rest_pre_echo_response', $result, $this, $request );
 
 			$result = wp_json_encode( $result );
 
@@ -1263,6 +1283,30 @@ class WP_REST_Server {
 	public function send_headers( $headers ) {
 		foreach ( $headers as $key => $value ) {
 			$this->send_header( $key, $value );
+		}
+	}
+
+	/**
+	 * Removes an HTTP header from the current response.
+	 *
+	 * @since 4.8.0
+	 * @access public
+	 *
+	 * @param string $key Header key.
+	 */
+	public function remove_header( $key ) {
+		if ( function_exists( 'header_remove' ) ) {
+			// In PHP 5.3+ there is a way to remove an already set header.
+			header_remove( $key );
+		} else {
+			// In PHP 5.2, send an empty header, but only as a last resort to
+			// override a header already sent.
+			foreach ( headers_list() as $header ) {
+				if ( 0 === stripos( $header, "$key:" ) ) {
+					$this->send_header( $key, '' );
+					break;
+				}
+			}
 		}
 	}
 

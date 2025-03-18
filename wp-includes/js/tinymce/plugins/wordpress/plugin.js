@@ -1,7 +1,9 @@
 /* global getUserSetting, setUserSetting */
 ( function( tinymce ) {
 // Set the minimum value for the modals z-index higher than #wpadminbar (100000)
-tinymce.ui.FloatPanel.zIndex = 100100;
+if ( tinymce.ui.FloatPanel.zIndex < 100100 ) {
+	tinymce.ui.FloatPanel.zIndex = 100100;
+}
 
 tinymce.PluginManager.add( 'wordpress', function( editor ) {
 	var wpAdvButton, style,
@@ -129,17 +131,20 @@ tinymce.PluginManager.add( 'wordpress', function( editor ) {
 					'/>';
 				} );
 			}
-
-			// Remove spaces from empty paragraphs.
-			// Try to avoid a lot of backtracking, can freeze the editor. See #35890 and #38294.
-			event.content = event.content.replace( /<p>([^<>]+)<\/p>/gi, function( tag, text ) {
-				if ( text === '&nbsp;' || ! /\S/.test( text ) ) {
-					return '<p><br /></p>';
-				}
-
-				return tag;
-			});
 		}
+	});
+
+	editor.on( 'setcontent', function() {
+		// Remove spaces from empty paragraphs.
+		editor.$( 'p' ).each( function( i, node ) {
+			if ( node.innerHTML && node.innerHTML.length < 10 ) {
+				var html = tinymce.trim( node.innerHTML );
+
+				if ( ! html || html === '&nbsp;' ) {
+					node.innerHTML = ( tinymce.Env.ie && tinymce.Env.ie < 11 ) ? '' : '<br data-mce-bogus="1">';
+				}
+			}
+		} );
 	});
 
 	editor.on( 'PostProcess', function( event ) {
@@ -540,11 +545,17 @@ tinymce.PluginManager.add( 'wordpress', function( editor ) {
 
 			editor.on( 'PastePostProcess', function( event ) {
 				// Remove empty paragraphs
-				each( dom.select( 'p', event.node ), function( node ) {
+				editor.$( 'p', event.node ).each( function( i, node ) {
 					if ( dom.isEmpty( node ) ) {
 						dom.remove( node );
 					}
 				});
+
+				if ( tinymce.isIE ) {
+					editor.$( 'a', event.node ).find( 'font, u' ).each( function( i, node ) {
+						dom.remove( node, true );
+					});
+				}
 			});
 		}
 
@@ -963,11 +974,12 @@ tinymce.PluginManager.add( 'wordpress', function( editor ) {
 			}
 
 			if ( args.toolbar ) {
-				if ( activeToolbar !== args.toolbar ) {
-					activeToolbar = args.toolbar;
-					activeToolbar.show();
-				} else {
+				activeToolbar = args.toolbar;
+
+				if ( activeToolbar.visible() ) {
 					activeToolbar.reposition();
+				} else {
+					activeToolbar.show();
 				}
 			} else {
 				activeToolbar = false;

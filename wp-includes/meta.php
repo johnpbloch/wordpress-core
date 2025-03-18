@@ -918,7 +918,7 @@ function _get_meta_table($type) {
  */
 function is_protected_meta( $meta_key, $meta_type = '' ) {
 	$sanitized_key = preg_replace( "/[^\x20-\x7E\p{L}]/", '', $meta_key );
-	$protected     = strlen( $sanitized_key ) > 0 && ( '_' === $sanitized_key[0] );
+	$protected     = strlen( $sanitized_key ) > 0 && ( '_' == $sanitized_key[0] );
 
 	/**
 	 * Filters whether a meta key is protected.
@@ -974,6 +974,7 @@ function sanitize_meta( $meta_key, $meta_value, $object_type ) {
  *     Data used to describe the meta key when registered.
  *
  *     @type string $type              The type of data associated with this meta key.
+ *                                     Valid values are 'string', 'boolean', 'integer', and 'number'.
  *     @type string $description       A description of the data attached to this meta key.
  *     @type bool   $single            Whether the meta key has one value per object, or an array of values per object.
  *     @type string $sanitize_callback A function or method to call when sanitizing `$meta_key` data.
