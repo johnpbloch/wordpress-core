@@ -513,8 +513,9 @@ function isEdge(container, isReverse, onlyVertical) {
   }
 
   var side = isReverseDir ? 'left' : 'right';
-  var testRect = getRectangleFromRange(testRange);
-  return Math.round(testRect[side]) === Math.round(rangeRect[side]);
+  var testRect = getRectangleFromRange(testRange); // Allow the position to be 1px off.
+
+  return Math.abs(testRect[side] - rangeRect[side]) <= 1;
 }
 /**
  * Check whether the selection is horizontally at the edge of the container.
@@ -588,16 +589,10 @@ function getRectangleFromRange(range) {
 /**
  * Get the rectangle for the selection in a container.
  *
- * @param {Element} container Editable container.
- *
  * @return {?DOMRect} The rectangle.
  */
 
-function computeCaretRect(container) {
-  if (!container.isContentEditable) {
-    return;
-  }
-
+function computeCaretRect() {
   var selection = window.getSelection();
   var range = selection.rangeCount ? selection.getRangeAt(0) : null;
 
@@ -705,9 +700,14 @@ function caretRangeFromPoint(doc, x, y) {
 
 
 function hiddenCaretRangeFromPoint(doc, x, y, container) {
+  var originalZIndex = container.style.zIndex;
+  var originalPosition = container.style.position; // A z-index only works if the element position is not static.
+
   container.style.zIndex = '10000';
+  container.style.position = 'relative';
   var range = caretRangeFromPoint(doc, x, y);
-  container.style.zIndex = null;
+  container.style.zIndex = originalZIndex;
+  container.style.position = originalPosition;
   return range;
 }
 /**
@@ -755,20 +755,6 @@ function placeCaretAtVerticalEdge(container, isReverse, rect) {
 
     placeCaretAtHorizontalEdge(container, isReverse);
     return;
-  } // Check if the closest text node is actually further away.
-  // If so, attempt to get the range again with the y position adjusted to get the right offset.
-
-
-  if (range.startContainer.nodeType === TEXT_NODE) {
-    var parentNode = range.startContainer.parentNode;
-    var parentRect = parentNode.getBoundingClientRect();
-    var side = isReverse ? 'bottom' : 'top';
-    var padding = parseInt(getComputedStyle(parentNode).getPropertyValue("padding-".concat(side)), 10) || 0;
-    var actualY = isReverse ? parentRect.bottom - padding - buffer : parentRect.top + padding + buffer;
-
-    if (y !== actualY) {
-      range = hiddenCaretRangeFromPoint(document, x, actualY, container);
-    }
   }
 
   var selection = window.getSelection();

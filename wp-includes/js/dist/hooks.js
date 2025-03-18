@@ -87,6 +87,52 @@ this["wp"] = this["wp"] || {}; this["wp"]["hooks"] =
 /************************************************************************/
 /******/ ({
 
+/***/ "25BE":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _iterableToArray; });
+function _iterableToArray(iter) {
+  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
+}
+
+/***/ }),
+
+/***/ "KQm4":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ _toConsumableArray; });
+
+// CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/arrayWithoutHoles.js
+function _arrayWithoutHoles(arr) {
+  if (Array.isArray(arr)) {
+    for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) {
+      arr2[i] = arr[i];
+    }
+
+    return arr2;
+  }
+}
+// EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/iterableToArray.js
+var iterableToArray = __webpack_require__("25BE");
+
+// CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js
+function _nonIterableSpread() {
+  throw new TypeError("Invalid attempt to spread non-iterable instance");
+}
+// CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/toConsumableArray.js
+
+
+
+function _toConsumableArray(arr) {
+  return _arrayWithoutHoles(arr) || Object(iterableToArray["a" /* default */])(arr) || _nonIterableSpread();
+}
+
+/***/ }),
+
 /***/ "gEOj":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -367,24 +413,38 @@ function createRemoveHook(hooks, removeAll) {
  * @param  {Object}   hooks Stored hooks, keyed by hook name.
  *
  * @return {Function}       Function that returns whether any handlers are
- *                          attached to a particular hook.
+ *                          attached to a particular hook and optional namespace.
  */
 function createHasHook(hooks) {
   /**
-   * Returns how many handlers are attached for the given hook.
+   * Returns whether any handlers are attached for the given hookName and optional namespace.
    *
-   * @param  {string}  hookName The name of the hook to check for.
+   * @param {string}  hookName  The name of the hook to check for.
+   * @param {?string} namespace Optional. The unique namespace identifying the callback
+   *                                      in the form `vendor/plugin/function`.
    *
    * @return {boolean} Whether there are handlers that are attached to the given hook.
    */
-  return function hasHook(hookName) {
+  return function hasHook(hookName, namespace) {
+    // Use the namespace if provided.
+    if ('undefined' !== typeof namespace) {
+      return hookName in hooks && hooks[hookName].handlers.some(function (hook) {
+        return hook.namespace === namespace;
+      });
+    }
+
     return hookName in hooks;
   };
 }
 
 /* harmony default export */ var build_module_createHasHook = (createHasHook);
 
+// EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/toConsumableArray.js + 2 modules
+var toConsumableArray = __webpack_require__("KQm4");
+
 // CONCATENATED MODULE: ./node_modules/@wordpress/hooks/build-module/createRunHook.js
+
+
 /**
  * Returns a function which, when invoked, will execute all callbacks
  * registered to a hook of the specified type, optionally returning the final
@@ -414,7 +474,9 @@ function createRunHook(hooks, returnFirstArg) {
     }
 
     hooks[hookName].runs++;
-    var handlers = hooks[hookName].handlers;
+    var handlers = hooks[hookName].handlers; // The following code is stripped from production builds.
+
+    if (false) {}
 
     for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
       args[_key - 1] = arguments[_key];

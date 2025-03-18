@@ -222,11 +222,11 @@ var possibleConstructorReturn = __webpack_require__("md7G");
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/getPrototypeOf.js
 var getPrototypeOf = __webpack_require__("foSv");
 
-// EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/inherits.js + 1 modules
-var inherits = __webpack_require__("Ji7U");
-
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/assertThisInitialized.js
 var assertThisInitialized = __webpack_require__("JX7q");
+
+// EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/inherits.js + 1 modules
+var inherits = __webpack_require__("Ji7U");
 
 // EXTERNAL MODULE: external {"this":["wp","element"]}
 var external_this_wp_element_ = __webpack_require__("GRId");
@@ -358,12 +358,11 @@ var plugins = {};
  * @example <caption>ESNext</caption>
  * ```js
  * // Using ESNext syntax
- * const { Fragment } = wp.element;
  * const { PluginSidebar, PluginSidebarMoreMenuItem } = wp.editPost;
  * const { registerPlugin } = wp.plugins;
  *
  * const Component = () => (
- * 	<Fragment>
+ * 	<>
  * 		<PluginSidebarMoreMenuItem
  * 			target="sidebar-name"
  * 		>
@@ -375,7 +374,7 @@ var plugins = {};
  * 		>
  * 			Content of the sidebar
  * 		</PluginSidebar>
- * 	</Fragment>
+ * 	</>
  * );
  *
  * registerPlugin( 'plugin-name', {
@@ -549,7 +548,7 @@ function (_Component) {
     Object(classCallCheck["a" /* default */])(this, PluginArea);
 
     _this = Object(possibleConstructorReturn["a" /* default */])(this, Object(getPrototypeOf["a" /* default */])(PluginArea).apply(this, arguments));
-    _this.setPlugins = _this.setPlugins.bind(Object(assertThisInitialized["a" /* default */])(Object(assertThisInitialized["a" /* default */])(_this)));
+    _this.setPlugins = _this.setPlugins.bind(Object(assertThisInitialized["a" /* default */])(_this));
     _this.state = _this.getCurrentPluginsState();
     return _this;
   }

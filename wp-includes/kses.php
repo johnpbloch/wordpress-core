@@ -1173,7 +1173,9 @@ function wp_kses_attr_check( &$name, &$value, &$whole, $vless, $element, $allowe
 			 */
 			$allowed_attr[ $match[0] ] = $allowed_attr['data-*'];
 		} else {
-			$name = $value = $whole = '';
+			$name  = '';
+			$value = '';
+			$whole = '';
 			return false;
 		}
 	}
@@ -1182,7 +1184,9 @@ function wp_kses_attr_check( &$name, &$value, &$whole, $vless, $element, $allowe
 		$new_value = safecss_filter_attr( $value );
 
 		if ( empty( $new_value ) ) {
-			$name = $value = $whole = '';
+			$name  = '';
+			$value = '';
+			$whole = '';
 			return false;
 		}
 
@@ -1194,7 +1198,9 @@ function wp_kses_attr_check( &$name, &$value, &$whole, $vless, $element, $allowe
 		// there are some checks
 		foreach ( $allowed_attr[ $name_low ] as $currkey => $currval ) {
 			if ( ! wp_kses_check_attr_val( $value, $vless, $currkey, $currval ) ) {
-				$name = $value = $whole = '';
+				$name  = '';
+				$value = '';
+				$whole = '';
 				return false;
 			}
 		}
@@ -1235,7 +1241,8 @@ function wp_kses_hair( $attr, $allowed_protocols ) {
 			case 0:
 				if ( preg_match( '/^([-a-zA-Z:]+)/', $attr, $match ) ) {
 					$attrname = $match[1];
-					$working  = $mode = 1;
+					$working  = 1;
+					$mode     = 1;
 					$attr     = preg_replace( '/^[-a-zA-Z:]+/', '', $attr );
 				}
 
@@ -2064,6 +2071,9 @@ function safecss_filter_attr( $css, $deprecated = '' ) {
 	 * @since 5.0.0 Added support for `background-image`.
 	 * @since 5.1.0 Added support for `text-transform`.
 	 * @since 5.2.0 Added support for `background-position` and `grid-template-columns`
+	 * @since 5.3.0 Added support for `grid`, `flex` and `column` layout properties.
+	 *              Extend `background-*` support of individual properties.
+	 * @since 5.3.1 Added support for gradient backgrounds.
 	 *
 	 * @param string[] $attr Array of allowed CSS attributes.
 	 */
@@ -2074,8 +2084,12 @@ function safecss_filter_attr( $css, $deprecated = '' ) {
 			'background-color',
 			'background-image',
 			'background-position',
+			'background-size',
+			'background-attachment',
+			'background-blend-mode',
 
 			'border',
+			'border-radius',
 			'border-width',
 			'border-color',
 			'border-style',
@@ -2099,6 +2113,14 @@ function safecss_filter_attr( $css, $deprecated = '' ) {
 			'border-spacing',
 			'border-collapse',
 			'caption-side',
+
+			'columns',
+			'column-count',
+			'column-fill',
+			'column-gap',
+			'column-rule',
+			'column-span',
+			'column-width',
 
 			'color',
 			'font',
@@ -2134,6 +2156,32 @@ function safecss_filter_attr( $css, $deprecated = '' ) {
 			'padding-left',
 			'padding-top',
 
+			'flex',
+			'flex-basis',
+			'flex-direction',
+			'flex-flow',
+			'flex-grow',
+			'flex-shrink',
+
+			'grid-template-columns',
+			'grid-auto-columns',
+			'grid-column-start',
+			'grid-column-end',
+			'grid-column-gap',
+			'grid-template-rows',
+			'grid-auto-rows',
+			'grid-row-start',
+			'grid-row-end',
+			'grid-row-gap',
+			'grid-gap',
+
+			'justify-content',
+			'justify-items',
+			'justify-self',
+			'align-content',
+			'align-items',
+			'align-self',
+
 			'clear',
 			'cursor',
 			'direction',
@@ -2141,7 +2189,6 @@ function safecss_filter_attr( $css, $deprecated = '' ) {
 			'overflow',
 			'vertical-align',
 			'list-style-type',
-			'grid-template-columns',
 		)
 	);
 
@@ -2163,6 +2210,15 @@ function safecss_filter_attr( $css, $deprecated = '' ) {
 		'list-style-image',
 	);
 
+	/*
+	 * CSS attributes that accept gradient data types.
+	 *
+	 */
+	$css_gradient_data_types = array(
+		'background',
+		'background-image',
+	);
+
 	if ( empty( $allowed_attr ) ) {
 		return $css;
 	}
@@ -2177,6 +2233,7 @@ function safecss_filter_attr( $css, $deprecated = '' ) {
 		$css_test_string = $css_item;
 		$found           = false;
 		$url_attr        = false;
+		$gradient_attr   = false;
 
 		if ( strpos( $css_item, ':' ) === false ) {
 			$found = true;
@@ -2185,8 +2242,9 @@ function safecss_filter_attr( $css, $deprecated = '' ) {
 			$css_selector = trim( $parts[0] );
 
 			if ( in_array( $css_selector, $allowed_attr, true ) ) {
-				$found    = true;
-				$url_attr = in_array( $css_selector, $css_url_data_types, true );
+				$found         = true;
+				$url_attr      = in_array( $css_selector, $css_url_data_types, true );
+				$gradient_attr = in_array( $css_selector, $css_gradient_data_types, true );
 			}
 		}
 
@@ -2212,6 +2270,14 @@ function safecss_filter_attr( $css, $deprecated = '' ) {
 					// Remove the whole `url(*)` bit that was matched above from the CSS.
 					$css_test_string = str_replace( $url_match, '', $css_test_string );
 				}
+			}
+		}
+
+		if ( $found && $gradient_attr ) {
+			$css_value = trim( $parts[1] );
+			if ( preg_match( '/^(repeating-)?(linear|radial|conic)-gradient\(([^()]|rgb[a]?\([^()]*\))*\)$/', $css_value ) ) {
+				// Remove the whole `gradient` bit that was matched above from the CSS.
+				$css_test_string = str_replace( $css_value, '', $css_test_string );
 			}
 		}
 

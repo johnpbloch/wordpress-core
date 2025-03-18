@@ -378,7 +378,7 @@ function isTipVisible(state, tipId) {
     return false;
   }
 
-  if (state.preferences.dismissedTips[tipId]) {
+  if (Object(external_lodash_["has"])(state.preferences.dismissedTips, [tipId])) {
     return false;
   }
 
@@ -445,6 +445,7 @@ var external_this_wp_i18n_ = __webpack_require__("l3Sj");
 
 
 
+
 function getAnchorRect(anchor) {
   // The default getAnchorRect() excludes an element's top and bottom padding
   // from its calculation. We want tips to point to the outer margin of an
@@ -459,11 +460,29 @@ function onClick(event) {
 }
 
 function DotTip(_ref) {
-  var children = _ref.children,
+  var _ref$position = _ref.position,
+      position = _ref$position === void 0 ? 'middle right' : _ref$position,
+      children = _ref.children,
       isVisible = _ref.isVisible,
       hasNextTip = _ref.hasNextTip,
       onDismiss = _ref.onDismiss,
       onDisable = _ref.onDisable;
+  var anchorParent = Object(external_this_wp_element_["useRef"])(null);
+  var getAnchorRectCallback = Object(external_this_wp_element_["useCallback"])(function (anchor) {
+    anchorParent.current = anchor.parentNode;
+    return getAnchorRect(anchor);
+  }, [anchorParent]);
+  var onFocusOutsideCallback = Object(external_this_wp_element_["useCallback"])(function (event) {
+    if (!anchorParent.current) {
+      return;
+    }
+
+    if (anchorParent.current.contains(event.relatedTarget)) {
+      return;
+    }
+
+    onDisable();
+  }, [onDisable, anchorParent]);
 
   if (!isVisible) {
     return null;
@@ -471,13 +490,14 @@ function DotTip(_ref) {
 
   return Object(external_this_wp_element_["createElement"])(external_this_wp_components_["Popover"], {
     className: "nux-dot-tip",
-    position: "middle right",
+    position: position,
     noArrow: true,
     focusOnMount: "container",
-    getAnchorRect: getAnchorRect,
+    getAnchorRect: getAnchorRectCallback,
     role: "dialog",
     "aria-label": Object(external_this_wp_i18n_["__"])('Editor tips'),
-    onClick: onClick
+    onClick: onClick,
+    onFocusOutside: onFocusOutsideCallback
   }, Object(external_this_wp_element_["createElement"])("p", null, children), Object(external_this_wp_element_["createElement"])("p", null, Object(external_this_wp_element_["createElement"])(external_this_wp_components_["Button"], {
     isLink: true,
     onClick: onDismiss

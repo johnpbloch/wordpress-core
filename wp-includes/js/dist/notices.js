@@ -299,25 +299,24 @@ regenerator_default.a.mark(createNotice);
 /**
  * Yields action objects used in signalling that a notice is to be created.
  *
- * @param {?string}                status                Notice status.
- *                                                       Defaults to `info`.
- * @param {string}                 content               Notice message.
- * @param {?Object}                options               Notice options.
- * @param {?string}                options.context       Context under which to
- *                                                       group notice.
- * @param {?string}                options.id            Identifier for notice.
- *                                                       Automatically assigned
- *                                                       if not specified.
- * @param {?boolean}               options.isDismissible Whether the notice can
- *                                                       be dismissed by user.
- *                                                       Defaults to `true`.
- * @param {?boolean}               options.speak         Whether the notice
- *                                                       content should be
- *                                                       announced to screen
- *                                                       readers. Defaults to
- *                                                       `true`.
- * @param {?Array<WPNoticeAction>} options.actions       User actions to be
- *                                                       presented with notice.
+ * @param {string}                [status='info']              Notice status.
+ * @param {string}                content                      Notice message.
+ * @param {Object}                [options]                    Notice options.
+ * @param {string}                [options.context='global']   Context under which to
+ *                                                             group notice.
+ * @param {string}                [options.id]                 Identifier for notice.
+ *                                                             Automatically assigned
+ *                                                             if not specified.
+ * @param {boolean}               [options.isDismissible=true] Whether the notice can
+ *                                                             be dismissed by user.
+ * @param {string}                [options.type='default']     Type of notice, one of
+ *                                                             `default`, or `snackbar`.
+ * @param {boolean}               [options.speak=true]         Whether the notice
+ *                                                             content should be
+ *                                                             announced to screen
+ *                                                             readers.
+ * @param {Array<WPNoticeAction>} [options.actions]            User actions to be
+ *                                                             presented with notice.
  */
 
 function createNotice() {
@@ -334,6 +333,8 @@ function createNotice() {
       id,
       _options$actions,
       actions,
+      _options$type,
+      type,
       __unstableHTML,
       _args = arguments;
 
@@ -344,7 +345,7 @@ function createNotice() {
           status = _args.length > 0 && _args[0] !== undefined ? _args[0] : DEFAULT_STATUS;
           content = _args.length > 1 ? _args[1] : undefined;
           options = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
-          _options$speak = options.speak, speak = _options$speak === void 0 ? true : _options$speak, _options$isDismissibl = options.isDismissible, isDismissible = _options$isDismissibl === void 0 ? true : _options$isDismissibl, _options$context = options.context, context = _options$context === void 0 ? DEFAULT_CONTEXT : _options$context, _options$id = options.id, id = _options$id === void 0 ? Object(external_lodash_["uniqueId"])(context) : _options$id, _options$actions = options.actions, actions = _options$actions === void 0 ? [] : _options$actions, __unstableHTML = options.__unstableHTML; // The supported value shape of content is currently limited to plain text
+          _options$speak = options.speak, speak = _options$speak === void 0 ? true : _options$speak, _options$isDismissibl = options.isDismissible, isDismissible = _options$isDismissibl === void 0 ? true : _options$isDismissibl, _options$context = options.context, context = _options$context === void 0 ? DEFAULT_CONTEXT : _options$context, _options$id = options.id, id = _options$id === void 0 ? Object(external_lodash_["uniqueId"])(context) : _options$id, _options$actions = options.actions, actions = _options$actions === void 0 ? [] : _options$actions, _options$type = options.type, type = _options$type === void 0 ? 'default' : _options$type, __unstableHTML = options.__unstableHTML; // The supported value shape of content is currently limited to plain text
           // strings. To avoid setting expectation that e.g. a WPElement could be
           // supported, cast to a string.
 
@@ -358,7 +359,8 @@ function createNotice() {
           _context.next = 8;
           return {
             type: 'SPEAK',
-            message: content
+            message: content,
+            ariaLive: type === 'snackbar' ? 'polite' : 'assertive'
           };
 
         case 8:
@@ -372,7 +374,8 @@ function createNotice() {
               content: content,
               __unstableHTML: __unstableHTML,
               isDismissible: isDismissible,
-              actions: actions
+              actions: actions,
+              type: type
             }
           };
 
@@ -381,7 +384,7 @@ function createNotice() {
           return _context.stop();
       }
     }
-  }, _marked, this);
+  }, _marked);
 }
 /**
  * Returns an action object used in signalling that a success notice is to be
@@ -389,8 +392,8 @@ function createNotice() {
  *
  * @see createNotice
  *
- * @param {string}  content Notice message.
- * @param {?Object} options Optional notice options.
+ * @param {string} content   Notice message.
+ * @param {Object} [options] Optional notice options.
  *
  * @return {Object} Action object.
  */
@@ -404,8 +407,8 @@ function createSuccessNotice(content, options) {
  *
  * @see createNotice
  *
- * @param {string}  content Notice message.
- * @param {?Object} options Optional notice options.
+ * @param {string} content   Notice message.
+ * @param {Object} [options] Optional notice options.
  *
  * @return {Object} Action object.
  */
@@ -419,8 +422,8 @@ function createInfoNotice(content, options) {
  *
  * @see createNotice
  *
- * @param {string}  content Notice message.
- * @param {?Object} options Optional notice options.
+ * @param {string} content   Notice message.
+ * @param {Object} [options] Optional notice options.
  *
  * @return {Object} Action object.
  */
@@ -434,8 +437,8 @@ function createErrorNotice(content, options) {
  *
  * @see createNotice
  *
- * @param {string}  content Notice message.
- * @param {?Object} options Optional notice options.
+ * @param {string} content   Notice message.
+ * @param {Object} [options] Optional notice options.
  *
  * @return {Object} Action object.
  */
@@ -446,9 +449,9 @@ function createWarningNotice(content, options) {
 /**
  * Returns an action object used in signalling that a notice is to be removed.
  *
- * @param {string}  id      Notice unique identifier.
- * @param {?string} context Optional context (grouping) in which the notice is
- *                          intended to appear. Defaults to default context.
+ * @param {string} id                 Notice unique identifier.
+ * @param {string} [context='global'] Optional context (grouping) in which the notice is
+ *                                    intended to appear. Defaults to default context.
  *
  * @return {Object} Action object.
  */
@@ -479,7 +482,7 @@ function removeNotice(id) {
 
 var DEFAULT_NOTICES = [];
 /**
- * Notice object.
+ * @typedef {Object} WPNotice Notice object.
  *
  * @property {string}  id               Unique identifier of notice.
  * @property {string}  status           Status of notice, one of `success`,
@@ -493,21 +496,24 @@ var DEFAULT_NOTICES = [];
  *                                      removal without notice.
  * @property {boolean} isDismissible    Whether the notice can be dismissed by
  *                                      user. Defaults to `true`.
+ * @property {string}  type             Type of notice, one of `default`,
+ *                                      or `snackbar`. Defaults to `default`.
+ * @property {boolean} speak            Whether the notice content should be
+ *                                      announced to screen readers. Defaults to
+ *                                      `true`.
  * @property {WPNoticeAction[]} actions User actions to present with notice.
  *
- * @typedef {WPNotice}
  */
 
 /**
- * Object describing a user action option associated with a notice.
+ * @typedef {Object} WPNoticeAction Object describing a user action option associated with a notice.
  *
  * @property {string}    label    Message to use as action label.
  * @property {?string}   url      Optional URL of resource if action incurs
  *                                browser navigation.
- * @property {?Function} callback Optional function to invoke when action is
+ * @property {?Function} onClick  Optional function to invoke when action is
  *                                triggered by user.
  *
- * @typedef {WPNoticeAction}
  */
 
 /**
@@ -535,7 +541,7 @@ var external_this_wp_a11y_ = __webpack_require__("gdqT");
 
 /* harmony default export */ var controls = ({
   SPEAK: function SPEAK(action) {
-    Object(external_this_wp_a11y_["speak"])(action.message, 'assertive');
+    Object(external_this_wp_a11y_["speak"])(action.message, action.ariaLive || 'assertive');
   }
 });
 
@@ -583,7 +589,7 @@ var external_this_wp_a11y_ = __webpack_require__("gdqT");
 /***/ }),
 
 /***/ "ls82":
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
 /**
  * Copyright (c) 2014-present, Facebook, Inc.
@@ -592,7 +598,7 @@ var external_this_wp_a11y_ = __webpack_require__("gdqT");
  * LICENSE file in the root directory of this source tree.
  */
 
-!(function(global) {
+var runtime = (function (exports) {
   "use strict";
 
   var Op = Object.prototype;
@@ -602,23 +608,6 @@ var external_this_wp_a11y_ = __webpack_require__("gdqT");
   var iteratorSymbol = $Symbol.iterator || "@@iterator";
   var asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator";
   var toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
-
-  var inModule = typeof module === "object";
-  var runtime = global.regeneratorRuntime;
-  if (runtime) {
-    if (inModule) {
-      // If regeneratorRuntime is defined globally and we're in a module,
-      // make the exports object identical to regeneratorRuntime.
-      module.exports = runtime;
-    }
-    // Don't bother evaluating the rest of this file if the runtime was
-    // already defined globally.
-    return;
-  }
-
-  // Define the runtime globally (as expected by generated code) as either
-  // module.exports (if we're in a module) or a new, empty object.
-  runtime = global.regeneratorRuntime = inModule ? module.exports : {};
 
   function wrap(innerFn, outerFn, self, tryLocsList) {
     // If outerFn provided and outerFn.prototype is a Generator, then outerFn.prototype instanceof Generator.
@@ -632,7 +621,7 @@ var external_this_wp_a11y_ = __webpack_require__("gdqT");
 
     return generator;
   }
-  runtime.wrap = wrap;
+  exports.wrap = wrap;
 
   // Try/catch helper to minimize deoptimizations. Returns a completion
   // record like context.tryEntries[i].completion. This interface could
@@ -703,7 +692,7 @@ var external_this_wp_a11y_ = __webpack_require__("gdqT");
     });
   }
 
-  runtime.isGeneratorFunction = function(genFun) {
+  exports.isGeneratorFunction = function(genFun) {
     var ctor = typeof genFun === "function" && genFun.constructor;
     return ctor
       ? ctor === GeneratorFunction ||
@@ -713,7 +702,7 @@ var external_this_wp_a11y_ = __webpack_require__("gdqT");
       : false;
   };
 
-  runtime.mark = function(genFun) {
+  exports.mark = function(genFun) {
     if (Object.setPrototypeOf) {
       Object.setPrototypeOf(genFun, GeneratorFunctionPrototype);
     } else {
@@ -730,7 +719,7 @@ var external_this_wp_a11y_ = __webpack_require__("gdqT");
   // `yield regeneratorRuntime.awrap(x)`, so that the runtime can test
   // `hasOwn.call(value, "__await")` to determine if the yielded value is
   // meant to be awaited.
-  runtime.awrap = function(arg) {
+  exports.awrap = function(arg) {
     return { __await: arg };
   };
 
@@ -805,17 +794,17 @@ var external_this_wp_a11y_ = __webpack_require__("gdqT");
   AsyncIterator.prototype[asyncIteratorSymbol] = function () {
     return this;
   };
-  runtime.AsyncIterator = AsyncIterator;
+  exports.AsyncIterator = AsyncIterator;
 
   // Note that simple async functions are implemented on top of
   // AsyncIterator objects; they just return a Promise for the value of
   // the final result produced by the iterator.
-  runtime.async = function(innerFn, outerFn, self, tryLocsList) {
+  exports.async = function(innerFn, outerFn, self, tryLocsList) {
     var iter = new AsyncIterator(
       wrap(innerFn, outerFn, self, tryLocsList)
     );
 
-    return runtime.isGeneratorFunction(outerFn)
+    return exports.isGeneratorFunction(outerFn)
       ? iter // If outerFn is a generator, return the full iterator.
       : iter.next().then(function(result) {
           return result.done ? result.value : iter.next();
@@ -912,7 +901,8 @@ var external_this_wp_a11y_ = __webpack_require__("gdqT");
       context.delegate = null;
 
       if (context.method === "throw") {
-        if (delegate.iterator.return) {
+        // Note: ["return"] must be used for ES3 parsing compatibility.
+        if (delegate.iterator["return"]) {
           // If the delegate iterator has a return method, give it a
           // chance to clean up.
           context.method = "return";
@@ -1032,7 +1022,7 @@ var external_this_wp_a11y_ = __webpack_require__("gdqT");
     this.reset(true);
   }
 
-  runtime.keys = function(object) {
+  exports.keys = function(object) {
     var keys = [];
     for (var key in object) {
       keys.push(key);
@@ -1093,7 +1083,7 @@ var external_this_wp_a11y_ = __webpack_require__("gdqT");
     // Return an iterator with no values.
     return { next: doneResult };
   }
-  runtime.values = values;
+  exports.values = values;
 
   function doneResult() {
     return { value: undefined, done: true };
@@ -1298,14 +1288,35 @@ var external_this_wp_a11y_ = __webpack_require__("gdqT");
       return ContinueSentinel;
     }
   };
-})(
-  // In sloppy mode, unbound `this` refers to the global object, fallback to
-  // Function constructor if we're in global strict mode. That is sadly a form
-  // of indirect eval which violates Content Security Policy.
-  (function() {
-    return this || (typeof self === "object" && self);
-  })() || Function("return this")()
-);
+
+  // Regardless of whether this script is executing as a CommonJS module
+  // or not, return the runtime object so that we can declare the variable
+  // regeneratorRuntime in the outer scope, which allows this module to be
+  // injected easily by `bin/regenerator --include-runtime script.js`.
+  return exports;
+
+}(
+  // If this script is executing as a CommonJS module, use module.exports
+  // as the regeneratorRuntime namespace. Otherwise create a new empty
+  // object. Either way, the resulting object will be used to initialize
+  // the regeneratorRuntime variable at the top of this file.
+   true ? module.exports : undefined
+));
+
+try {
+  regeneratorRuntime = runtime;
+} catch (accidentalStrictMode) {
+  // This module should not be running in strict mode, so the above
+  // assignment should always work unless something is misconfigured. Just
+  // in case runtime.js accidentally runs in strict mode, we can escape
+  // strict mode using a global Function call. This could conceivably fail
+  // if a Content Security Policy forbids using Function, but in that case
+  // the proper solution is to fix the accidental strict mode problem. If
+  // you've misconfigured your bundler to force strict mode and applied a
+  // CSP to forbid Function, and you're not willing to fix either of those
+  // problems, please detail your unique predicament in a GitHub issue.
+  Function("r", "regeneratorRuntime = r")(runtime);
+}
 
 
 /***/ }),
@@ -1313,7 +1324,7 @@ var external_this_wp_a11y_ = __webpack_require__("gdqT");
 /***/ "o0o1":
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__("u938");
+module.exports = __webpack_require__("ls82");
 
 
 /***/ }),
@@ -1337,50 +1348,6 @@ function _defineProperty(obj, key, value) {
 
   return obj;
 }
-
-/***/ }),
-
-/***/ "u938":
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-// This method of obtaining a reference to the global object needs to be
-// kept identical to the way it is obtained in runtime.js
-var g = (function() {
-  return this || (typeof self === "object" && self);
-})() || Function("return this")();
-
-// Use `getOwnPropertyNames` because not all browsers support calling
-// `hasOwnProperty` on the global `self` object in a worker. See #183.
-var hadRuntime = g.regeneratorRuntime &&
-  Object.getOwnPropertyNames(g).indexOf("regeneratorRuntime") >= 0;
-
-// Save the old regeneratorRuntime in case it needs to be restored later.
-var oldRuntime = hadRuntime && g.regeneratorRuntime;
-
-// Force reevalutation of runtime.js.
-g.regeneratorRuntime = undefined;
-
-module.exports = __webpack_require__("ls82");
-
-if (hadRuntime) {
-  // Restore the original runtime.
-  g.regeneratorRuntime = oldRuntime;
-} else {
-  // Remove the global property added by runtime.js.
-  try {
-    delete g.regeneratorRuntime;
-  } catch(e) {
-    g.regeneratorRuntime = undefined;
-  }
-}
-
 
 /***/ }),
 

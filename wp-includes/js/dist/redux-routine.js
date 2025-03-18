@@ -101,7 +101,7 @@ __webpack_require__.d(__webpack_exports__, "default", function() { return /* bin
 /**
  * Returns true if the given object is a generator, or false otherwise.
  *
- * @link https://www.ecma-international.org/ecma-262/6.0/#sec-generator-objects
+ * @see https://www.ecma-international.org/ecma-262/6.0/#sec-generator-objects
  *
  * @param {*} object Object to test.
  *
@@ -167,9 +167,9 @@ function isActionOfType(object, expectedType) {
  * Create a co-routine runtime.
  *
  * @param {Object}    controls Object of control handlers.
- * @param {function}  dispatch Unhandled action dispatch.
+ * @param {Function}  dispatch Unhandled action dispatch.
  *
- * @return {function} co-routine runtime
+ * @return {Function} co-routine runtime
  */
 
 function createRuntime() {

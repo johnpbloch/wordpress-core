@@ -32,7 +32,7 @@ function render_block_core_rss( $attributes ) {
 	foreach ( $rss_items as $item ) {
 		$title = esc_html( trim( strip_tags( $item->get_title() ) ) );
 		if ( empty( $title ) ) {
-			$title = __( '(Untitled)' );
+			$title = __( '(no title)' );
 		}
 		$link = $item->get_link();
 		$link = esc_url( $link );
@@ -69,7 +69,7 @@ function render_block_core_rss( $attributes ) {
 			$excerpt = esc_attr( wp_trim_words( $excerpt, $attributes['excerptLength'], ' [&hellip;]' ) );
 
 			// Change existing [...] to [&hellip;].
-			if ( '[...]' == substr( $excerpt, -5 ) ) {
+			if ( '[...]' === substr( $excerpt, -5 ) ) {
 				$excerpt = substr( $excerpt, 0, -5 ) . '[&hellip;]';
 			}
 
@@ -79,8 +79,24 @@ function render_block_core_rss( $attributes ) {
 		$list_items .= "<li class='wp-block-rss__item'>{$title}{$date}{$author}{$excerpt}</li>";
 	}
 
-	$classes           = 'grid' === $attributes['blockLayout'] ? ' is-grid columns-' . $attributes['columns'] : '';
-	$list_items_markup = sprintf( "<ul class='%s'>%s</ul>", esc_attr( $classes ), $list_items );
+	$class = 'wp-block-rss';
+	if ( isset( $attributes['align'] ) ) {
+		$class .= ' align' . $attributes['align'];
+	}
+
+	if ( isset( $attributes['blockLayout'] ) && 'grid' === $attributes['blockLayout'] ) {
+		$class .= ' is-grid';
+	}
+
+	if ( isset( $attributes['columns'] ) && 'grid' === $attributes['blockLayout'] ) {
+		$class .= ' columns-' . $attributes['columns'];
+	}
+
+	if ( isset( $attributes['className'] ) ) {
+		$class .= ' ' . $attributes['className'];
+	}
+
+	$list_items_markup = sprintf( "<ul class='%s'>%s</ul>", esc_attr( $class ), $list_items );
 
 	// PHP 5.2 compatibility. See: http://simplepie.org/wiki/faq/i_m_getting_memory_leaks.
 	$rss->__destruct();
@@ -97,6 +113,13 @@ function register_block_core_rss() {
 		'core/rss',
 		array(
 			'attributes'      => array(
+				'align'          => array(
+					'type' => 'string',
+					'enum' => array( 'left', 'center', 'right', 'wide', 'full' ),
+				),
+				'className'      => array(
+					'type' => 'string',
+				),
 				'columns'        => array(
 					'type'    => 'number',
 					'default' => 2,
@@ -134,5 +157,4 @@ function register_block_core_rss() {
 		)
 	);
 }
-
 add_action( 'init', 'register_block_core_rss' );

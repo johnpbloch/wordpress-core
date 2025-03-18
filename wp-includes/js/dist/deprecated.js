@@ -142,11 +142,11 @@ function deprecated(feature) {
       link = options.link,
       hint = options.hint;
   var pluginMessage = plugin ? " from ".concat(plugin) : '';
-  var versionMessage = version ? "".concat(pluginMessage, " in ").concat(version) : '';
+  var versionMessage = version ? " and will be removed".concat(pluginMessage, " in version ").concat(version) : '';
   var useInsteadMessage = alternative ? " Please use ".concat(alternative, " instead.") : '';
   var linkMessage = link ? " See: ".concat(link) : '';
   var hintMessage = hint ? " Note: ".concat(hint) : '';
-  var message = "".concat(feature, " is deprecated and will be removed").concat(versionMessage, ".").concat(useInsteadMessage).concat(linkMessage).concat(hintMessage); // Skip if already logged.
+  var message = "".concat(feature, " is deprecated").concat(versionMessage, ".").concat(useInsteadMessage).concat(linkMessage).concat(hintMessage); // Skip if already logged.
 
   if (message in logged) {
     return;

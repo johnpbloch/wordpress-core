@@ -398,8 +398,8 @@ function matchCharacters(text, regex, settings) {
 /**
  * Count some words.
  *
- * @param {String} text         The text being processed
- * @param {String} type         The type of count. Accepts ;words', 'characters_excluding_spaces', or 'characters_including_spaces'.
+ * @param {string} text         The text being processed
+ * @param {string} type         The type of count. Accepts ;words', 'characters_excluding_spaces', or 'characters_including_spaces'.
  * @param {Object} userSettings Custom settings object.
  *
  * @example
@@ -408,7 +408,7 @@ function matchCharacters(text, regex, settings) {
  * const numberOfWords = count( 'Words to count', 'words', {} )
  * ```
  *
- * @return {Number} The word or character count.
+ * @return {number} The word or character count.
  */
 
 

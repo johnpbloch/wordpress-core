@@ -161,7 +161,7 @@ class Walker_Comment extends Walker {
 	 * @see Walker::start_el()
 	 * @see wp_list_comments()
 	 * @global int        $comment_depth
-	 * @global WP_Comment $comment
+	 * @global WP_Comment $comment       Global comment object.
 	 *
 	 * @param string     $output  Used to append additional content. Passed by reference.
 	 * @param WP_Comment $comment Comment data object.
@@ -335,7 +335,7 @@ class Walker_Comment extends Walker {
 
 		<div class="comment-meta commentmetadata"><a href="<?php echo esc_url( get_comment_link( $comment, $args ) ); ?>">
 			<?php
-				/* translators: 1: comment date, 2: comment time */
+				/* translators: 1: Comment date, 2: Comment time. */
 				printf( __( '%1$s at %2$s' ), get_comment_date( '', $comment ), get_comment_time() );
 			?>
 				</a>
@@ -430,7 +430,7 @@ class Walker_Comment extends Walker {
 						<a href="<?php echo esc_url( get_comment_link( $comment, $args ) ); ?>">
 							<time datetime="<?php comment_time( 'c' ); ?>">
 								<?php
-									/* translators: 1: comment date, 2: comment time */
+									/* translators: 1: Comment date, 2: Comment time. */
 									printf( __( '%1$s at %2$s' ), get_comment_date( '', $comment ), get_comment_time() );
 								?>
 							</time>

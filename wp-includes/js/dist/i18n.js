@@ -87,7 +87,7 @@ this["wp"] = this["wp"] || {}; this["wp"]["i18n"] =
 /************************************************************************/
 /******/ ({
 
-/***/ "2Ct4":
+/***/ "4Z/T":
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;/* global window, exports, define */
@@ -908,8 +908,8 @@ Tannin.prototype.dcnpgettext = function( domain, context, singular, plural, n ) 
 var memize = __webpack_require__("4eJC");
 var memize_default = /*#__PURE__*/__webpack_require__.n(memize);
 
-// EXTERNAL MODULE: ./node_modules/@wordpress/i18n/node_modules/sprintf-js/src/sprintf.js
-var sprintf = __webpack_require__("2Ct4");
+// EXTERNAL MODULE: ./node_modules/sprintf-js/src/sprintf.js
+var sprintf = __webpack_require__("4Z/T");
 var sprintf_default = /*#__PURE__*/__webpack_require__.n(sprintf);
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/i18n/build-module/index.js
@@ -930,7 +930,9 @@ var sprintf_default = /*#__PURE__*/__webpack_require__.n(sprintf);
 
 var DEFAULT_LOCALE_DATA = {
   '': {
-    plural_forms: 'plural=(n!=1)'
+    plural_forms: function plural_forms(n) {
+      return n === 1 ? 0 : 1;
+    }
   }
 };
 /**

@@ -201,6 +201,7 @@ __webpack_require__.d(__webpack_exports__, "createRef", function() { return /* r
 __webpack_require__.d(__webpack_exports__, "forwardRef", function() { return /* reexport */ external_React_["forwardRef"]; });
 __webpack_require__.d(__webpack_exports__, "Fragment", function() { return /* reexport */ external_React_["Fragment"]; });
 __webpack_require__.d(__webpack_exports__, "isValidElement", function() { return /* reexport */ external_React_["isValidElement"]; });
+__webpack_require__.d(__webpack_exports__, "memo", function() { return /* reexport */ external_React_["memo"]; });
 __webpack_require__.d(__webpack_exports__, "StrictMode", function() { return /* reexport */ external_React_["StrictMode"]; });
 __webpack_require__.d(__webpack_exports__, "useCallback", function() { return /* reexport */ external_React_["useCallback"]; });
 __webpack_require__.d(__webpack_exports__, "useContext", function() { return /* reexport */ external_React_["useContext"]; });
@@ -212,6 +213,8 @@ __webpack_require__.d(__webpack_exports__, "useMemo", function() { return /* ree
 __webpack_require__.d(__webpack_exports__, "useReducer", function() { return /* reexport */ external_React_["useReducer"]; });
 __webpack_require__.d(__webpack_exports__, "useRef", function() { return /* reexport */ external_React_["useRef"]; });
 __webpack_require__.d(__webpack_exports__, "useState", function() { return /* reexport */ external_React_["useState"]; });
+__webpack_require__.d(__webpack_exports__, "lazy", function() { return /* reexport */ external_React_["lazy"]; });
+__webpack_require__.d(__webpack_exports__, "Suspense", function() { return /* reexport */ external_React_["Suspense"]; });
 __webpack_require__.d(__webpack_exports__, "concatChildren", function() { return /* reexport */ concatChildren; });
 __webpack_require__.d(__webpack_exports__, "switchChildrenNodeName", function() { return /* reexport */ switchChildrenNodeName; });
 __webpack_require__.d(__webpack_exports__, "createPortal", function() { return /* reexport */ external_ReactDOM_["createPortal"]; });
@@ -323,6 +326,11 @@ var external_lodash_ = __webpack_require__("YLtl");
 
 
 /**
+ * @see https://reactjs.org/docs/react-api.html#reactmemo
+ */
+
+
+/**
  * Component that activates additional checks and warnings for its descendants.
  */
 
@@ -378,6 +386,16 @@ var external_lodash_ = __webpack_require__("YLtl");
 
 
 /**
+ * @see https://reactjs.org/docs/react-api.html#reactlazy
+ */
+
+
+/**
+ * @see https://reactjs.org/docs/react-api.html#reactsuspense
+ */
+
+
+/**
  * Concatenate two or more React children objects.
  *
  * @param {...?Object} childrenArguments Array of children arguments (array of arrays/strings/objects) to concatenate.
@@ -390,7 +408,7 @@ function concatChildren() {
     childrenArguments[_key] = arguments[_key];
   }
 
-  return childrenArguments.reduce(function (memo, children, i) {
+  return childrenArguments.reduce(function (result, children, i) {
     external_React_["Children"].forEach(children, function (child, j) {
       if (child && 'string' !== typeof child) {
         child = Object(external_React_["cloneElement"])(child, {
@@ -398,9 +416,9 @@ function concatChildren() {
         });
       }
 
-      memo.push(child);
+      result.push(child);
     });
-    return memo;
+    return result;
   }, []);
 }
 /**
@@ -516,7 +534,9 @@ var external_this_wp_escapeHtml_ = __webpack_require__("Vx3V");
  * To preserve additional props, a `div` wrapper _will_ be created if any props
  * aside from `children` are passed.
  *
+ * @param {Object} props
  * @param {string} props.children HTML to render.
+ * @param {Object} props.props    Any additonal props to be set on the containing div.
  *
  * @return {WPElement} Dangerously-rendering element.
  */
@@ -585,12 +605,15 @@ function RawHTML(_ref) {
 var _createContext = Object(external_React_["createContext"])(),
     Provider = _createContext.Provider,
     Consumer = _createContext.Consumer;
+
+var ForwardRef = Object(external_React_["forwardRef"])(function () {
+  return null;
+});
 /**
  * Valid attribute types.
  *
  * @type {Set}
  */
-
 
 var ATTRIBUTES_TYPES = new Set(['string', 'boolean', 'number']);
 /**
@@ -833,6 +856,9 @@ function renderElement(element, context) {
 
     case Consumer.$$typeof:
       return renderElement(props.children(context || type._currentValue), context, legacyContext);
+
+    case ForwardRef.$$typeof:
+      return renderElement(type.render(props), context, legacyContext);
   }
 
   return '';
