@@ -94,9 +94,27 @@ function wp_embed_defaults( $url = '' ) {
  * @return false|string False on failure or the embed HTML on success.
  */
 function wp_oembed_get( $url, $args = '' ) {
-	require_once( ABSPATH . WPINC . '/class-oembed.php' );
 	$oembed = _wp_oembed_get_object();
 	return $oembed->get_html( $url, $args );
+}
+
+/**
+ * Returns the initialized WP_oEmbed object.
+ *
+ * @since 2.9.0
+ * @access private
+ *
+ * @staticvar WP_oEmbed $wp_oembed
+ *
+ * @return WP_oEmbed object.
+ */
+function _wp_oembed_get_object() {
+	static $wp_oembed = null;
+
+	if ( is_null( $wp_oembed ) ) {
+		$wp_oembed = new WP_oEmbed();
+	}
+	return $wp_oembed;
 }
 
 /**
@@ -112,8 +130,6 @@ function wp_oembed_get( $url, $args = '' ) {
  * @param boolean $regex    Optional. Whether the `$format` parameter is in a RegEx format. Default false.
  */
 function wp_oembed_add_provider( $format, $provider, $regex = false ) {
-	require_once( ABSPATH . WPINC . '/class-oembed.php' );
-
 	if ( did_action( 'plugins_loaded' ) ) {
 		$oembed = _wp_oembed_get_object();
 		$oembed->providers[$format] = array( $provider, $regex );
@@ -133,8 +149,6 @@ function wp_oembed_add_provider( $format, $provider, $regex = false ) {
  * @return bool Was the provider removed successfully?
  */
 function wp_oembed_remove_provider( $format ) {
-	require_once( ABSPATH . WPINC . '/class-oembed.php' );
-
 	if ( did_action( 'plugins_loaded' ) ) {
 		$oembed = _wp_oembed_get_object();
 
@@ -380,14 +394,10 @@ function get_post_embed_url( $post = null ) {
 function get_oembed_endpoint_url( $permalink = '', $format = 'json' ) {
 	$url = rest_url( 'oembed/1.0/embed' );
 
-	if ( 'json' === $format ) {
-		$format = false;
-	}
-
 	if ( '' !== $permalink ) {
 		$url = add_query_arg( array(
 			'url'    => urlencode( $permalink ),
-			'format' => $format,
+			'format' => ( 'json' !== $format ) ? $format : false,
 		), $url );
 	}
 
@@ -440,7 +450,7 @@ function get_post_embed_html( $width, $height, $post = null ) {
 		 * and edit wp-embed.js directly.
 		 */
 		$output .=<<<JS
-		!function(d,l){"use strict";var e=!1,n=!1;if(l.querySelector)if(d.addEventListener)e=!0;if(d.wp=d.wp||{},!d.wp.receiveEmbedMessage)if(d.wp.receiveEmbedMessage=function(e){var t=e.data;if(t.secret||t.message||t.value)if(!/[^a-zA-Z0-9]/.test(t.secret)){for(var r,a,i,s=l.querySelectorAll('iframe[data-secret="'+t.secret+'"]'),n=l.querySelectorAll('blockquote[data-secret="'+t.secret+'"]'),o=new RegExp("^https?:$","i"),c=0;c<n.length;c++)n[c].style.display="none";for(c=0;c<s.length;c++)if(r=s[c],e.source===r.contentWindow){if(r.removeAttribute("style"),"height"===t.message){if(1e3<(i=parseInt(t.value,10)))i=1e3;else if(~~i<200)i=200;r.height=i}if("link"===t.message)if(a=l.createElement("a"),i=l.createElement("a"),a.href=r.getAttribute("src"),i.href=t.value,o.test(i.protocol))if(i.host===a.host)if(l.activeElement===r)d.top.location.href=t.value}}},e)d.addEventListener("message",d.wp.receiveEmbedMessage,!1),l.addEventListener("DOMContentLoaded",t,!1),d.addEventListener("load",t,!1);function t(){if(!n){n=!0;for(var e,t,r=-1!==navigator.appVersion.indexOf("MSIE 10"),a=!!navigator.userAgent.match(/Trident.*rv:11\./),i=l.querySelectorAll("iframe.wp-embedded-content"),s=0;s<i.length;s++)if(!(e=i[s]).getAttribute("data-secret"))if(t=Math.random().toString(36).substr(2,10),e.src+="#?secret="+t,e.setAttribute("data-secret",t),r||a)(t=e.cloneNode(!0)).removeAttribute("security"),e.parentNode.replaceChild(t,e)}}}(window,document);
+		!function(d,l){"use strict";var e=!1,n=!1;if(l.querySelector)if(d.addEventListener)e=!0;if(d.wp=d.wp||{},!d.wp.receiveEmbedMessage)if(d.wp.receiveEmbedMessage=function(e){var t=e.data;if(t.secret||t.message||t.value)if(!/[^a-zA-Z0-9]/.test(t.secret)){for(var r,a,i,s=l.querySelectorAll('iframe[data-secret="'+t.secret+'"]'),n=l.querySelectorAll('blockquote[data-secret="'+t.secret+'"]'),o=new RegExp("^https?:$","i"),c=0;c<n.length;c++)n[c].style.display="none";for(c=0;c<s.length;c++)if(r=s[c],e.source===r.contentWindow){if(r.removeAttribute("style"),"height"===t.message){if(1e3<(i=parseInt(t.value,10)))i=1e3;else if(~~i<200)i=200;r.height=i}if("link"===t.message)if(a=l.createElement("a"),i=l.createElement("a"),a.href=r.getAttribute("src"),i.href=t.value,o.test(i.protocol))if(i.host===a.host)if(l.activeElement===r)d.top.location.href=t.value}}},e)d.addEventListener("message",d.wp.receiveEmbedMessage,!1),l.addEventListener("DOMContentLoaded",t,!1),d.addEventListener("load",t,!1);function t(){if(!n){n=!0;for(var e,t,r=-1!==navigator.appVersion.indexOf("MSIE 10"),a=!!navigator.userAgent.match(/Trident.*rv:11\./),i=l.querySelectorAll("iframe.wp-embedded-content"),s=0;s<i.length;s++){if(!(e=i[s]).getAttribute("data-secret"))t=Math.random().toString(36).substr(2,10),e.src+="#?secret="+t,e.setAttribute("data-secret",t);if(r||a)(t=e.cloneNode(!0)).removeAttribute("security"),e.parentNode.replaceChild(t,e)}}}}(window,document);
 JS;
 	}
 	$output .= "\n//--><!]]>";
@@ -710,7 +720,6 @@ function wp_filter_oembed_result( $result, $data, $url ) {
 		return $result;
 	}
 
-	require_once( ABSPATH . WPINC . '/class-oembed.php' );
 	$wp_oembed = _wp_oembed_get_object();
 
 	// Don't modify the HTML for trusted providers.
