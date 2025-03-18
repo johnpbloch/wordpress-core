@@ -94,6 +94,20 @@ this["wp"] = this["wp"] || {}; this["wp"]["htmlEntities"] =
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "decodeEntities", function() { return decodeEntities; });
 var _decodeTextArea;
+/**
+ * Decodes the HTML entities from a given string.
+ *
+ * @param {string} html String that contain HTML entities.
+ *
+ * @example
+ * ```js
+ * const result = decodeEntities( '&aacute;' );
+ * console.log( result ); // result will be "á"
+ * ```
+ *
+ * @return {string} The decoded string.
+ */
+
 
 function decodeEntities(html) {
   // not a string, or no entities to decode

@@ -26,7 +26,7 @@ if ( ! function_exists( 'wp_set_current_user' ) ) :
 	function wp_set_current_user( $id, $name = '' ) {
 		global $current_user;
 
-		// If `$id` matches the user who's already current, there's nothing to do.
+		// If `$id` matches the current user, there is nothing to do.
 		if ( isset( $current_user )
 		&& ( $current_user instanceof WP_User )
 		&& ( $id == $current_user->ID )
@@ -1402,6 +1402,7 @@ if ( ! function_exists( 'wp_validate_redirect' ) ) :
 			$path = '';
 			if ( ! empty( $_SERVER['REQUEST_URI'] ) ) {
 				$path = dirname( parse_url( 'http://placeholder' . $_SERVER['REQUEST_URI'], PHP_URL_PATH ) . '?' );
+				$path = wp_normalize_path( $path );
 			}
 			$location = '/' . ltrim( $path . '/', '/' ) . $location;
 		}
@@ -1545,7 +1546,7 @@ if ( ! function_exists( 'wp_notify_postauthor' ) ) :
 				/* translators: %s: comment text */
 				$notify_message .= sprintf( __( 'Comment: %s' ), "\r\n" . $comment_content ) . "\r\n\r\n";
 				$notify_message .= __( 'You can see all trackbacks on this post here:' ) . "\r\n";
-				/* translators: 1: blog name, 2: post title */
+				/* translators: Trackback notification email subject. 1: Site title, 2: Post title */
 				$subject = sprintf( __( '[%1$s] Trackback: "%2$s"' ), $blogname, $post->post_title );
 				break;
 			case 'pingback':
@@ -1558,7 +1559,7 @@ if ( ! function_exists( 'wp_notify_postauthor' ) ) :
 				/* translators: %s: comment text */
 				$notify_message .= sprintf( __( 'Comment: %s' ), "\r\n" . $comment_content ) . "\r\n\r\n";
 				$notify_message .= __( 'You can see all pingbacks on this post here:' ) . "\r\n";
-				/* translators: 1: blog name, 2: post title */
+				/* translators: Pingback notification email subject. 1: Site title, 2: Post title */
 				$subject = sprintf( __( '[%1$s] Pingback: "%2$s"' ), $blogname, $post->post_title );
 				break;
 			default: // Comments
@@ -1573,7 +1574,7 @@ if ( ! function_exists( 'wp_notify_postauthor' ) ) :
 				/* translators: %s: comment text */
 				$notify_message .= sprintf( __( 'Comment: %s' ), "\r\n" . $comment_content ) . "\r\n\r\n";
 				$notify_message .= __( 'You can see all comments on this post here:' ) . "\r\n";
-				/* translators: 1: blog name, 2: post title */
+				/* translators: Comment notification email subject. 1: Site title, 2: Post title */
 				$subject = sprintf( __( '[%1$s] Comment: "%2$s"' ), $blogname, $post->post_title );
 				break;
 		}
@@ -1928,7 +1929,7 @@ if ( ! function_exists( 'wp_new_user_notification' ) ) :
 
 			$wp_new_user_notification_email_admin = array(
 				'to'      => get_option( 'admin_email' ),
-				/* translators: Password change notification email subject. %s: Site title */
+				/* translators: New user registration notification email subject. %s: Site title */
 				'subject' => __( '[%s] New User Registration' ),
 				'message' => $message,
 				'headers' => '',
@@ -1994,8 +1995,8 @@ if ( ! function_exists( 'wp_new_user_notification' ) ) :
 
 		$wp_new_user_notification_email = array(
 			'to'      => $user->user_email,
-			/* translators: Password change notification email subject. %s: Site title */
-			'subject' => __( '[%s] Your username and password info' ),
+			/* translators: Login details notification email subject. %s: Site title */
+			'subject' => __( '[%s] Login Details' ),
 			'message' => $message,
 			'headers' => '',
 		);

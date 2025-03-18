@@ -1194,6 +1194,13 @@ function _toConsumableArray(arr) {
 
 /***/ }),
 
+/***/ "NMb1":
+/***/ (function(module, exports) {
+
+(function() { module.exports = this["wp"]["deprecated"]; }());
+
+/***/ }),
+
 /***/ "ODXe":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -1279,6 +1286,7 @@ __webpack_require__.d(build_module_actions_namespaceObject, "receiveThemeSupport
 __webpack_require__.d(build_module_actions_namespaceObject, "receiveEmbedPreview", function() { return receiveEmbedPreview; });
 __webpack_require__.d(build_module_actions_namespaceObject, "saveEntityRecord", function() { return saveEntityRecord; });
 __webpack_require__.d(build_module_actions_namespaceObject, "receiveUploadPermissions", function() { return receiveUploadPermissions; });
+__webpack_require__.d(build_module_actions_namespaceObject, "receiveUserPermission", function() { return receiveUserPermission; });
 
 // NAMESPACE OBJECT: ./node_modules/@wordpress/core-data/build-module/selectors.js
 var build_module_selectors_namespaceObject = {};
@@ -1293,7 +1301,8 @@ __webpack_require__.d(build_module_selectors_namespaceObject, "getEntityRecords"
 __webpack_require__.d(build_module_selectors_namespaceObject, "getThemeSupports", function() { return getThemeSupports; });
 __webpack_require__.d(build_module_selectors_namespaceObject, "getEmbedPreview", function() { return getEmbedPreview; });
 __webpack_require__.d(build_module_selectors_namespaceObject, "isPreviewEmbedFallback", function() { return isPreviewEmbedFallback; });
-__webpack_require__.d(build_module_selectors_namespaceObject, "hasUploadPermissions", function() { return selectors_hasUploadPermissions; });
+__webpack_require__.d(build_module_selectors_namespaceObject, "hasUploadPermissions", function() { return hasUploadPermissions; });
+__webpack_require__.d(build_module_selectors_namespaceObject, "canUser", function() { return canUser; });
 
 // NAMESPACE OBJECT: ./node_modules/@wordpress/core-data/build-module/resolvers.js
 var resolvers_namespaceObject = {};
@@ -1304,6 +1313,7 @@ __webpack_require__.d(resolvers_namespaceObject, "getEntityRecords", function() 
 __webpack_require__.d(resolvers_namespaceObject, "getThemeSupports", function() { return resolvers_getThemeSupports; });
 __webpack_require__.d(resolvers_namespaceObject, "getEmbedPreview", function() { return resolvers_getEmbedPreview; });
 __webpack_require__.d(resolvers_namespaceObject, "hasUploadPermissions", function() { return resolvers_hasUploadPermissions; });
+__webpack_require__.d(resolvers_namespaceObject, "canUser", function() { return resolvers_canUser; });
 
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/objectSpread.js
 var objectSpread = __webpack_require__("vpQ4");
@@ -1665,6 +1675,10 @@ var getQueriedItems = Object(rememo["a" /* default */])(function (state) {
 // EXTERNAL MODULE: ./node_modules/redux/es/redux.js
 var redux = __webpack_require__("ANjH");
 
+// EXTERNAL MODULE: ./node_modules/@babel/runtime/regenerator/index.js
+var regenerator = __webpack_require__("o0o1");
+var regenerator_default = /*#__PURE__*/__webpack_require__.n(regenerator);
+
 // EXTERNAL MODULE: external {"this":["wp","apiFetch"]}
 var external_this_wp_apiFetch_ = __webpack_require__("ywyh");
 var external_this_wp_apiFetch_default = /*#__PURE__*/__webpack_require__.n(external_this_wp_apiFetch_);
@@ -1714,22 +1728,25 @@ var controls = {
     var request = _ref.request;
     return external_this_wp_apiFetch_default()(request);
   },
-  SELECT: function SELECT(_ref2) {
-    var _selectData;
+  SELECT: Object(external_this_wp_data_["createRegistryControl"])(function (registry) {
+    return function (_ref2) {
+      var _registry$select;
 
-    var selectorName = _ref2.selectorName,
-        args = _ref2.args;
-    return (_selectData = Object(external_this_wp_data_["select"])('core'))[selectorName].apply(_selectData, Object(toConsumableArray["a" /* default */])(args));
-  }
+      var selectorName = _ref2.selectorName,
+          args = _ref2.args;
+      return (_registry$select = registry.select('core'))[selectorName].apply(_registry$select, Object(toConsumableArray["a" /* default */])(args));
+    };
+  })
 };
 /* harmony default export */ var build_module_controls = (controls);
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/core-data/build-module/actions.js
 
 
+
 var _marked =
 /*#__PURE__*/
-regeneratorRuntime.mark(saveEntityRecord);
+regenerator_default.a.mark(saveEntityRecord);
 
 /**
  * External dependencies
@@ -1843,7 +1860,7 @@ function receiveEmbedPreview(url, preview) {
 
 function saveEntityRecord(kind, name, record) {
   var entities, entity, key, recordId, updatedRecord;
-  return regeneratorRuntime.wrap(function saveEntityRecord$(_context) {
+  return regenerator_default.a.wrap(function saveEntityRecord$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
@@ -1899,21 +1916,41 @@ function saveEntityRecord(kind, name, record) {
 
 function receiveUploadPermissions(hasUploadPermissions) {
   return {
-    type: 'RECEIVE_UPLOAD_PERMISSIONS',
-    hasUploadPermissions: hasUploadPermissions
+    type: 'RECEIVE_USER_PERMISSION',
+    key: 'create/media',
+    isAllowed: hasUploadPermissions
+  };
+}
+/**
+ * Returns an action object used in signalling that the current user has
+ * permission to perform an action on a REST resource.
+ *
+ * @param {string}  key       A key that represents the action and REST resource.
+ * @param {boolean} isAllowed Whether or not the user can perform the action.
+ *
+ * @return {Object} Action object.
+ */
+
+function receiveUserPermission(key, isAllowed) {
+  return {
+    type: 'RECEIVE_USER_PERMISSION',
+    key: key,
+    isAllowed: isAllowed
   };
 }
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/core-data/build-module/entities.js
+
+
 var entities_marked =
 /*#__PURE__*/
-regeneratorRuntime.mark(loadPostTypeEntities),
+regenerator_default.a.mark(loadPostTypeEntities),
     _marked2 =
 /*#__PURE__*/
-regeneratorRuntime.mark(loadTaxonomyEntities),
+regenerator_default.a.mark(loadTaxonomyEntities),
     _marked3 =
 /*#__PURE__*/
-regeneratorRuntime.mark(getKindEntities);
+regenerator_default.a.mark(getKindEntities);
 
 /**
  * External dependencies
@@ -1958,7 +1995,7 @@ var kinds = [{
 
 function loadPostTypeEntities() {
   var postTypes;
-  return regeneratorRuntime.wrap(function loadPostTypeEntities$(_context) {
+  return regenerator_default.a.wrap(function loadPostTypeEntities$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
@@ -1993,7 +2030,7 @@ function loadPostTypeEntities() {
 
 function loadTaxonomyEntities() {
   var taxonomies;
-  return regeneratorRuntime.wrap(function loadTaxonomyEntities$(_context2) {
+  return regenerator_default.a.wrap(function loadTaxonomyEntities$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
         case 0:
@@ -2053,7 +2090,7 @@ var entities_getMethodName = function getMethodName(kind, name) {
 
 function getKindEntities(kind) {
   var entities, kindConfig;
-  return regeneratorRuntime.wrap(function getKindEntities$(_context3) {
+  return regenerator_default.a.wrap(function getKindEntities$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
         case 0:
@@ -2369,7 +2406,7 @@ function entitiesConfig() {
 
   switch (action.type) {
     case 'ADD_ENTITIES':
-      return Object(toConsumableArray["a" /* default */])(state).concat(Object(toConsumableArray["a" /* default */])(action.entities));
+      return [].concat(Object(toConsumableArray["a" /* default */])(state), Object(toConsumableArray["a" /* default */])(action.entities));
   }
 
   return state;
@@ -2440,21 +2477,22 @@ function embedPreviews() {
   return state;
 }
 /**
- * Reducer managing Upload permissions.
+ * State which tracks whether the user can perform an action on a REST
+ * resource.
  *
- * @param  {Object}  state  Current state.
- * @param  {Object}  action Dispatched action.
+ * @param  {Object} state  Current state.
+ * @param  {Object} action Dispatched action.
  *
  * @return {Object} Updated state.
  */
 
-function hasUploadPermissions() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+function userPermissions() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   var action = arguments.length > 1 ? arguments[1] : undefined;
 
   switch (action.type) {
-    case 'RECEIVE_UPLOAD_PERMISSIONS':
-      return action.hasUploadPermissions;
+    case 'RECEIVE_USER_PERMISSION':
+      return Object(objectSpread["a" /* default */])({}, state, Object(defineProperty["a" /* default */])({}, action.key, action.isAllowed));
   }
 
   return state;
@@ -2466,8 +2504,12 @@ function hasUploadPermissions() {
   themeSupports: themeSupports,
   entities: reducer_entities,
   embedPreviews: embedPreviews,
-  hasUploadPermissions: hasUploadPermissions
+  userPermissions: userPermissions
 }));
+
+// EXTERNAL MODULE: external {"this":["wp","deprecated"]}
+var external_this_wp_deprecated_ = __webpack_require__("NMb1");
+var external_this_wp_deprecated_default = /*#__PURE__*/__webpack_require__.n(external_this_wp_deprecated_);
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/core-data/build-module/name.js
 /**
@@ -2489,29 +2531,13 @@ var REDUCER_KEY = 'core';
  */
 
 
+
 /**
  * Internal dependencies
  */
 
 
 
-/**
- * Returns true if resolution is in progress for the core selector of the given
- * name and arguments.
- *
- * @param {string} selectorName Core data selector name.
- * @param {...*}   args         Arguments passed to selector.
- *
- * @return {boolean} Whether resolution is in progress.
- */
-
-function isResolving(selectorName) {
-  for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    args[_key - 1] = arguments[_key];
-  }
-
-  return Object(external_this_wp_data_["select"])('core/data').isResolving(REDUCER_KEY, selectorName, args);
-}
 /**
  * Returns true if a request is in progress for embed preview data, or false
  * otherwise.
@@ -2522,10 +2548,11 @@ function isResolving(selectorName) {
  * @return {boolean} Whether a request is in progress for an embed preview.
  */
 
-
-function isRequestingEmbedPreview(state, url) {
-  return isResolving('getEmbedPreview', url);
-}
+var isRequestingEmbedPreview = Object(external_this_wp_data_["createRegistrySelector"])(function (select) {
+  return function (state, url) {
+    return select('core/data').isResolving(REDUCER_KEY, 'getEmbedPreview', [url]);
+  };
+});
 /**
  * Returns all available authors.
  *
@@ -2665,38 +2692,76 @@ function isPreviewEmbedFallback(state, url) {
   return preview.html === oEmbedLinkCheck;
 }
 /**
- * Return Upload Permissions.
+ * Returns whether the current user can upload media.
  *
- * @param  {Object}  state State tree.
+ * Calling this may trigger an OPTIONS request to the REST API via the
+ * `canUser()` resolver.
  *
- * @return {boolean} Upload Permissions.
+ * https://developer.wordpress.org/rest-api/reference/
+ *
+ * @deprecated since 5.0. Callers should use the more generic `canUser()` selector instead of
+ *             `hasUploadPermissions()`, e.g. `canUser( 'create', 'media' )`.
+ *
+ * @param {Object} state Data state.
+ *
+ * @return {boolean} Whether or not the user can upload media. Defaults to `true` if the OPTIONS
+ *                   request is being made.
  */
 
-function selectors_hasUploadPermissions(state) {
-  return state.hasUploadPermissions;
+function hasUploadPermissions(state) {
+  external_this_wp_deprecated_default()("select( 'core' ).hasUploadPermissions()", {
+    alternative: "select( 'core' ).canUser( 'create', 'media' )"
+  });
+  return Object(external_lodash_["defaultTo"])(canUser(state, 'create', 'media'), true);
+}
+/**
+ * Returns whether the current user can perform the given action on the given
+ * REST resource.
+ *
+ * Calling this may trigger an OPTIONS request to the REST API via the
+ * `canUser()` resolver.
+ *
+ * https://developer.wordpress.org/rest-api/reference/
+ *
+ * @param {Object}   state            Data state.
+ * @param {string}   action           Action to check. One of: 'create', 'read', 'update', 'delete'.
+ * @param {string}   resource         REST resource to check, e.g. 'media' or 'posts'.
+ * @param {string=}  id               Optional ID of the rest resource to check.
+ *
+ * @return {boolean|undefined} Whether or not the user can perform the action,
+ *                             or `undefined` if the OPTIONS request is still being made.
+ */
+
+function canUser(state, action, resource, id) {
+  var key = Object(external_lodash_["compact"])([action, resource, id]).join('/');
+  return Object(external_lodash_["get"])(state, ['userPermissions', key]);
 }
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/core-data/build-module/resolvers.js
 
 
+
 var resolvers_marked =
 /*#__PURE__*/
-regeneratorRuntime.mark(resolvers_getAuthors),
+regenerator_default.a.mark(resolvers_getAuthors),
     resolvers_marked2 =
 /*#__PURE__*/
-regeneratorRuntime.mark(resolvers_getEntityRecord),
+regenerator_default.a.mark(resolvers_getEntityRecord),
     resolvers_marked3 =
 /*#__PURE__*/
-regeneratorRuntime.mark(resolvers_getEntityRecords),
+regenerator_default.a.mark(resolvers_getEntityRecords),
     _marked4 =
 /*#__PURE__*/
-regeneratorRuntime.mark(resolvers_getThemeSupports),
+regenerator_default.a.mark(resolvers_getThemeSupports),
     _marked5 =
 /*#__PURE__*/
-regeneratorRuntime.mark(resolvers_getEmbedPreview),
+regenerator_default.a.mark(resolvers_getEmbedPreview),
     _marked6 =
 /*#__PURE__*/
-regeneratorRuntime.mark(resolvers_hasUploadPermissions);
+regenerator_default.a.mark(resolvers_hasUploadPermissions),
+    _marked7 =
+/*#__PURE__*/
+regenerator_default.a.mark(resolvers_canUser);
 
 /**
  * External dependencies
@@ -2705,6 +2770,7 @@ regeneratorRuntime.mark(resolvers_hasUploadPermissions);
 /**
  * WordPress dependencies
  */
+
 
 
 /**
@@ -2720,7 +2786,7 @@ regeneratorRuntime.mark(resolvers_hasUploadPermissions);
 
 function resolvers_getAuthors() {
   var users;
-  return regeneratorRuntime.wrap(function getAuthors$(_context) {
+  return regenerator_default.a.wrap(function getAuthors$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
@@ -2751,7 +2817,7 @@ function resolvers_getAuthors() {
 
 function resolvers_getEntityRecord(kind, name, key) {
   var entities, entity, record;
-  return regeneratorRuntime.wrap(function getEntityRecord$(_context2) {
+  return regenerator_default.a.wrap(function getEntityRecord$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
         case 0:
@@ -2805,7 +2871,7 @@ function resolvers_getEntityRecords(kind, name) {
       path,
       records,
       _args3 = arguments;
-  return regeneratorRuntime.wrap(function getEntityRecords$(_context3) {
+  return regenerator_default.a.wrap(function getEntityRecords$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
         case 0:
@@ -2859,7 +2925,7 @@ resolvers_getEntityRecords.shouldInvalidate = function (action, kind, name) {
 
 function resolvers_getThemeSupports() {
   var activeThemes;
-  return regeneratorRuntime.wrap(function getThemeSupports$(_context4) {
+  return regenerator_default.a.wrap(function getThemeSupports$(_context4) {
     while (1) {
       switch (_context4.prev = _context4.next) {
         case 0:
@@ -2888,7 +2954,7 @@ function resolvers_getThemeSupports() {
 
 function resolvers_getEmbedPreview(url) {
   var embedProxyResponse;
-  return regeneratorRuntime.wrap(function getEmbedPreview$(_context5) {
+  return regenerator_default.a.wrap(function getEmbedPreview$(_context5) {
     while (1) {
       switch (_context5.prev = _context5.next) {
         case 0:
@@ -2924,24 +2990,84 @@ function resolvers_getEmbedPreview(url) {
 }
 /**
  * Requests Upload Permissions from the REST API.
+ *
+ * @deprecated since 5.0. Callers should use the more generic `canUser()` selector instead of
+ *            `hasUploadPermissions()`, e.g. `canUser( 'create', 'media' )`.
  */
 
 function resolvers_hasUploadPermissions() {
-  var response, allowHeader;
-  return regeneratorRuntime.wrap(function hasUploadPermissions$(_context6) {
+  return regenerator_default.a.wrap(function hasUploadPermissions$(_context6) {
     while (1) {
       switch (_context6.prev = _context6.next) {
         case 0:
-          _context6.next = 2;
+          external_this_wp_deprecated_default()("select( 'core' ).hasUploadPermissions()", {
+            alternative: "select( 'core' ).canUser( 'create', 'media' )"
+          });
+          return _context6.delegateYield(resolvers_canUser('create', 'media'), "t0", 2);
+
+        case 2:
+        case "end":
+          return _context6.stop();
+      }
+    }
+  }, _marked6, this);
+}
+/**
+ * Checks whether the current user can perform the given action on the given
+ * REST resource.
+ *
+ * @param {string}  action   Action to check. One of: 'create', 'read', 'update',
+ *                           'delete'.
+ * @param {string}  resource REST resource to check, e.g. 'media' or 'posts'.
+ * @param {?string} id       ID of the rest resource to check.
+ */
+
+function resolvers_canUser(action, resource, id) {
+  var methods, method, path, response, allowHeader, key, isAllowed;
+  return regenerator_default.a.wrap(function canUser$(_context7) {
+    while (1) {
+      switch (_context7.prev = _context7.next) {
+        case 0:
+          methods = {
+            create: 'POST',
+            read: 'GET',
+            update: 'PUT',
+            delete: 'DELETE'
+          };
+          method = methods[action];
+
+          if (method) {
+            _context7.next = 4;
+            break;
+          }
+
+          throw new Error("'".concat(action, "' is not a valid action."));
+
+        case 4:
+          path = id ? "/wp/v2/".concat(resource, "/").concat(id) : "/wp/v2/".concat(resource);
+          _context7.prev = 5;
+          _context7.next = 8;
           return apiFetch({
-            path: '/wp/v2/media',
-            method: 'OPTIONS',
+            path: path,
+            // Ideally this would always be an OPTIONS request, but unfortunately there's
+            // a bug in the REST API which causes the Allow header to not be sent on
+            // OPTIONS requests to /posts/:id routes.
+            // https://core.trac.wordpress.org/ticket/45753
+            method: id ? 'GET' : 'OPTIONS',
             parse: false
           });
 
-        case 2:
-          response = _context6.sent;
+        case 8:
+          response = _context7.sent;
+          _context7.next = 14;
+          break;
 
+        case 11:
+          _context7.prev = 11;
+          _context7.t0 = _context7["catch"](5);
+          return _context7.abrupt("return");
+
+        case 14:
           if (Object(external_lodash_["hasIn"])(response, ['headers', 'get'])) {
             // If the request is fetched using the fetch api, the header can be
             // retrieved using the 'get' method.
@@ -2952,15 +3078,17 @@ function resolvers_hasUploadPermissions() {
             allowHeader = Object(external_lodash_["get"])(response, ['headers', 'Allow'], '');
           }
 
-          _context6.next = 6;
-          return receiveUploadPermissions(Object(external_lodash_["includes"])(allowHeader, 'POST'));
+          key = Object(external_lodash_["compact"])([action, resource, id]).join('/');
+          isAllowed = Object(external_lodash_["includes"])(allowHeader, method);
+          _context7.next = 19;
+          return receiveUserPermission(key, isAllowed);
 
-        case 6:
+        case 19:
         case "end":
-          return _context6.stop();
+          return _context7.stop();
       }
     }
-  }, _marked6, this);
+  }, _marked7, this, [[5, 11]]);
 }
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/core-data/build-module/index.js
@@ -3050,6 +3178,742 @@ Object(external_this_wp_data_["registerStore"])(REDUCER_KEY, {
   selectors: Object(objectSpread["a" /* default */])({}, build_module_selectors_namespaceObject, entitySelectors),
   resolvers: Object(objectSpread["a" /* default */])({}, resolvers_namespaceObject, entityResolvers)
 });
+
+
+/***/ }),
+
+/***/ "ls82":
+/***/ (function(module, exports) {
+
+/**
+ * Copyright (c) 2014-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+!(function(global) {
+  "use strict";
+
+  var Op = Object.prototype;
+  var hasOwn = Op.hasOwnProperty;
+  var undefined; // More compressible than void 0.
+  var $Symbol = typeof Symbol === "function" ? Symbol : {};
+  var iteratorSymbol = $Symbol.iterator || "@@iterator";
+  var asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator";
+  var toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
+
+  var inModule = typeof module === "object";
+  var runtime = global.regeneratorRuntime;
+  if (runtime) {
+    if (inModule) {
+      // If regeneratorRuntime is defined globally and we're in a module,
+      // make the exports object identical to regeneratorRuntime.
+      module.exports = runtime;
+    }
+    // Don't bother evaluating the rest of this file if the runtime was
+    // already defined globally.
+    return;
+  }
+
+  // Define the runtime globally (as expected by generated code) as either
+  // module.exports (if we're in a module) or a new, empty object.
+  runtime = global.regeneratorRuntime = inModule ? module.exports : {};
+
+  function wrap(innerFn, outerFn, self, tryLocsList) {
+    // If outerFn provided and outerFn.prototype is a Generator, then outerFn.prototype instanceof Generator.
+    var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator;
+    var generator = Object.create(protoGenerator.prototype);
+    var context = new Context(tryLocsList || []);
+
+    // The ._invoke method unifies the implementations of the .next,
+    // .throw, and .return methods.
+    generator._invoke = makeInvokeMethod(innerFn, self, context);
+
+    return generator;
+  }
+  runtime.wrap = wrap;
+
+  // Try/catch helper to minimize deoptimizations. Returns a completion
+  // record like context.tryEntries[i].completion. This interface could
+  // have been (and was previously) designed to take a closure to be
+  // invoked without arguments, but in all the cases we care about we
+  // already have an existing method we want to call, so there's no need
+  // to create a new function object. We can even get away with assuming
+  // the method takes exactly one argument, since that happens to be true
+  // in every case, so we don't have to touch the arguments object. The
+  // only additional allocation required is the completion record, which
+  // has a stable shape and so hopefully should be cheap to allocate.
+  function tryCatch(fn, obj, arg) {
+    try {
+      return { type: "normal", arg: fn.call(obj, arg) };
+    } catch (err) {
+      return { type: "throw", arg: err };
+    }
+  }
+
+  var GenStateSuspendedStart = "suspendedStart";
+  var GenStateSuspendedYield = "suspendedYield";
+  var GenStateExecuting = "executing";
+  var GenStateCompleted = "completed";
+
+  // Returning this object from the innerFn has the same effect as
+  // breaking out of the dispatch switch statement.
+  var ContinueSentinel = {};
+
+  // Dummy constructor functions that we use as the .constructor and
+  // .constructor.prototype properties for functions that return Generator
+  // objects. For full spec compliance, you may wish to configure your
+  // minifier not to mangle the names of these two functions.
+  function Generator() {}
+  function GeneratorFunction() {}
+  function GeneratorFunctionPrototype() {}
+
+  // This is a polyfill for %IteratorPrototype% for environments that
+  // don't natively support it.
+  var IteratorPrototype = {};
+  IteratorPrototype[iteratorSymbol] = function () {
+    return this;
+  };
+
+  var getProto = Object.getPrototypeOf;
+  var NativeIteratorPrototype = getProto && getProto(getProto(values([])));
+  if (NativeIteratorPrototype &&
+      NativeIteratorPrototype !== Op &&
+      hasOwn.call(NativeIteratorPrototype, iteratorSymbol)) {
+    // This environment has a native %IteratorPrototype%; use it instead
+    // of the polyfill.
+    IteratorPrototype = NativeIteratorPrototype;
+  }
+
+  var Gp = GeneratorFunctionPrototype.prototype =
+    Generator.prototype = Object.create(IteratorPrototype);
+  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
+  GeneratorFunctionPrototype.constructor = GeneratorFunction;
+  GeneratorFunctionPrototype[toStringTagSymbol] =
+    GeneratorFunction.displayName = "GeneratorFunction";
+
+  // Helper for defining the .next, .throw, and .return methods of the
+  // Iterator interface in terms of a single ._invoke method.
+  function defineIteratorMethods(prototype) {
+    ["next", "throw", "return"].forEach(function(method) {
+      prototype[method] = function(arg) {
+        return this._invoke(method, arg);
+      };
+    });
+  }
+
+  runtime.isGeneratorFunction = function(genFun) {
+    var ctor = typeof genFun === "function" && genFun.constructor;
+    return ctor
+      ? ctor === GeneratorFunction ||
+        // For the native GeneratorFunction constructor, the best we can
+        // do is to check its .name property.
+        (ctor.displayName || ctor.name) === "GeneratorFunction"
+      : false;
+  };
+
+  runtime.mark = function(genFun) {
+    if (Object.setPrototypeOf) {
+      Object.setPrototypeOf(genFun, GeneratorFunctionPrototype);
+    } else {
+      genFun.__proto__ = GeneratorFunctionPrototype;
+      if (!(toStringTagSymbol in genFun)) {
+        genFun[toStringTagSymbol] = "GeneratorFunction";
+      }
+    }
+    genFun.prototype = Object.create(Gp);
+    return genFun;
+  };
+
+  // Within the body of any async function, `await x` is transformed to
+  // `yield regeneratorRuntime.awrap(x)`, so that the runtime can test
+  // `hasOwn.call(value, "__await")` to determine if the yielded value is
+  // meant to be awaited.
+  runtime.awrap = function(arg) {
+    return { __await: arg };
+  };
+
+  function AsyncIterator(generator) {
+    function invoke(method, arg, resolve, reject) {
+      var record = tryCatch(generator[method], generator, arg);
+      if (record.type === "throw") {
+        reject(record.arg);
+      } else {
+        var result = record.arg;
+        var value = result.value;
+        if (value &&
+            typeof value === "object" &&
+            hasOwn.call(value, "__await")) {
+          return Promise.resolve(value.__await).then(function(value) {
+            invoke("next", value, resolve, reject);
+          }, function(err) {
+            invoke("throw", err, resolve, reject);
+          });
+        }
+
+        return Promise.resolve(value).then(function(unwrapped) {
+          // When a yielded Promise is resolved, its final value becomes
+          // the .value of the Promise<{value,done}> result for the
+          // current iteration.
+          result.value = unwrapped;
+          resolve(result);
+        }, function(error) {
+          // If a rejected Promise was yielded, throw the rejection back
+          // into the async generator function so it can be handled there.
+          return invoke("throw", error, resolve, reject);
+        });
+      }
+    }
+
+    var previousPromise;
+
+    function enqueue(method, arg) {
+      function callInvokeWithMethodAndArg() {
+        return new Promise(function(resolve, reject) {
+          invoke(method, arg, resolve, reject);
+        });
+      }
+
+      return previousPromise =
+        // If enqueue has been called before, then we want to wait until
+        // all previous Promises have been resolved before calling invoke,
+        // so that results are always delivered in the correct order. If
+        // enqueue has not been called before, then it is important to
+        // call invoke immediately, without waiting on a callback to fire,
+        // so that the async generator function has the opportunity to do
+        // any necessary setup in a predictable way. This predictability
+        // is why the Promise constructor synchronously invokes its
+        // executor callback, and why async functions synchronously
+        // execute code before the first await. Since we implement simple
+        // async functions in terms of async generators, it is especially
+        // important to get this right, even though it requires care.
+        previousPromise ? previousPromise.then(
+          callInvokeWithMethodAndArg,
+          // Avoid propagating failures to Promises returned by later
+          // invocations of the iterator.
+          callInvokeWithMethodAndArg
+        ) : callInvokeWithMethodAndArg();
+    }
+
+    // Define the unified helper method that is used to implement .next,
+    // .throw, and .return (see defineIteratorMethods).
+    this._invoke = enqueue;
+  }
+
+  defineIteratorMethods(AsyncIterator.prototype);
+  AsyncIterator.prototype[asyncIteratorSymbol] = function () {
+    return this;
+  };
+  runtime.AsyncIterator = AsyncIterator;
+
+  // Note that simple async functions are implemented on top of
+  // AsyncIterator objects; they just return a Promise for the value of
+  // the final result produced by the iterator.
+  runtime.async = function(innerFn, outerFn, self, tryLocsList) {
+    var iter = new AsyncIterator(
+      wrap(innerFn, outerFn, self, tryLocsList)
+    );
+
+    return runtime.isGeneratorFunction(outerFn)
+      ? iter // If outerFn is a generator, return the full iterator.
+      : iter.next().then(function(result) {
+          return result.done ? result.value : iter.next();
+        });
+  };
+
+  function makeInvokeMethod(innerFn, self, context) {
+    var state = GenStateSuspendedStart;
+
+    return function invoke(method, arg) {
+      if (state === GenStateExecuting) {
+        throw new Error("Generator is already running");
+      }
+
+      if (state === GenStateCompleted) {
+        if (method === "throw") {
+          throw arg;
+        }
+
+        // Be forgiving, per 25.3.3.3.3 of the spec:
+        // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
+        return doneResult();
+      }
+
+      context.method = method;
+      context.arg = arg;
+
+      while (true) {
+        var delegate = context.delegate;
+        if (delegate) {
+          var delegateResult = maybeInvokeDelegate(delegate, context);
+          if (delegateResult) {
+            if (delegateResult === ContinueSentinel) continue;
+            return delegateResult;
+          }
+        }
+
+        if (context.method === "next") {
+          // Setting context._sent for legacy support of Babel's
+          // function.sent implementation.
+          context.sent = context._sent = context.arg;
+
+        } else if (context.method === "throw") {
+          if (state === GenStateSuspendedStart) {
+            state = GenStateCompleted;
+            throw context.arg;
+          }
+
+          context.dispatchException(context.arg);
+
+        } else if (context.method === "return") {
+          context.abrupt("return", context.arg);
+        }
+
+        state = GenStateExecuting;
+
+        var record = tryCatch(innerFn, self, context);
+        if (record.type === "normal") {
+          // If an exception is thrown from innerFn, we leave state ===
+          // GenStateExecuting and loop back for another invocation.
+          state = context.done
+            ? GenStateCompleted
+            : GenStateSuspendedYield;
+
+          if (record.arg === ContinueSentinel) {
+            continue;
+          }
+
+          return {
+            value: record.arg,
+            done: context.done
+          };
+
+        } else if (record.type === "throw") {
+          state = GenStateCompleted;
+          // Dispatch the exception by looping back around to the
+          // context.dispatchException(context.arg) call above.
+          context.method = "throw";
+          context.arg = record.arg;
+        }
+      }
+    };
+  }
+
+  // Call delegate.iterator[context.method](context.arg) and handle the
+  // result, either by returning a { value, done } result from the
+  // delegate iterator, or by modifying context.method and context.arg,
+  // setting context.delegate to null, and returning the ContinueSentinel.
+  function maybeInvokeDelegate(delegate, context) {
+    var method = delegate.iterator[context.method];
+    if (method === undefined) {
+      // A .throw or .return when the delegate iterator has no .throw
+      // method always terminates the yield* loop.
+      context.delegate = null;
+
+      if (context.method === "throw") {
+        if (delegate.iterator.return) {
+          // If the delegate iterator has a return method, give it a
+          // chance to clean up.
+          context.method = "return";
+          context.arg = undefined;
+          maybeInvokeDelegate(delegate, context);
+
+          if (context.method === "throw") {
+            // If maybeInvokeDelegate(context) changed context.method from
+            // "return" to "throw", let that override the TypeError below.
+            return ContinueSentinel;
+          }
+        }
+
+        context.method = "throw";
+        context.arg = new TypeError(
+          "The iterator does not provide a 'throw' method");
+      }
+
+      return ContinueSentinel;
+    }
+
+    var record = tryCatch(method, delegate.iterator, context.arg);
+
+    if (record.type === "throw") {
+      context.method = "throw";
+      context.arg = record.arg;
+      context.delegate = null;
+      return ContinueSentinel;
+    }
+
+    var info = record.arg;
+
+    if (! info) {
+      context.method = "throw";
+      context.arg = new TypeError("iterator result is not an object");
+      context.delegate = null;
+      return ContinueSentinel;
+    }
+
+    if (info.done) {
+      // Assign the result of the finished delegate to the temporary
+      // variable specified by delegate.resultName (see delegateYield).
+      context[delegate.resultName] = info.value;
+
+      // Resume execution at the desired location (see delegateYield).
+      context.next = delegate.nextLoc;
+
+      // If context.method was "throw" but the delegate handled the
+      // exception, let the outer generator proceed normally. If
+      // context.method was "next", forget context.arg since it has been
+      // "consumed" by the delegate iterator. If context.method was
+      // "return", allow the original .return call to continue in the
+      // outer generator.
+      if (context.method !== "return") {
+        context.method = "next";
+        context.arg = undefined;
+      }
+
+    } else {
+      // Re-yield the result returned by the delegate method.
+      return info;
+    }
+
+    // The delegate iterator is finished, so forget it and continue with
+    // the outer generator.
+    context.delegate = null;
+    return ContinueSentinel;
+  }
+
+  // Define Generator.prototype.{next,throw,return} in terms of the
+  // unified ._invoke helper method.
+  defineIteratorMethods(Gp);
+
+  Gp[toStringTagSymbol] = "Generator";
+
+  // A Generator should always return itself as the iterator object when the
+  // @@iterator function is called on it. Some browsers' implementations of the
+  // iterator prototype chain incorrectly implement this, causing the Generator
+  // object to not be returned from this call. This ensures that doesn't happen.
+  // See https://github.com/facebook/regenerator/issues/274 for more details.
+  Gp[iteratorSymbol] = function() {
+    return this;
+  };
+
+  Gp.toString = function() {
+    return "[object Generator]";
+  };
+
+  function pushTryEntry(locs) {
+    var entry = { tryLoc: locs[0] };
+
+    if (1 in locs) {
+      entry.catchLoc = locs[1];
+    }
+
+    if (2 in locs) {
+      entry.finallyLoc = locs[2];
+      entry.afterLoc = locs[3];
+    }
+
+    this.tryEntries.push(entry);
+  }
+
+  function resetTryEntry(entry) {
+    var record = entry.completion || {};
+    record.type = "normal";
+    delete record.arg;
+    entry.completion = record;
+  }
+
+  function Context(tryLocsList) {
+    // The root entry object (effectively a try statement without a catch
+    // or a finally block) gives us a place to store values thrown from
+    // locations where there is no enclosing try statement.
+    this.tryEntries = [{ tryLoc: "root" }];
+    tryLocsList.forEach(pushTryEntry, this);
+    this.reset(true);
+  }
+
+  runtime.keys = function(object) {
+    var keys = [];
+    for (var key in object) {
+      keys.push(key);
+    }
+    keys.reverse();
+
+    // Rather than returning an object with a next method, we keep
+    // things simple and return the next function itself.
+    return function next() {
+      while (keys.length) {
+        var key = keys.pop();
+        if (key in object) {
+          next.value = key;
+          next.done = false;
+          return next;
+        }
+      }
+
+      // To avoid creating an additional object, we just hang the .value
+      // and .done properties off the next function object itself. This
+      // also ensures that the minifier will not anonymize the function.
+      next.done = true;
+      return next;
+    };
+  };
+
+  function values(iterable) {
+    if (iterable) {
+      var iteratorMethod = iterable[iteratorSymbol];
+      if (iteratorMethod) {
+        return iteratorMethod.call(iterable);
+      }
+
+      if (typeof iterable.next === "function") {
+        return iterable;
+      }
+
+      if (!isNaN(iterable.length)) {
+        var i = -1, next = function next() {
+          while (++i < iterable.length) {
+            if (hasOwn.call(iterable, i)) {
+              next.value = iterable[i];
+              next.done = false;
+              return next;
+            }
+          }
+
+          next.value = undefined;
+          next.done = true;
+
+          return next;
+        };
+
+        return next.next = next;
+      }
+    }
+
+    // Return an iterator with no values.
+    return { next: doneResult };
+  }
+  runtime.values = values;
+
+  function doneResult() {
+    return { value: undefined, done: true };
+  }
+
+  Context.prototype = {
+    constructor: Context,
+
+    reset: function(skipTempReset) {
+      this.prev = 0;
+      this.next = 0;
+      // Resetting context._sent for legacy support of Babel's
+      // function.sent implementation.
+      this.sent = this._sent = undefined;
+      this.done = false;
+      this.delegate = null;
+
+      this.method = "next";
+      this.arg = undefined;
+
+      this.tryEntries.forEach(resetTryEntry);
+
+      if (!skipTempReset) {
+        for (var name in this) {
+          // Not sure about the optimal order of these conditions:
+          if (name.charAt(0) === "t" &&
+              hasOwn.call(this, name) &&
+              !isNaN(+name.slice(1))) {
+            this[name] = undefined;
+          }
+        }
+      }
+    },
+
+    stop: function() {
+      this.done = true;
+
+      var rootEntry = this.tryEntries[0];
+      var rootRecord = rootEntry.completion;
+      if (rootRecord.type === "throw") {
+        throw rootRecord.arg;
+      }
+
+      return this.rval;
+    },
+
+    dispatchException: function(exception) {
+      if (this.done) {
+        throw exception;
+      }
+
+      var context = this;
+      function handle(loc, caught) {
+        record.type = "throw";
+        record.arg = exception;
+        context.next = loc;
+
+        if (caught) {
+          // If the dispatched exception was caught by a catch block,
+          // then let that catch block handle the exception normally.
+          context.method = "next";
+          context.arg = undefined;
+        }
+
+        return !! caught;
+      }
+
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        var record = entry.completion;
+
+        if (entry.tryLoc === "root") {
+          // Exception thrown outside of any try block that could handle
+          // it, so set the completion value of the entire function to
+          // throw the exception.
+          return handle("end");
+        }
+
+        if (entry.tryLoc <= this.prev) {
+          var hasCatch = hasOwn.call(entry, "catchLoc");
+          var hasFinally = hasOwn.call(entry, "finallyLoc");
+
+          if (hasCatch && hasFinally) {
+            if (this.prev < entry.catchLoc) {
+              return handle(entry.catchLoc, true);
+            } else if (this.prev < entry.finallyLoc) {
+              return handle(entry.finallyLoc);
+            }
+
+          } else if (hasCatch) {
+            if (this.prev < entry.catchLoc) {
+              return handle(entry.catchLoc, true);
+            }
+
+          } else if (hasFinally) {
+            if (this.prev < entry.finallyLoc) {
+              return handle(entry.finallyLoc);
+            }
+
+          } else {
+            throw new Error("try statement without catch or finally");
+          }
+        }
+      }
+    },
+
+    abrupt: function(type, arg) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.tryLoc <= this.prev &&
+            hasOwn.call(entry, "finallyLoc") &&
+            this.prev < entry.finallyLoc) {
+          var finallyEntry = entry;
+          break;
+        }
+      }
+
+      if (finallyEntry &&
+          (type === "break" ||
+           type === "continue") &&
+          finallyEntry.tryLoc <= arg &&
+          arg <= finallyEntry.finallyLoc) {
+        // Ignore the finally entry if control is not jumping to a
+        // location outside the try/catch block.
+        finallyEntry = null;
+      }
+
+      var record = finallyEntry ? finallyEntry.completion : {};
+      record.type = type;
+      record.arg = arg;
+
+      if (finallyEntry) {
+        this.method = "next";
+        this.next = finallyEntry.finallyLoc;
+        return ContinueSentinel;
+      }
+
+      return this.complete(record);
+    },
+
+    complete: function(record, afterLoc) {
+      if (record.type === "throw") {
+        throw record.arg;
+      }
+
+      if (record.type === "break" ||
+          record.type === "continue") {
+        this.next = record.arg;
+      } else if (record.type === "return") {
+        this.rval = this.arg = record.arg;
+        this.method = "return";
+        this.next = "end";
+      } else if (record.type === "normal" && afterLoc) {
+        this.next = afterLoc;
+      }
+
+      return ContinueSentinel;
+    },
+
+    finish: function(finallyLoc) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.finallyLoc === finallyLoc) {
+          this.complete(entry.completion, entry.afterLoc);
+          resetTryEntry(entry);
+          return ContinueSentinel;
+        }
+      }
+    },
+
+    "catch": function(tryLoc) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.tryLoc === tryLoc) {
+          var record = entry.completion;
+          if (record.type === "throw") {
+            var thrown = record.arg;
+            resetTryEntry(entry);
+          }
+          return thrown;
+        }
+      }
+
+      // The context.catch method must only be called with a location
+      // argument that corresponds to a known catch block.
+      throw new Error("illegal catch attempt");
+    },
+
+    delegateYield: function(iterable, resultName, nextLoc) {
+      this.delegate = {
+        iterator: values(iterable),
+        resultName: resultName,
+        nextLoc: nextLoc
+      };
+
+      if (this.method === "next") {
+        // Deliberately forget the last sent value so that we don't
+        // accidentally pass it on to the delegate.
+        this.arg = undefined;
+      }
+
+      return ContinueSentinel;
+    }
+  };
+})(
+  // In sloppy mode, unbound `this` refers to the global object, fallback to
+  // Function constructor if we're in global strict mode. That is sadly a form
+  // of indirect eval which violates Content Security Policy.
+  (function() {
+    return this || (typeof self === "object" && self);
+  })() || Function("return this")()
+);
+
+
+/***/ }),
+
+/***/ "o0o1":
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__("u938");
 
 
 /***/ }),
@@ -3355,6 +4219,50 @@ function _defineProperty(obj, key, value) {
 
   return obj;
 }
+
+/***/ }),
+
+/***/ "u938":
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Copyright (c) 2014-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// This method of obtaining a reference to the global object needs to be
+// kept identical to the way it is obtained in runtime.js
+var g = (function() {
+  return this || (typeof self === "object" && self);
+})() || Function("return this")();
+
+// Use `getOwnPropertyNames` because not all browsers support calling
+// `hasOwnProperty` on the global `self` object in a worker. See #183.
+var hadRuntime = g.regeneratorRuntime &&
+  Object.getOwnPropertyNames(g).indexOf("regeneratorRuntime") >= 0;
+
+// Save the old regeneratorRuntime in case it needs to be restored later.
+var oldRuntime = hadRuntime && g.regeneratorRuntime;
+
+// Force reevalutation of runtime.js.
+g.regeneratorRuntime = undefined;
+
+module.exports = __webpack_require__("ls82");
+
+if (hadRuntime) {
+  // Restore the original runtime.
+  g.regeneratorRuntime = oldRuntime;
+} else {
+  // Remove the global property added by runtime.js.
+  try {
+    delete g.regeneratorRuntime;
+  } catch(e) {
+    g.regeneratorRuntime = undefined;
+  }
+}
+
 
 /***/ }),
 

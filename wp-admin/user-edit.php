@@ -65,7 +65,7 @@ get_current_screen()->add_help_tab(
 get_current_screen()->set_help_sidebar(
 	'<p><strong>' . __( 'For more information:' ) . '</strong></p>' .
 	'<p>' . __( '<a href="https://codex.wordpress.org/Users_Your_Profile_Screen">Documentation on User Profiles</a>' ) . '</p>' .
-	'<p>' . __( '<a href="https://wordpress.org/support/">Support Forums</a>' ) . '</p>'
+	'<p>' . __( '<a href="https://wordpress.org/support/">Support</a>' ) . '</p>'
 );
 
 $wp_http_referer = remove_query_arg( array( 'update', 'delete_count', 'user_id' ), $wp_http_referer );
@@ -255,7 +255,7 @@ switch ( $action ) {
 
 <h2><?php _e( 'Personal Options' ); ?></h2>
 
-<table class="form-table">
+<table class="form-table" role="presentation">
 		<?php if ( ! ( IS_PROFILE_PAGE && ! $user_can_edit ) ) : ?>
 	<tr class="user-rich-editing-wrap">
 		<th scope="row"><?php _e( 'Visual Editor' ); ?></th>
@@ -313,11 +313,10 @@ endif; // $_wp_admin_css_colors
 		<?php endif; ?>
 <tr class="show-admin-bar user-admin-bar-front-wrap">
 <th scope="row"><?php _e( 'Toolbar' ); ?></th>
-<td><fieldset><legend class="screen-reader-text"><span><?php _e( 'Toolbar' ); ?></span></legend>
+<td>
 <label for="admin_bar_front">
 <input name="admin_bar_front" type="checkbox" id="admin_bar_front" value="1"<?php checked( _get_admin_bar_pref( 'front', $profileuser->ID ) ); ?> />
 		<?php _e( 'Show Toolbar when viewing site' ); ?></label><br />
-</fieldset>
 </td>
 </tr>
 
@@ -386,7 +385,7 @@ endif;
 
 <h2><?php _e( 'Name' ); ?></h2>
 
-<table class="form-table">
+<table class="form-table" role="presentation">
 	<tr class="user-user-login-wrap">
 		<th><label for="user_login"><?php _e( 'Username' ); ?></label></th>
 		<td><input type="text" name="user_login" id="user_login" value="<?php echo esc_attr( $profileuser->user_login ); ?>" disabled="disabled" class="regular-text" /> <span class="description"><?php _e( 'Usernames cannot be changed.' ); ?></span></td>
@@ -483,7 +482,7 @@ endif; //!IS_PROFILE_PAGE
 
 	<h2><?php _e( 'Contact Info' ); ?></h2>
 
-	<table class="form-table">
+	<table class="form-table" role="presentation">
 	<tr class="user-email-wrap">
 		<th><label for="email"><?php _e( 'Email' ); ?> <span class="description"><?php _e( '(required)' ); ?></span></label></th>
 		<td><input type="email" name="email" id="email" aria-describedby="email-description" value="<?php echo esc_attr( $profileuser->user_email ); ?>" class="regular-text ltr" />
@@ -552,7 +551,7 @@ endif; //!IS_PROFILE_PAGE
 
 	<h2><?php IS_PROFILE_PAGE ? _e( 'About Yourself' ) : _e( 'About the user' ); ?></h2>
 
-<table class="form-table">
+<table class="form-table" role="presentation">
 <tr class="user-description-wrap">
 	<th><label for="description"><?php _e( 'Biographical Info' ); ?></label></th>
 	<td><textarea name="description" id="description" rows="5" cols="30"><?php echo $profileuser->description; // textarea_escaped ?></textarea>
@@ -569,7 +568,7 @@ endif; //!IS_PROFILE_PAGE
 			if ( IS_PROFILE_PAGE ) {
 				/* translators: %s: Gravatar URL */
 				$description = sprintf(
-					__( 'You can change your profile picture on <a href="%s">Gravatar</a>.' ),
+					__( '<a href="%s">You can change your profile picture on Gravatar</a>.' ),
 					__( 'https://en.gravatar.com/' )
 				);
 			} else {
@@ -608,7 +607,7 @@ endif; //!IS_PROFILE_PAGE
 	</table>
 
 	<h2><?php _e( 'Account Management' ); ?></h2>
-<table class="form-table">
+<table class="form-table" role="presentation">
 <tr id="password" class="user-pass1-wrap">
 	<th><label for="pass1"><?php _e( 'New Password' ); ?></label></th>
 	<td>
@@ -619,10 +618,11 @@ endif; //!IS_PROFILE_PAGE
 				<input type="password" name="pass1" id="pass1" class="regular-text" value="" autocomplete="off" data-pw="<?php echo esc_attr( wp_generate_password( 24 ) ); ?>" aria-describedby="pass-strength-result" />
 			</span>
 			<button type="button" class="button wp-hide-pw hide-if-no-js" data-toggle="0" aria-label="<?php esc_attr_e( 'Hide password' ); ?>">
-				<span class="dashicons dashicons-hidden"></span>
+				<span class="dashicons dashicons-hidden" aria-hidden="true"></span>
 				<span class="text"><?php _e( 'Hide' ); ?></span>
 			</button>
 			<button type="button" class="button wp-cancel-pw hide-if-no-js" data-toggle="0" aria-label="<?php esc_attr_e( 'Cancel password change' ); ?>">
+				<span class="dashicons dashicons-no" aria-hidden="true"></span>
 				<span class="text"><?php _e( 'Cancel' ); ?></span>
 			</button>
 			<div style="display:none" id="pass-strength-result" aria-live="polite"></div>
@@ -728,7 +728,7 @@ endif; //!IS_PROFILE_PAGE
 		) :
 			?>
 	<h2><?php _e( 'Additional Capabilities' ); ?></h2>
-<table class="form-table">
+<table class="form-table" role="presentation">
 <tr class="user-capabilities-wrap">
 	<th scope="row"><?php _e( 'Capabilities' ); ?></th>
 	<td>

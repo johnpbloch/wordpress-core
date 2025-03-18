@@ -102,7 +102,7 @@ function get_comment_author_email( $comment_ID = 0 ) {
  * Display the email of the author of the current global $comment.
  *
  * Care should be taken to protect the email address and assure that email
- * harvesters do not capture your commentors' email address. Most assume that
+ * harvesters do not capture your commenter's email address. Most assume that
  * their email address will not appear in raw form on the site. Doing so will
  * enable anyone, including those that people don't want to get the email
  * address and use it for their own means good and bad.
@@ -133,7 +133,7 @@ function comment_author_email( $comment_ID = 0 ) {
  * Display the html email link to the author of the current comment.
  *
  * Care should be taken to protect the email address and assure that email
- * harvesters do not capture your commentors' email address. Most assume that
+ * harvesters do not capture your commenter's email address. Most assume that
  * their email address will not appear in raw form on the site. Doing so will
  * enable anyone, including those that people don't want to get the email
  * address and use it for their own means good and bad.
@@ -157,7 +157,7 @@ function comment_author_email_link( $linktext = '', $before = '', $after = '', $
  * Return the html email link to the author of the current comment.
  *
  * Care should be taken to protect the email address and assure that email
- * harvesters do not capture your commentors' email address. Most assume that
+ * harvesters do not capture your commenter's email address. Most assume that
  * their email address will not appear in raw form on the site. Doing so will
  * enable anyone, including those that people don't want to get the email
  * address and use it for their own means good and bad.
@@ -577,16 +577,18 @@ function comment_date( $d = '', $comment_ID = 0 ) {
 }
 
 /**
- * Retrieves the excerpt of the given comment.
+ * Retrieve the excerpt of the current comment.
  *
- * Returns a maximum of 20 words with an ellipsis appended if necessary.
+ * Will cut each word and only output the first 20 words with '&hellip;' at the end.
+ * If the word count is less than 20, then no truncating is done and no '&hellip;'
+ * will appear.
  *
  * @since 1.5.0
  * @since 4.4.0 Added the ability for `$comment_ID` to also accept a WP_Comment object.
  *
  * @param int|WP_Comment $comment_ID  WP_Comment or ID of the comment for which to get the excerpt.
  *                                    Default current comment.
- * @return string The possibly truncated comment excerpt.
+ * @return string The maybe truncated comment with 20 words or less.
  */
 function get_comment_excerpt( $comment_ID = 0 ) {
 	$comment = get_comment( $comment_ID );

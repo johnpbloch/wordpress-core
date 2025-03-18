@@ -11,7 +11,7 @@ body {
 	padding: 20px 20px 10px 20px;
 	max-width: 700px;
 	-webkit-font-smoothing: subpixel-antialiased;
-	box-shadow: 0 1px 3px rgba(0,0,0,0.13);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.13);
 }
 
 a {
@@ -27,7 +27,7 @@ a:focus {
 	color: #124964;
 	box-shadow:
 		0 0 0 1px #5b9dd9,
-		0 0 2px 1px rgba(30, 140, 190, .8);
+		0 0 2px 1px rgba(30, 140, 190, 0.8);
 }
 
 .ie8 a:focus {
@@ -163,7 +163,7 @@ textarea {
 	font-size: 15px;
 	padding: 3px 5px;
 	border: 1px solid #ddd;
-	box-shadow: inset 0 1px 2px rgba(0,0,0,0.07);
+	box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.07);
 }
 
 input,
@@ -174,8 +174,9 @@ submit {
 .form-table input[type=text],
 .form-table input[type=email],
 .form-table input[type=url],
-.form-table input[type=password] {
-	width: 206px;
+.form-table input[type=password],
+#pass-strength-result {
+	width: 218px;
 }
 
 .form-table th p {
@@ -212,66 +213,6 @@ submit {
 	font-family: Consolas, Monaco, monospace;
 }
 
-.wp-hide-pw > .dashicons {
-	line-height: inherit;
-}
-
-#pass-strength-result {
-	background-color: #eee;
-	border: 1px solid #ddd;
-	color: #23282d;
-	margin: -2px 5px 5px 0px;
-	padding: 3px 5px;
-	text-align: center;
-	width: 218px;
-	box-sizing: border-box;
-	opacity: 0;
-}
-
-#pass-strength-result.short {
-	background-color: #f1adad;
-	border-color: #e35b5b;
-	opacity: 1;
-}
-
-#pass-strength-result.bad {
-	background-color: #fbc5a9;
-	border-color: #f78b53;
-	opacity: 1;
-}
-
-#pass-strength-result.good {
-	background-color: #ffe399;
-	border-color: #ffc733;
-	opacity: 1;
-}
-
-#pass-strength-result.strong {
-	background-color: #c1e1b9;
-	border-color: #83c373;
-	opacity: 1;
-}
-
-#pass1.short, #pass1-text.short {
-	border-color: #e35b5b;
-}
-
-#pass1.bad, #pass1-text.bad {
-	border-color: #f78b53;
-}
-
-#pass1.good, #pass1-text.good {
-	border-color: #ffc733;
-}
-
-#pass1.strong, #pass1-text.strong {
-	border-color: #83c373;
-}
-
-.pw-weak {
-	display: none;
-}
-
 .message {
 	border-left: 4px solid #dc3232;
 	padding: .7em .6em;
@@ -289,20 +230,6 @@ submit {
 #pass1,
 #pass2 {
 	direction: ltr;
-}
-
-#pass1-text,
-.show-password #pass1 {
-	display: none;
-}
-
-.show-password #pass1-text
-{
-	display: inline-block;
-}
-
-.form-table span.description.important {
-	font-size: 12px;
 }
 
 

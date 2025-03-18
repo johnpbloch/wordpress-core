@@ -103,7 +103,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var memize__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__("4eJC");
 /* harmony import */ var memize__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(memize__WEBPACK_IMPORTED_MODULE_1__);
 /**
- * Internal dependencies
+ * External dependencies
  */
 
 
@@ -582,4 +582,4 @@ module.exports = function memize( fn, options ) {
 
 /***/ })
 
-/******/ });
+/******/ })["default"];

@@ -197,7 +197,7 @@ function reducer_annotations() {
       }
 
       var previousAnnotationsForBlock = Object(external_lodash_["get"])(state, blockClientId, []);
-      return Object(objectSpread["a" /* default */])({}, state, Object(defineProperty["a" /* default */])({}, blockClientId, Object(toConsumableArray["a" /* default */])(previousAnnotationsForBlock).concat([newAnnotation])));
+      return Object(objectSpread["a" /* default */])({}, state, Object(defineProperty["a" /* default */])({}, blockClientId, [].concat(Object(toConsumableArray["a" /* default */])(previousAnnotationsForBlock), [newAnnotation])));
 
     case 'ANNOTATION_REMOVE':
       return Object(external_lodash_["mapValues"])(state, function (annotationsForBlock) {
@@ -429,7 +429,7 @@ function __experimentalRemoveAnnotationsBySource(source) {
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/annotations/build-module/store/index.js
 /**
- * WordPress Dependencies
+ * WordPress dependencies
  */
 
 /**

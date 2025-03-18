@@ -76,12 +76,20 @@ function list_core_update( $update ) {
 				sanitize_title( $update->current )
 			);
 
+			/* translators: %s: Update PHP page URL */
+			$php_update_message = '</p><p>' . sprintf( __( '<a href="%s">Learn more about updating PHP</a>.' ), esc_url( wp_get_update_php_url() ) );
+
+			$annotation = wp_get_update_php_annotation();
+			if ( $annotation ) {
+				$php_update_message .= '</p><p><em>' . $annotation . '</em>';
+			}
+
 			if ( ! $mysql_compat && ! $php_compat ) {
 				/* translators: 1: URL to WordPress release notes, 2: WordPress version number, 3: Minimum required PHP version number, 4: Minimum required MySQL version number, 5: Current PHP version number, 6: Current MySQL version number */
-				$message = sprintf( __( 'You cannot update because <a href="%1$s">WordPress %2$s</a> requires PHP version %3$s or higher and MySQL version %4$s or higher. You are running PHP version %5$s and MySQL version %6$s.' ), $version_url, $update->current, $update->php_version, $update->mysql_version, $php_version, $mysql_version );
+				$message = sprintf( __( 'You cannot update because <a href="%1$s">WordPress %2$s</a> requires PHP version %3$s or higher and MySQL version %4$s or higher. You are running PHP version %5$s and MySQL version %6$s.' ), $version_url, $update->current, $update->php_version, $update->mysql_version, $php_version, $mysql_version ) . $php_update_message;
 			} elseif ( ! $php_compat ) {
 				/* translators: 1: URL to WordPress release notes, 2: WordPress version number, 3: Minimum required PHP version number, 4: Current PHP version number */
-				$message = sprintf( __( 'You cannot update because <a href="%1$s">WordPress %2$s</a> requires PHP version %3$s or higher. You are running version %4$s.' ), $version_url, $update->current, $update->php_version, $php_version );
+				$message = sprintf( __( 'You cannot update because <a href="%1$s">WordPress %2$s</a> requires PHP version %3$s or higher. You are running version %4$s.' ), $version_url, $update->current, $update->php_version, $php_version ) . $php_update_message;
 			} elseif ( ! $mysql_compat ) {
 				/* translators: 1: URL to WordPress release notes, 2: WordPress version number, 3: Minimum required MySQL version number, 4: Current MySQL version number */
 				$message = sprintf( __( 'You cannot update because <a href="%1$s">WordPress %2$s</a> requires MySQL version %3$s or higher. You are running version %4$s.' ), $version_url, $update->current, $update->mysql_version, $mysql_version );
@@ -294,6 +302,25 @@ function list_plugin_updates() {
 				$compat .= '<br />' . sprintf( __( 'Compatibility with WordPress %1$s: Unknown' ), $core_update_version );
 			}
 		}
+
+		$requires_php   = isset( $plugin_data->update->requires_php ) ? $plugin_data->update->requires_php : null;
+		$compatible_php = is_php_version_compatible( $requires_php );
+
+		if ( ! $compatible_php && current_user_can( 'update_php' ) ) {
+			$compat .= '<br>' . __( 'This update doesn&#8217;t work with your version of PHP.' ) . '&nbsp;';
+			/* translators: %s: Update PHP page URL */
+			$compat .= sprintf(
+				__( '<a href="%s">Learn more about updating PHP</a>.' ),
+				esc_url( wp_get_update_php_url() )
+			);
+
+			$annotation = wp_get_update_php_annotation();
+
+			if ( $annotation ) {
+				$compat .= '</p><p><em>' . $annotation . '</em>';
+			}
+		}
+
 		// Get the upgrade notice for the new plugin version.
 		if ( isset( $plugin_data->update->upgrade_notice ) ) {
 			$upgrade_notice = '<br />' . strip_tags( $plugin_data->update->upgrade_notice );
@@ -315,6 +342,7 @@ function list_plugin_updates() {
 		?>
 	<tr>
 		<td class="check-column">
+		<?php if ( $compatible_php ) : ?>
 			<input type="checkbox" name="checked[]" id="<?php echo $checkbox_id; ?>" value="<?php echo esc_attr( $plugin_file ); ?>" />
 			<label for="<?php echo $checkbox_id; ?>" class="screen-reader-text">
 			<?php
@@ -325,9 +353,10 @@ function list_plugin_updates() {
 				);
 			?>
 			</label>
+		<?php endif; ?>
 		</td>
 		<td class="plugin-title"><p>
-				<?php echo $icon; ?>
+			<?php echo $icon; ?>
 			<strong><?php echo $plugin_data->Name; ?></strong>
 			<?php
 			/* translators: 1: plugin version, 2: new version */
@@ -336,11 +365,11 @@ function list_plugin_updates() {
 				$plugin_data->Version,
 				$plugin_data->update->new_version
 			);
-				echo ' ' . $details . $compat . $upgrade_notice;
+			echo ' ' . $details . $compat . $upgrade_notice;
 			?>
 		</p></td>
 	</tr>
-			<?php
+		<?php
 	}
 	?>
 	</tbody>
@@ -372,7 +401,15 @@ function list_theme_updates() {
 	?>
 <h2><?php _e( 'Themes' ); ?></h2>
 <p><?php _e( 'The following themes have new versions available. Check the ones you want to update and then click &#8220;Update Themes&#8221;.' ); ?></p>
-<p><?php printf( __( '<strong>Please Note:</strong> Any customizations you have made to theme files will be lost. Please consider using <a href="%s">child themes</a> for modifications.' ), __( 'https://codex.wordpress.org/Child_Themes' ) ); ?></p>
+<p>
+	<?php
+	printf(
+		/* translators: %s: link to documentation on child themes */
+		__( '<strong>Please Note:</strong> Any customizations you have made to theme files will be lost. Please consider using <a href="%s">child themes</a> for modifications.' ),
+		__( 'https://developer.wordpress.org/themes/advanced-topics/child-themes/' )
+	);
+	?>
+</p>
 <form method="post" action="<?php echo esc_url( $form_action ); ?>" name="upgrade-themes" class="upgrade">
 	<?php wp_nonce_field( 'upgrade-core' ); ?>
 <p><input id="upgrade-themes" class="button" type="submit" value="<?php esc_attr_e( 'Update Themes' ); ?>" name="upgrade" /></p>
@@ -618,7 +655,7 @@ get_current_screen()->add_help_tab(
 get_current_screen()->set_help_sidebar(
 	'<p><strong>' . __( 'For more information:' ) . '</strong></p>' .
 	'<p>' . __( '<a href="https://codex.wordpress.org/Dashboard_Updates_Screen">Documentation on Updating WordPress</a>' ) . '</p>' .
-	'<p>' . __( '<a href="https://wordpress.org/support/">Support Forums</a>' ) . '</p>'
+	'<p>' . __( '<a href="https://wordpress.org/support/">Support</a>' ) . '</p>'
 );
 
 if ( 'upgrade-core' == $action ) {

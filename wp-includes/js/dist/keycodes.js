@@ -260,22 +260,97 @@ function isAppleOS() {
  */
 
 
+/**
+ * Keycode for BACKSPACE key.
+ */
+
 var BACKSPACE = 8;
+/**
+ * Keycode for TAB key.
+ */
+
 var TAB = 9;
+/**
+ * Keycode for ENTER key.
+ */
+
 var ENTER = 13;
+/**
+ * Keycode for ESCAPE key.
+ */
+
 var ESCAPE = 27;
+/**
+ * Keycode for SPACE key.
+ */
+
 var SPACE = 32;
+/**
+ * Keycode for LEFT key.
+ */
+
 var LEFT = 37;
+/**
+ * Keycode for UP key.
+ */
+
 var UP = 38;
+/**
+ * Keycode for RIGHT key.
+ */
+
 var RIGHT = 39;
+/**
+ * Keycode for DOWN key.
+ */
+
 var DOWN = 40;
+/**
+ * Keycode for DELETE key.
+ */
+
 var DELETE = 46;
+/**
+ * Keycode for F10 key.
+ */
+
 var F10 = 121;
+/**
+ * Keycode for ALT key.
+ */
+
 var ALT = 'alt';
-var CTRL = 'ctrl'; // Understood in both Mousetrap and TinyMCE.
+/**
+ * Keycode for CTRL key.
+ */
+
+var CTRL = 'ctrl';
+/**
+ * Keycode for COMMAND/META key.
+ */
 
 var COMMAND = 'meta';
+/**
+ * Keycode for SHIFT key.
+ */
+
 var SHIFT = 'shift';
+/**
+ * Object that contains functions that return the available modifier
+ * depending on platform.
+ *
+ * - `primary`: takes a isApple function as a parameter.
+ * - `primaryShift`: takes a isApple function as a parameter.
+ * - `primaryAlt`: takes a isApple function as a parameter.
+ * - `secondary`: takes a isApple function as a parameter.
+ * - `access`: takes a isApple function as a parameter.
+ * - `ctrl`
+ * - `alt`
+ * - `ctrlShift`
+ * - `shift`
+ * - `shiftAlt`
+ */
+
 var modifiers = {
   primary: function primary(_isApple) {
     return _isApple() ? [COMMAND] : [CTRL];
@@ -320,7 +395,7 @@ var rawShortcut = Object(external_lodash_["mapValues"])(modifiers, function (mod
   return function (character) {
     var _isApple = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : isAppleOS;
 
-    return Object(toConsumableArray["a" /* default */])(modifier(_isApple)).concat([character.toLowerCase()]).join('+');
+    return [].concat(Object(toConsumableArray["a" /* default */])(modifier(_isApple)), [character.toLowerCase()]).join('+');
   };
 });
 /**
@@ -343,13 +418,13 @@ var displayShortcutList = Object(external_lodash_["mapValues"])(modifiers, funct
       var replacementKey = Object(external_lodash_["get"])(replacementKeyMap, key, key); // If on the Mac, adhere to platform convention and don't show plus between keys.
 
       if (isApple) {
-        return Object(toConsumableArray["a" /* default */])(accumulator).concat([replacementKey]);
+        return [].concat(Object(toConsumableArray["a" /* default */])(accumulator), [replacementKey]);
       }
 
-      return Object(toConsumableArray["a" /* default */])(accumulator).concat([replacementKey, '+']);
+      return [].concat(Object(toConsumableArray["a" /* default */])(accumulator), [replacementKey, '+']);
     }, []);
     var capitalizedCharacter = Object(external_lodash_["capitalize"])(character);
-    return Object(toConsumableArray["a" /* default */])(modifierKeys).concat([capitalizedCharacter]);
+    return [].concat(Object(toConsumableArray["a" /* default */])(modifierKeys), [capitalizedCharacter]);
   };
 });
 /**
@@ -380,7 +455,7 @@ var shortcutAriaLabel = Object(external_lodash_["mapValues"])(modifiers, functio
     var isApple = _isApple();
 
     var replacementKeyMap = (_replacementKeyMap2 = {}, Object(defineProperty["a" /* default */])(_replacementKeyMap2, SHIFT, 'Shift'), Object(defineProperty["a" /* default */])(_replacementKeyMap2, COMMAND, isApple ? 'Command' : 'Control'), Object(defineProperty["a" /* default */])(_replacementKeyMap2, CTRL, 'Control'), Object(defineProperty["a" /* default */])(_replacementKeyMap2, ALT, isApple ? 'Option' : 'Alt'), Object(defineProperty["a" /* default */])(_replacementKeyMap2, ',', Object(external_this_wp_i18n_["__"])('Comma')), Object(defineProperty["a" /* default */])(_replacementKeyMap2, '.', Object(external_this_wp_i18n_["__"])('Period')), Object(defineProperty["a" /* default */])(_replacementKeyMap2, '`', Object(external_this_wp_i18n_["__"])('Backtick')), _replacementKeyMap2);
-    return Object(toConsumableArray["a" /* default */])(modifier(_isApple)).concat([character]).map(function (key) {
+    return [].concat(Object(toConsumableArray["a" /* default */])(modifier(_isApple)), [character]).map(function (key) {
       return Object(external_lodash_["capitalize"])(Object(external_lodash_["get"])(replacementKeyMap, key, key));
     }).join(isApple ? ' ' : ' + ');
   };

@@ -539,7 +539,7 @@ function get_oembed_response_data( $post, $width ) {
 		'provider_url'  => get_home_url(),
 		'author_name'   => get_bloginfo( 'name' ),
 		'author_url'    => get_home_url(),
-		'title'         => $post->post_title,
+		'title'         => get_the_title( $post ),
 		'type'          => 'link',
 	);
 
@@ -796,7 +796,7 @@ function _oembed_create_xml( $data, $node = null ) {
  * @return string The filtered oEmbed result.
  */
 function wp_filter_oembed_iframe_title_attribute( $result, $data, $url ) {
-	if ( false === $result || ! in_array( $data->type, array( 'rich', 'video' ), true ) ) {
+	if ( false === $result || ! in_array( $data->type, array( 'rich', 'video' ) ) ) {
 		return $result;
 	}
 
@@ -853,7 +853,7 @@ function wp_filter_oembed_iframe_title_attribute( $result, $data, $url ) {
  * If the `$url` isn't on the trusted providers list,
  * we need to filter the HTML heavily for security.
  *
- * Only filters 'rich' and 'html' response types.
+ * Only filters 'rich' and 'video' response types.
  *
  * @since 4.4.0
  *

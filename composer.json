@@ -23,9 +23,9 @@
     "source": "https://core.trac.wordpress.org/browser"
   },
   "require": {
-    "php": ">=5.3.2"
+    "php": ">=5.6.20"
   },
   "provide": {
-    "wordpress/core-implementation": "5.1.x-dev"
+    "wordpress/core-implementation": "5.2.x-dev"
   }
 }

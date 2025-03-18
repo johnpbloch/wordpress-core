@@ -48,6 +48,7 @@ $preload_paths = array(
 	sprintf( '/wp/v2/types/%s?context=edit', $post_type ),
 	sprintf( '/wp/v2/users/me?post_type=%s&context=edit', $post_type ),
 	array( '/wp/v2/media', 'OPTIONS' ),
+	array( '/wp/v2/blocks', 'OPTIONS' ),
 );
 
 /**
@@ -116,10 +117,10 @@ wp_add_inline_script(
 $meta_box_url = admin_url( 'post.php' );
 $meta_box_url = add_query_arg(
 	array(
-		'post'            => $post->ID,
-		'action'          => 'edit',
-		'meta-box-loader' => true,
-		'_wpnonce'        => wp_create_nonce( 'meta-box-loader' ),
+		'post'                  => $post->ID,
+		'action'                => 'edit',
+		'meta-box-loader'       => true,
+		'meta-box-loader-nonce' => wp_create_nonce( 'meta-box-loader' ),
 	),
 	$meta_box_url
 );
@@ -191,7 +192,7 @@ if ( $editor_styles && current_theme_supports( 'editor-styles' ) ) {
 			}
 		} else {
 			$file = get_theme_file_path( $style );
-			if ( file_exists( $file ) ) {
+			if ( is_file( $file ) ) {
 				$styles[] = array(
 					'css'     => file_get_contents( $file ),
 					'baseURL' => get_theme_file_uri( $style ),
@@ -225,6 +226,8 @@ foreach ( $image_size_names as $image_size_slug => $image_size_name ) {
 // Lock settings.
 $user_id = wp_check_post_lock( $post->ID );
 if ( $user_id ) {
+	$locked = false;
+
 	/** This filter is documented in wp-admin/includes/post.php */
 	if ( apply_filters( 'show_post_locked_dialog', true, $post, $user_id ) ) {
 		$locked = true;
@@ -306,7 +309,7 @@ if ( false !== $color_palette ) {
 	$editor_settings['colors'] = $color_palette;
 }
 
-if ( ! empty( $font_sizes ) ) {
+if ( false !== $font_sizes ) {
 	$editor_settings['fontSizes'] = $font_sizes;
 }
 

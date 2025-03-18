@@ -707,8 +707,9 @@ EditAttachments = MediaFrame.extend(/** @lends wp.media.view.MediaFrame.EditAtta
 		// Initialize modal container view.
 		if ( this.options.modal ) {
 			this.modal = new wp.media.view.Modal({
-				controller: this,
-				title:      this.options.title
+				controller:     this,
+				title:          this.options.title,
+				hasCloseButton: false
 			});
 
 			this.modal.on( 'open', _.bind( function () {
@@ -944,7 +945,7 @@ SelectModeToggle = Button.extend(/** @lends wp.media.view.SelectModeToggle.proto
 		if ( this.controller.isModeActive( 'select' ) ) {
 			this.model.set( {
 				size: 'large',
-				text: l10n.cancelSelection
+				text: l10n.cancel
 			} );
 			children.not( '.spinner, .media-button' ).hide();
 			this.$el.show();
@@ -994,15 +995,16 @@ DeleteSelected = Button.extend(/** @lends wp.media.view.DeleteSelectedButton.pro
 			this.options.filters.model.on( 'change', this.filterChange, this );
 		}
 		this.controller.on( 'selection:toggle', this.toggleDisabled, this );
+		this.controller.on( 'select:activate', this.toggleDisabled, this );
 	},
 
 	filterChange: function( model ) {
 		if ( 'trash' === model.get( 'status' ) ) {
-			this.model.set( 'text', l10n.untrashSelected );
+			this.model.set( 'text', l10n.restoreSelected );
 		} else if ( wp.media.view.settings.mediaTrash ) {
 			this.model.set( 'text', l10n.trashSelected );
 		} else {
-			this.model.set( 'text', l10n.deleteSelected );
+			this.model.set( 'text', l10n.deletePermanently );
 		}
 	},
 

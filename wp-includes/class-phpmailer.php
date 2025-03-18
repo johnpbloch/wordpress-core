@@ -1486,7 +1486,7 @@ class PHPMailer
      */
     protected static function fileIsAccessible($path)
     {
-        if (!self::isPermittedPath($path)) {
+        if (!static::isPermittedPath($path)) {
                 return false;
         }
         $readable = file_exists($path);
@@ -1820,7 +1820,7 @@ class PHPMailer
         // There is no English translation file
         if ($langcode != 'en') {
             // Make sure language file path is readable
-            if (!self::fileIsAccessible($lang_file)) {
+            if (!static::fileIsAccessible($lang_file)) {
                 $foundlang = false;
             } else {
                 // Overwrite language-specific strings.
@@ -2544,7 +2544,7 @@ class PHPMailer
     public function addAttachment($path, $name = '', $encoding = 'base64', $type = '', $disposition = 'attachment')
     {
         try {
-            if (!self::fileIsAccessible($path)) {
+            if (!static::fileIsAccessible($path)) {
                 throw new phpmailerException($this->lang('file_access') . $path, self::STOP_CONTINUE);
             }
 
@@ -2725,7 +2725,7 @@ class PHPMailer
     protected function encodeFile($path, $encoding = 'base64')
     {
         try {
-            if (!self::fileIsAccessible($path)) {
+            if (!static::fileIsAccessible($path)) {
                 throw new phpmailerException($this->lang('file_open') . $path, self::STOP_CONTINUE);
             }
             $magic_quotes = get_magic_quotes_runtime();
@@ -3069,7 +3069,7 @@ class PHPMailer
      */
     public function addEmbeddedImage($path, $cid, $name = '', $encoding = 'base64', $type = '', $disposition = 'inline')
     {
-        if (!self::fileIsAccessible($path)) {
+        if (!static::fileIsAccessible($path)) {
             $this->setError($this->lang('file_access') . $path);
             return false;
         }

@@ -202,6 +202,16 @@ __webpack_require__.d(__webpack_exports__, "forwardRef", function() { return /* 
 __webpack_require__.d(__webpack_exports__, "Fragment", function() { return /* reexport */ external_React_["Fragment"]; });
 __webpack_require__.d(__webpack_exports__, "isValidElement", function() { return /* reexport */ external_React_["isValidElement"]; });
 __webpack_require__.d(__webpack_exports__, "StrictMode", function() { return /* reexport */ external_React_["StrictMode"]; });
+__webpack_require__.d(__webpack_exports__, "useCallback", function() { return /* reexport */ external_React_["useCallback"]; });
+__webpack_require__.d(__webpack_exports__, "useContext", function() { return /* reexport */ external_React_["useContext"]; });
+__webpack_require__.d(__webpack_exports__, "useDebugValue", function() { return /* reexport */ external_React_["useDebugValue"]; });
+__webpack_require__.d(__webpack_exports__, "useEffect", function() { return /* reexport */ external_React_["useEffect"]; });
+__webpack_require__.d(__webpack_exports__, "useImperativeHandle", function() { return /* reexport */ external_React_["useImperativeHandle"]; });
+__webpack_require__.d(__webpack_exports__, "useLayoutEffect", function() { return /* reexport */ external_React_["useLayoutEffect"]; });
+__webpack_require__.d(__webpack_exports__, "useMemo", function() { return /* reexport */ external_React_["useMemo"]; });
+__webpack_require__.d(__webpack_exports__, "useReducer", function() { return /* reexport */ external_React_["useReducer"]; });
+__webpack_require__.d(__webpack_exports__, "useRef", function() { return /* reexport */ external_React_["useRef"]; });
+__webpack_require__.d(__webpack_exports__, "useState", function() { return /* reexport */ external_React_["useState"]; });
 __webpack_require__.d(__webpack_exports__, "concatChildren", function() { return /* reexport */ concatChildren; });
 __webpack_require__.d(__webpack_exports__, "switchChildrenNodeName", function() { return /* reexport */ switchChildrenNodeName; });
 __webpack_require__.d(__webpack_exports__, "createPortal", function() { return /* reexport */ external_ReactDOM_["createPortal"]; });
@@ -232,6 +242,10 @@ var external_lodash_ = __webpack_require__("YLtl");
  * External dependencies
  */
 
+
+/**
+ * Object that provides utilities for dealing with React children.
+ */
 
 
 /**
@@ -307,6 +321,60 @@ var external_lodash_ = __webpack_require__("YLtl");
  * @return {boolean} true if objectToTest is a valid WPElement and false otherwise.
  */
 
+
+/**
+ * Component that activates additional checks and warnings for its descendants.
+ */
+
+
+/**
+ * @see https://reactjs.org/docs/hooks-reference.html#usecallback
+ */
+
+
+/**
+ * @see https://reactjs.org/docs/hooks-reference.html#usecontext
+ */
+
+
+/**
+ * @see https://reactjs.org/docs/hooks-reference.html#usedebugvalue
+ */
+
+
+/**
+ * @see https://reactjs.org/docs/hooks-reference.html#useeffect
+ */
+
+
+/**
+ * @see https://reactjs.org/docs/hooks-reference.html#useimperativehandle
+ */
+
+
+/**
+ * @see https://reactjs.org/docs/hooks-reference.html#uselayouteffect
+ */
+
+
+/**
+ * @see https://reactjs.org/docs/hooks-reference.html#usememo
+ */
+
+
+/**
+ * @see https://reactjs.org/docs/hooks-reference.html#usereducer
+ */
+
+
+/**
+ * @see https://reactjs.org/docs/hooks-reference.html#useref
+ */
+
+
+/**
+ * @see https://reactjs.org/docs/hooks-reference.html#usestate
+ */
 
 
 /**
@@ -439,7 +507,7 @@ var external_this_wp_escapeHtml_ = __webpack_require__("Vx3V");
 
 
 /**
- * External dependencies
+ * Internal dependencies
  */
 
 /**

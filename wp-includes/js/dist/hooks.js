@@ -177,6 +177,9 @@ function validateHookName(hookName) {
 /* harmony default export */ var build_module_validateHookName = (validateHookName);
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/hooks/build-module/createAddHook.js
+/**
+ * Internal dependencies
+ */
 
 
 
@@ -272,6 +275,9 @@ function createAddHook(hooks) {
 /* harmony default export */ var build_module_createAddHook = (createAddHook);
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/hooks/build-module/createRemoveHook.js
+/**
+ * Internal dependencies
+ */
 
 
 
@@ -508,6 +514,9 @@ function createDoingHook(hooks) {
 /* harmony default export */ var build_module_createDoingHook = (createDoingHook);
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/hooks/build-module/createDidHook.js
+/**
+ * Internal dependencies
+ */
 
 /**
  * Returns a function which, when invoked, will return the number of times a
@@ -538,6 +547,9 @@ function createDidHook(hooks) {
 /* harmony default export */ var build_module_createDidHook = (createDidHook);
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/hooks/build-module/createHooks.js
+/**
+ * Internal dependencies
+ */
 
 
 
@@ -581,6 +593,9 @@ function createHooks() {
 /* harmony default export */ var build_module_createHooks = (createHooks);
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/hooks/build-module/index.js
+/**
+ * Internal dependencies
+ */
 
 
 var _createHooks = build_module_createHooks(),

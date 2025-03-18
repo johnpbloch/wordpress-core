@@ -41,7 +41,7 @@ get_current_screen()->add_help_tab(
 get_current_screen()->set_help_sidebar(
 	'<p><strong>' . __( 'For more information:' ) . '</strong></p>' .
 	'<p>' . __( '<a href="https://codex.wordpress.org/Settings_Reading_Screen">Documentation on Reading Settings</a>' ) . '</p>' .
-	'<p>' . __( '<a href="https://wordpress.org/support/">Support Forums</a>' ) . '</p>'
+	'<p>' . __( '<a href="https://wordpress.org/support/">Support</a>' ) . '</p>'
 );
 
 include( ABSPATH . 'wp-admin/admin-header.php' );
@@ -61,7 +61,7 @@ if ( ! in_array( get_option( 'blog_charset' ), array( 'utf8', 'utf-8', 'UTF8', '
 
 <?php if ( ! get_pages() ) : ?>
 <input name="show_on_front" type="hidden" value="posts" />
-<table class="form-table">
+<table class="form-table" role="presentation">
 	<?php
 	if ( 'posts' != get_option( 'show_on_front' ) ) :
 		update_option( 'show_on_front', 'posts' );
@@ -72,7 +72,7 @@ else :
 		update_option( 'show_on_front', 'posts' );
 	}
 	?>
-<table class="form-table">
+<table class="form-table" role="presentation">
 <tr>
 <th scope="row"><?php _e( 'Your homepage displays' ); ?></th>
 <td id="front-static-pages"><fieldset><legend class="screen-reader-text"><span><?php _e( 'Your homepage displays' ); ?></span></legend>

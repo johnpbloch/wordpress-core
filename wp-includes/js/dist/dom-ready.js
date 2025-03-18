@@ -97,6 +97,15 @@ __webpack_require__.r(__webpack_exports__);
  *
  * @param {Function} callback A function to execute after the DOM is ready.
  *
+ * @example
+ * ```js
+ * import domReady from '@wordpress/dom-ready';
+ *
+ * domReady( function() {
+ * 	//do something after DOM loads.
+ * } );
+ * ```
+ *
  * @return {void}
  */
 var domReady = function domReady(callback) {
