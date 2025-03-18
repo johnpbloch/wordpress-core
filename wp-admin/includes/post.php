@@ -11,7 +11,6 @@
  *
  * Manipulates $_POST directly.
  *
- * @package WordPress
  * @since 2.6.0
  *
  * @param bool $update Are we updating a pre-existing post?
@@ -585,6 +584,11 @@ function bulk_edit_posts( $post_data = null ) {
 		}
 		$post_data = _wp_get_allowed_postdata( $post_data );
 
+		if ( isset( $shared_post_data['post_format'] ) ) {
+			set_post_format( $post_ID, $shared_post_data['post_format'] );
+			unset( $post_data['tax_input']['post_format'] );
+		}
+
 		$updated[] = wp_update_post( $post_data );
 
 		if ( isset( $post_data['sticky'] ) && current_user_can( $ptype->cap->edit_others_posts ) ) {
@@ -593,9 +597,6 @@ function bulk_edit_posts( $post_data = null ) {
 			else
 				unstick_post( $post_ID );
 		}
-
-		if ( isset( $shared_post_data['post_format'] ) )
-			set_post_format( $post_ID, $shared_post_data['post_format'] );
 	}
 
 	return array( 'updated' => $updated, 'skipped' => $skipped, 'locked' => $locked );
@@ -1167,6 +1168,10 @@ function wp_edit_attachments_query_vars( $q = false ) {
 		$q['post_parent'] = 0;
 	}
 
+	if ( isset( $q['mine'] ) || ( isset( $q['attachment-filter'] ) && 'mine' == $q['attachment-filter'] ) ) {
+		$q['author'] = get_current_user_id();
+	}
+
 	// Filter query clauses to include filenames.
 	if ( isset( $q['s'] ) ) {
 		add_filter( 'wp_allow_query_attachment_by_filename', '__return_true' );
@@ -1615,9 +1620,13 @@ function _admin_notice_post_locked() {
 		<div class="post-locked-avatar"><?php echo get_avatar( $user->ID, 64 ); ?></div>
 		<p class="currently-editing wp-tab-first" tabindex="0">
 		<?php
-			_e( 'This content is currently locked.' );
-			if ( $override )
-				printf( ' ' . __( 'If you take over, %s will be blocked from continuing to edit.' ), esc_html( $user->display_name ) );
+			if ( $override ) {
+				/* translators: %s: user's display name */
+				printf( __( '%s is already editing this post. Do you want to take over?' ), esc_html( $user->display_name ) );
+			} else {
+				/* translators: %s: user's display name */
+				printf( __( '%s is already editing this post.' ), esc_html( $user->display_name ) );
+			}
 		?>
 		</p>
 		<?php
@@ -1681,8 +1690,6 @@ function _admin_notice_post_locked() {
 /**
  * Creates autosave data for the specified post from $_POST data.
  *
- * @package WordPress
- * @subpackage Post_Revisions
  * @since 2.6.0
  *
  * @param mixed $post_data Associative array containing the post data or int post ID.
@@ -1744,12 +1751,11 @@ function wp_create_post_autosave( $post_data ) {
 }
 
 /**
- * Save draft or manually autosave for showing preview.
+ * Saves a draft or manually autosaves for the purpose of showing a post preview.
  *
- * @package WordPress
  * @since 2.7.0
  *
- * @return str URL to redirect to show the preview
+ * @return string URL to redirect to show the preview.
  */
 function post_preview() {
 

@@ -120,7 +120,7 @@ if ( isset($_GET['action']) ) {
 	 		wp_die( $api );
 		}
 
-		$title = __('Plugin Install');
+		$title = __('Plugin Installation');
 		$parent_file = 'plugins.php';
 		$submenu_file = 'plugin-install.php';
 		require_once(ABSPATH . 'wp-admin/admin-header.php');
@@ -177,7 +177,6 @@ if ( isset($_GET['action']) ) {
 
 		check_admin_referer('upgrade-theme_' . $theme);
 
-		wp_enqueue_script( 'customize-loader' );
 		wp_enqueue_script( 'updates' );
 
 		$title = __('Update Theme');
@@ -227,10 +226,9 @@ if ( isset($_GET['action']) ) {
 		check_admin_referer( 'install-theme_' . $theme );
 		$api = themes_api('theme_information', array('slug' => $theme, 'fields' => array('sections' => false, 'tags' => false) ) ); //Save on a bit of bandwidth.
 
-		if ( is_wp_error($api) )
-	 		wp_die($api);
-
-		wp_enqueue_script( 'customize-loader' );
+		if ( is_wp_error( $api ) ) {
+			wp_die( $api );
+		}
 
 		$title = __('Install Themes');
 		$parent_file = 'themes.php';
@@ -260,8 +258,6 @@ if ( isset($_GET['action']) ) {
 		}
 
 		$file_upload = new File_Upload_Upgrader('themezip', 'package');
-
-		wp_enqueue_script( 'customize-loader' );
 
 		$title = __('Upload Theme');
 		$parent_file = 'themes.php';

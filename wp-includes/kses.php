@@ -607,9 +607,9 @@ function wp_kses_one_attr( $string, $element ) {
  * @global array $allowedtags
  * @global array $allowedentitynames
  *
- * @param string $context The context for which to retrieve tags.
- *                        Allowed values are post, strip, data,entities, or
- *                        the name of a field filter such as pre_user_description.
+ * @param string|array $context The context for which to retrieve tags.
+ *                              Allowed values are post, strip, data, entities, or
+ *                              the name of a field filter such as pre_user_description.
  * @return array List of allowed tags and their allowed attributes.
  */
 function wp_kses_allowed_html( $context = '' ) {
@@ -621,9 +621,8 @@ function wp_kses_allowed_html( $context = '' ) {
 		 *
 		 * @since 3.5.0
 		 *
-		 * @param string $tags    Allowed tags, attributes, and/or entities.
-		 * @param string $context Context to judge allowed tags by. Allowed values are 'post',
-		 *                        'data', 'strip', 'entities', 'explicit', or the name of a filter.
+		 * @param array  $context      Context to judge allowed tags by.
+		 * @param string $context_type Context type (explicit).
 		 */
 		return apply_filters( 'wp_kses_allowed_html', $context, 'explicit' );
 	}
@@ -890,7 +889,8 @@ function wp_kses_attr($element, $attr, $allowed_html, $allowed_protocols) {
 		$xhtml_slash = ' /';
 
 	// Are any attributes allowed at all for this element?
-	if ( ! isset( $allowed_html[ strtolower( $element ) ] ) || true === $allowed_html[ strtolower( $element ) ] || count( $allowed_html[ strtolower( $element ) ] ) == 0 ) {
+	$element_low = strtolower( $element );
+	if ( empty( $allowed_html[ $element_low ] ) || true === $allowed_html[ $element_low ] ) {
 		return "<$element$xhtml_slash>";
 	}
 

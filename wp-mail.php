@@ -129,7 +129,7 @@ for ( $i = 1; $i <= $count; $i++ ) {
 				if ( is_email($author) ) {
 					$userdata = get_user_by('email', $author);
 					if ( ! empty( $userdata ) ) {
-						$post_author = $userdata->ID;
+						$post_author  = $userdata->ID;
 						$author_found = true;
 					}
 				}
