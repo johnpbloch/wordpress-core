@@ -133,7 +133,7 @@ if ( $file_description != $file_show ) {
 }
 ?>
 <div class="wrap">
-<h2><?php echo esc_html( $title ); ?></h2>
+<h1><?php echo esc_html( $title ); ?></h1>
 
 <div class="fileedit-sub">
 <div class="alignleft">

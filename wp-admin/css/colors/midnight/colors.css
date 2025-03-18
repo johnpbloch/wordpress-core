@@ -94,7 +94,7 @@ input[type=radio]:checked:before {
 
 /* List tables */
 .wrap .add-new-h2:hover,
-#add-new-comment a:hover,
+.wrap .page-title-action:hover,
 .tablenav .tablenav-pages a:hover,
 .tablenav .tablenav-pages a:focus {
   color: #fff;
@@ -107,23 +107,6 @@ input[type=radio]:checked:before {
 
 .view-switch a:hover:before {
   color: #69a8bb;
-}
-
-.post-com-count:hover:after {
-  border-top-color: #363b3f;
-}
-
-.post-com-count:hover span {
-  color: #fff;
-  background-color: #363b3f;
-}
-
-strong .post-com-count:after {
-  border-top-color: #69a8bb;
-}
-
-strong .post-com-count span {
-  background-color: #69a8bb;
 }
 
 /* Admin Menu */
@@ -288,26 +271,25 @@ ul#adminmenu > li.current > a.current:after {
   color: #f1f2f3;
 }
 
-#wpadminbar .ab-top-menu > li:hover > .ab-item,
-#wpadminbar .ab-top-menu > li.hover > .ab-item,
-#wpadminbar .ab-top-menu > li > .ab-item:focus,
+#wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item,
+#wpadminbar:not(.mobile) .ab-top-menu > li > .ab-item:focus,
 #wpadminbar.nojq .quicklinks .ab-top-menu > li > .ab-item:focus,
-#wpadminbar-nojs .ab-top-menu > li.menupop:hover > .ab-item,
+#wpadminbar.nojs .ab-top-menu > li.menupop:hover > .ab-item,
 #wpadminbar .ab-top-menu > li.menupop.hover > .ab-item {
   color: #e14d43;
   background: #26292c;
 }
 
-#wpadminbar > #wp-toolbar li:hover span.ab-label,
-#wpadminbar > #wp-toolbar li.hover span.ab-label,
-#wpadminbar > #wp-toolbar a:focus span.ab-label {
+#wpadminbar:not(.mobile) > #wp-toolbar li:hover span.ab-label,
+#wpadminbar:not(.mobile) > #wp-toolbar li.hover span.ab-label,
+#wpadminbar:not(.mobile) > #wp-toolbar a:focus span.ab-label {
   color: #e14d43;
 }
 
-#wpadminbar li:hover .ab-icon:before,
-#wpadminbar li:hover .ab-item:before,
-#wpadminbar li:hover .ab-item:after,
-#wpadminbar li:hover #adminbarsearch:before {
+#wpadminbar:not(.mobile) li:hover .ab-icon:before,
+#wpadminbar:not(.mobile) li:hover .ab-item:before,
+#wpadminbar:not(.mobile) li:hover .ab-item:after,
+#wpadminbar:not(.mobile) li:hover #adminbarsearch:before {
   color: #fff;
 }
 
@@ -324,7 +306,7 @@ ul#adminmenu > li.current > a.current:after {
 #wpadminbar .ab-submenu .ab-item,
 #wpadminbar .quicklinks .menupop ul li a,
 #wpadminbar .quicklinks .menupop.hover ul li a,
-#wpadminbar-nojs .quicklinks .menupop:hover ul li a {
+#wpadminbar.nojs .quicklinks .menupop:hover ul li a {
   color: #c3c4c5;
 }
 
@@ -347,15 +329,21 @@ ul#adminmenu > li.current > a.current:after {
 #wpadminbar li .ab-item:focus:before,
 #wpadminbar li.hover .ab-icon:before,
 #wpadminbar li.hover .ab-item:before,
-#wpadminbar li:hover .ab-item:after,
-#wpadminbar li.hover .ab-item:after,
-#wpadminbar li:hover #adminbarsearch:before {
+#wpadminbar li:hover #adminbarsearch:before,
+#wpadminbar li #adminbarsearch.adminbar-focused:before {
   color: #e14d43;
 }
 
 #wpadminbar .quicklinks li a:hover .blavatar,
-#wpadminbar .menupop .menupop > .ab-item:hover:before {
+#wpadminbar .menupop .menupop > .ab-item:hover:before,
+#wpadminbar.mobile .quicklinks .ab-icon:before,
+#wpadminbar.mobile .quicklinks .ab-item:before {
   color: #e14d43;
+}
+
+#wpadminbar.mobile .quicklinks .hover .ab-icon:before,
+#wpadminbar.mobile .quicklinks .hover .ab-item:before {
+  color: #f1f2f3;
 }
 
 /* Admin Bar: search */
@@ -521,4 +509,17 @@ div#wp-responsive-toggle a:before {
 
 .wp-responsive-open #wpadminbar #wp-admin-bar-menu-toggle a {
   background: #26292c;
+}
+
+.wp-responsive-open #wpadminbar #wp-admin-bar-menu-toggle .ab-icon:before {
+  color: #f1f2f3;
+}
+
+/* TinyMCE */
+.mce-container.mce-menu .mce-menu-item:hover,
+.mce-container.mce-menu .mce-menu-item.mce-selected,
+.mce-container.mce-menu .mce-menu-item:focus,
+.mce-container.mce-menu .mce-menu-item-normal.mce-active,
+.mce-container.mce-menu .mce-menu-item-preview.mce-active {
+  background: #e14d43;
 }
