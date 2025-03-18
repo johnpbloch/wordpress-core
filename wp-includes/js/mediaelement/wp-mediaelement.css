@@ -1,6 +1,5 @@
 .mejs-container {
 	clear: both;
-	max-width: 100%;
 }
 
 .mejs-container * {
@@ -12,11 +11,6 @@
 .mejs-embed body,
 .mejs-container .mejs-controls {
 	background: #222;
-}
-
-.mejs-time {
-	font-weight: normal;
-	word-wrap: normal;
 }
 
 .mejs-controls a.mejs-horizontal-volume-slider {
@@ -43,6 +37,31 @@
 	border-radius: 0;
 }
 
+.mejs-controls .mejs-offscreen {
+	clip: rect(1px, 1px, 1px, 1px);
+	position: absolute;
+}
+
+.mejs-controls a:focus > .mejs-offscreen {
+	background-color: #f1f1f1;
+	border-radius: 3px;
+	box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.6);
+	clip: auto;
+	color: #21759b;
+	display: block;
+	font-size: 14px;
+	font-weight: bold;
+	height: auto;
+	line-height: normal;
+	padding: 15px 23px 14px;
+	position: absolute;
+	left: 0;
+	top: 15px;
+	text-decoration: none;
+	text-transform: none;
+	width: auto;
+}
+
 .mejs-overlay-loading {
 	background: transparent;
 }
@@ -67,9 +86,9 @@
 	overflow: visible;
 }
 
-.media-embed-details .embed-media-settings .setting span:not(.button-group) {
-	max-width: 400px; /* Back-compat for pre-5.3 */
-	width: auto; /* Back-compat for pre-5.3 */
+.media-embed-details .embed-media-settings .setting span {
+	max-width: 400px;
+	width: auto;
 }
 
 .media-embed-details .embed-media-settings .checkbox-setting span {
@@ -87,18 +106,14 @@
 }
 
 .media-embed-details .setting p,
-.media-embed-details .setting .remove-setting {
+.media-embed-details .setting a {
 	color: #a00;
 	font-size: 10px;
 	text-transform: uppercase;
 }
 
-.media-embed-details .setting .remove-setting {
-	padding: 5px 0;
-}
-
 .media-embed-details .setting a:hover {
-	color: #dc3232;
+	color: #f00;
 }
 
 .media-embed-details .embed-media-settings .checkbox-setting {
@@ -152,7 +167,7 @@ video.wp-video-shortcode,
 
 .wp-playlist .mejs-container {
 	margin: 0;
-	max-width: 100%;
+	width: 100%;
 }
 
 .wp-playlist .mejs-controls .mejs-button button {
@@ -242,7 +257,7 @@ video.wp-video-shortcode,
 }
 
 .wp-playlist-dark .wp-playlist-caption {
-	color: #ddd;
+	color: #dedede;
 }
 
 .wp-playlist-playing {

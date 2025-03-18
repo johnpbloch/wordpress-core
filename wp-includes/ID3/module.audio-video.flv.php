@@ -1,21 +1,14 @@
 <?php
 /////////////////////////////////////////////////////////////////
 /// getID3() by James Heinrich <info@getid3.org>               //
-//  available at https://github.com/JamesHeinrich/getID3       //
-//            or https://www.getid3.org                        //
-//            or http://getid3.sourceforge.net                 //
-//  see readme.txt for more details                            //
-/////////////////////////////////////////////////////////////////
-//                                                             //
-// module.audio-video.flv.php                                  //
-// module for analyzing Shockwave Flash Video files            //
-// dependencies: NONE                                          //
-//                                                             //
-/////////////////////////////////////////////////////////////////
+//  available at http://getid3.sourceforge.net                 //
+//            or http://www.getid3.org                         //
+//          also https://github.com/JamesHeinrich/getID3       //
 //                                                             //
 //  FLV module by Seth Kaufman <sethØwhirl-i-gig*com>          //
 //                                                             //
 //  * version 0.1 (26 June 2005)                               //
+//                                                             //
 //                                                             //
 //  * version 0.1.1 (15 July 2005)                             //
 //  minor modifications by James Heinrich <info@getid3.org>    //
@@ -50,6 +43,12 @@
 //  handle GETID3_FLV_VIDEO_VP6FLV_ALPHA                       //
 //  improved AVCSequenceParameterSetReader::readData()         //
 //    by Xander Schouwerwou <schouwerwouØgmail*com>            //
+//                                                             //
+/////////////////////////////////////////////////////////////////
+//                                                             //
+// module.audio-video.flv.php                                  //
+// module for analyzing Shockwave Flash Video files            //
+// dependencies: NONE                                          //
 //                                                            ///
 /////////////////////////////////////////////////////////////////
 
@@ -74,21 +73,12 @@ define('H264_PROFILE_HIGH422',            122);
 define('H264_PROFILE_HIGH444',            144);
 define('H264_PROFILE_HIGH444_PREDICTIVE', 244);
 
-class getid3_flv extends getid3_handler
-{
+class getid3_flv extends getid3_handler {
+
 	const magic = 'FLV';
 
-	/**
-	 * Break out of the loop if too many frames have been scanned; only scan this
-	 * many if meta frame does not contain useful duration.
-	 *
-	 * @var int
-	 */
-	public $max_frames = 100000;
+	public $max_frames = 100000; // break out of the loop if too many frames have been scanned; only scan this many if meta frame does not contain useful duration
 
-	/**
-	 * @return bool
-	 */
 	public function Analyze() {
 		$info = &$this->getid3->info;
 
@@ -103,7 +93,7 @@ class getid3_flv extends getid3_handler
 		$TypeFlags                          = getid3_lib::BigEndian2Int(substr($FLVheader, 4, 1));
 
 		if ($info['flv']['header']['signature'] != self::magic) {
-			$this->error('Expecting "'.getid3_lib::PrintHexBytes(self::magic).'" at offset '.$info['avdataoffset'].', found "'.getid3_lib::PrintHexBytes($info['flv']['header']['signature']).'"');
+			$info['error'][] = 'Expecting "'.getid3_lib::PrintHexBytes(self::magic).'" at offset '.$info['avdataoffset'].', found "'.getid3_lib::PrintHexBytes($info['flv']['header']['signature']).'"';
 			unset($info['flv'], $info['fileformat']);
 			return false;
 		}
@@ -342,11 +332,7 @@ class getid3_flv extends getid3_handler
 		return true;
 	}
 
-	/**
-	 * @param int $id
-	 *
-	 * @return string|false
-	 */
+
 	public static function audioFormatLookup($id) {
 		static $lookup = array(
 			0  => 'Linear PCM, platform endian',
@@ -369,11 +355,6 @@ class getid3_flv extends getid3_handler
 		return (isset($lookup[$id]) ? $lookup[$id] : false);
 	}
 
-	/**
-	 * @param int $id
-	 *
-	 * @return int|false
-	 */
 	public static function audioRateLookup($id) {
 		static $lookup = array(
 			0 =>  5500,
@@ -384,11 +365,6 @@ class getid3_flv extends getid3_handler
 		return (isset($lookup[$id]) ? $lookup[$id] : false);
 	}
 
-	/**
-	 * @param int $id
-	 *
-	 * @return int|false
-	 */
 	public static function audioBitDepthLookup($id) {
 		static $lookup = array(
 			0 =>  8,
@@ -397,11 +373,6 @@ class getid3_flv extends getid3_handler
 		return (isset($lookup[$id]) ? $lookup[$id] : false);
 	}
 
-	/**
-	 * @param int $id
-	 *
-	 * @return string|false
-	 */
 	public static function videoCodecLookup($id) {
 		static $lookup = array(
 			GETID3_FLV_VIDEO_H263         => 'Sorenson H.263',
@@ -415,84 +386,47 @@ class getid3_flv extends getid3_handler
 	}
 }
 
-class AMFStream
-{
-	/**
-	 * @var string
-	 */
+class AMFStream {
 	public $bytes;
-
-	/**
-	 * @var int
-	 */
 	public $pos;
 
-	/**
-	 * @param string $bytes
-	 */
 	public function __construct(&$bytes) {
 		$this->bytes =& $bytes;
 		$this->pos = 0;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function readByte() { //  8-bit
-		return ord(substr($this->bytes, $this->pos++, 1));
+	public function readByte() {
+		return getid3_lib::BigEndian2Int(substr($this->bytes, $this->pos++, 1));
 	}
 
-	/**
-	 * @return int
-	 */
-	public function readInt() { // 16-bit
+	public function readInt() {
 		return ($this->readByte() << 8) + $this->readByte();
 	}
 
-	/**
-	 * @return int
-	 */
-	public function readLong() { // 32-bit
+	public function readLong() {
 		return ($this->readByte() << 24) + ($this->readByte() << 16) + ($this->readByte() << 8) + $this->readByte();
 	}
 
-	/**
-	 * @return float|false
-	 */
 	public function readDouble() {
 		return getid3_lib::BigEndian2Float($this->read(8));
 	}
 
-	/**
-	 * @return string
-	 */
 	public function readUTF() {
 		$length = $this->readInt();
 		return $this->read($length);
 	}
 
-	/**
-	 * @return string
-	 */
 	public function readLongUTF() {
 		$length = $this->readLong();
 		return $this->read($length);
 	}
 
-	/**
-	 * @param int $length
-	 *
-	 * @return string
-	 */
 	public function read($length) {
 		$val = substr($this->bytes, $this->pos, $length);
 		$this->pos += $length;
 		return $val;
 	}
 
-	/**
-	 * @return int
-	 */
 	public function peekByte() {
 		$pos = $this->pos;
 		$val = $this->readByte();
@@ -500,9 +434,6 @@ class AMFStream
 		return $val;
 	}
 
-	/**
-	 * @return int
-	 */
 	public function peekInt() {
 		$pos = $this->pos;
 		$val = $this->readInt();
@@ -510,9 +441,6 @@ class AMFStream
 		return $val;
 	}
 
-	/**
-	 * @return int
-	 */
 	public function peekLong() {
 		$pos = $this->pos;
 		$val = $this->readLong();
@@ -520,9 +448,6 @@ class AMFStream
 		return $val;
 	}
 
-	/**
-	 * @return float|false
-	 */
 	public function peekDouble() {
 		$pos = $this->pos;
 		$val = $this->readDouble();
@@ -530,9 +455,6 @@ class AMFStream
 		return $val;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function peekUTF() {
 		$pos = $this->pos;
 		$val = $this->readUTF();
@@ -540,9 +462,6 @@ class AMFStream
 		return $val;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function peekLongUTF() {
 		$pos = $this->pos;
 		$val = $this->readLongUTF();
@@ -551,23 +470,13 @@ class AMFStream
 	}
 }
 
-class AMFReader
-{
-	/**
-	* @var AMFStream
-	*/
+class AMFReader {
 	public $stream;
 
-	/**
-	 * @param AMFStream $stream
-	 */
-	public function __construct(AMFStream $stream) {
-		$this->stream = $stream;
+	public function __construct(&$stream) {
+		$this->stream =& $stream;
 	}
 
-	/**
-	 * @return mixed
-	 */
 	public function readData() {
 		$value = null;
 
@@ -632,42 +541,29 @@ class AMFReader
 			// Long string
 			default:
 				$value = '(unknown or unsupported data type)';
-				break;
+			break;
 		}
 
 		return $value;
 	}
 
-	/**
-	 * @return float|false
-	 */
 	public function readDouble() {
 		return $this->stream->readDouble();
 	}
 
-	/**
-	 * @return bool
-	 */
 	public function readBoolean() {
 		return $this->stream->readByte() == 1;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function readString() {
 		return $this->stream->readUTF();
 	}
 
-	/**
-	 * @return array
-	 */
 	public function readObject() {
 		// Get highest numerical index - ignored
 //		$highestIndex = $this->stream->readLong();
 
 		$data = array();
-		$key = null;
 
 		while ($key = $this->stream->readUTF()) {
 			$data[$key] = $this->readData();
@@ -680,19 +576,15 @@ class AMFReader
 		return $data;
 	}
 
-	/**
-	 * @return array
-	 */
 	public function readMixedArray() {
 		// Get highest numerical index - ignored
 		$highestIndex = $this->stream->readLong();
 
 		$data = array();
-		$key = null;
 
 		while ($key = $this->stream->readUTF()) {
 			if (is_numeric($key)) {
-				$key = (int) $key;
+				$key = (float) $key;
 			}
 			$data[$key] = $this->readData();
 		}
@@ -705,9 +597,6 @@ class AMFReader
 		return $data;
 	}
 
-	/**
-	 * @return array
-	 */
 	public function readArray() {
 		$length = $this->stream->readLong();
 		$data = array();
@@ -718,61 +607,34 @@ class AMFReader
 		return $data;
 	}
 
-	/**
-	 * @return float|false
-	 */
 	public function readDate() {
 		$timestamp = $this->stream->readDouble();
 		$timezone = $this->stream->readInt();
 		return $timestamp;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function readLongString() {
 		return $this->stream->readLongUTF();
 	}
 
-	/**
-	 * @return string
-	 */
 	public function readXML() {
 		return $this->stream->readLongUTF();
 	}
 
-	/**
-	 * @return array
-	 */
 	public function readTypedObject() {
 		$className = $this->stream->readUTF();
 		return $this->readObject();
 	}
 }
 
-class AVCSequenceParameterSetReader
-{
-	/**
-	 * @var string
-	 */
+class AVCSequenceParameterSetReader {
 	public $sps;
 	public $start = 0;
 	public $currentBytes = 0;
 	public $currentBits = 0;
-
-	/**
-	 * @var int
-	 */
 	public $width;
-
-	/**
-	 * @var int
-	 */
 	public $height;
 
-	/**
-	 * @param string $sps
-	 */
 	public function __construct($sps) {
 		$this->sps = $sps;
 	}
@@ -829,29 +691,18 @@ class AVCSequenceParameterSetReader
 		}
 	}
 
-	/**
-	 * @param int $bits
-	 */
 	public function skipBits($bits) {
 		$newBits = $this->currentBits + $bits;
 		$this->currentBytes += (int)floor($newBits / 8);
 		$this->currentBits = $newBits % 8;
 	}
 
-	/**
-	 * @return int
-	 */
 	public function getBit() {
 		$result = (getid3_lib::BigEndian2Int(substr($this->sps, $this->currentBytes, 1)) >> (7 - $this->currentBits)) & 0x01;
 		$this->skipBits(1);
 		return $result;
 	}
 
-	/**
-	 * @param int $bits
-	 *
-	 * @return int
-	 */
 	public function getBits($bits) {
 		$result = 0;
 		for ($i = 0; $i < $bits; $i++) {
@@ -860,9 +711,6 @@ class AVCSequenceParameterSetReader
 		return $result;
 	}
 
-	/**
-	 * @return int
-	 */
 	public function expGolombUe() {
 		$significantBits = 0;
 		$bit = $this->getBit();
@@ -878,9 +726,6 @@ class AVCSequenceParameterSetReader
 		return (1 << $significantBits) + $this->getBits($significantBits) - 1;
 	}
 
-	/**
-	 * @return int
-	 */
 	public function expGolombSe() {
 		$result = $this->expGolombUe();
 		if (($result & 0x01) == 0) {
@@ -890,16 +735,10 @@ class AVCSequenceParameterSetReader
 		}
 	}
 
-	/**
-	 * @return int
-	 */
 	public function getWidth() {
 		return $this->width;
 	}
 
-	/**
-	 * @return int
-	 */
 	public function getHeight() {
 		return $this->height;
 	}

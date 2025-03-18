@@ -4,11 +4,10 @@ Theme URI: https://wordpress.org/themes/twentyfifteen/
 Author: the WordPress team
 Author URI: https://wordpress.org/
 Description: Our 2015 default theme is clean, blog-focused, and designed for clarity. Twenty Fifteen's simple, straightforward typography is readable on a wide variety of screen sizes, and suitable for multiple languages. We designed it using a mobile-first approach, meaning your content takes center-stage, regardless of whether your visitors arrive by smartphone, tablet, laptop, or desktop computer.
-Version: 2.5
-Requires PHP: 5.2.4
+Version: 1.2
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Tags: blog, two-columns, left-sidebar, accessibility-ready, custom-background, custom-colors, custom-header, custom-logo, custom-menu, editor-style, featured-images, microformats, post-formats, rtl-language-support, sticky-post, threaded-comments, translation-ready
+Tags: black, blue, gray, pink, purple, white, yellow, dark, light, two-columns, left-sidebar, fixed-layout, responsive-layout, accessibility-ready, custom-background, custom-colors, custom-header, custom-menu, editor-style, featured-images, microformats, post-formats, rtl-language-support, sticky-post, threaded-comments, translation-ready
 Text Domain: twentyfifteen
 
 This theme, like WordPress, is licensed under the GPL.
@@ -122,10 +121,6 @@ th,
 td {
 	font-weight: normal;
 	text-align: left;
-}
-
-fieldset {
-	min-width: inherit;
 }
 
 blockquote:before,
@@ -495,10 +490,6 @@ textarea {
 
 button,
 input {
-	-webkit-hyphens: none;
-	-moz-hyphens: none;
-	-ms-hyphens: none;
-	hyphens: none;
 	line-height: normal;
 }
 
@@ -887,14 +878,6 @@ a:focus {
 
 .social-navigation a[href$="/feed/"]:before {
 	content: "\f413";
-}
-
-.social-navigation a[href*="path.com"]:before {
-	content: "\f219";
-}
-
-.social-navigation a[href*="skype.com"]:before {
-	content: "\f220";
 }
 
 .secondary-toggle {
@@ -1317,15 +1300,6 @@ img.aligncenter {
 	margin-bottom: 0;
 }
 
-.custom-logo {
-	max-height: 84px;
-	width: auto;
-}
-
-.wp-custom-logo .site-title {
-	margin-top: 0.545454545em;
-}
-
 .site-description {
 	display: none;
 	font-family: "Noto Sans", sans-serif;
@@ -1555,18 +1529,6 @@ img.aligncenter {
 	border-bottom: 0;
 }
 
-.textwidget ul,
-.textwidget ol {
-	margin-left: 1.6em;
-}
-
-.tagcloud ul {
-	list-style-type: none;
-}
-
-.tagcloud ul li {
-	display: inline-block;
-}
 
 /**
  * 12.0 Content
@@ -2407,18 +2369,6 @@ a.post-thumbnail:focus {
 	top: -3px;
 }
 
-.comment-form #wp-comment-cookies-consent {
-	margin: 0 10px 0 0;
-}
-
-.comment-form .comment-form-cookies-consent label {
-	display: inline;
-	font-size: 12px;
-	font-size: 1.2rem;
-	font-weight: normal;
-	letter-spacing: 0;
-	text-transform: none;
-}
 
 /**
  * 13.0 Footer
@@ -2447,13 +2397,6 @@ a.post-thumbnail:focus {
 	color: #333;
 }
 
-.site-info span[role=separator] {
-	padding: 0 0.25em 0 0.5em;
-}
-
-.site-info span[role=separator]::before {
-	content: '\002f';
-}
 
 /**
  * 14.0 Media
@@ -3053,7 +2996,6 @@ p > video {
 	.comment-awaiting-moderation,
 	.logged-in-as,
 	.comment-form label,
-	.comment-form .comment-form-cookies-consent label,
 	.form-allowed-tags,
 	.site-info,
 	.wp-caption-text,
@@ -3129,14 +3071,6 @@ p > video {
 		font-size: 29px;
 		font-size: 2.9rem;
 		line-height: 1.2069;
-	}
-
-	.custom-logo {
-		max-height: 105px;
-	}
-
-	.wp-custom-logo .site-title {
-		margin-top: 0.482758621em;
 	}
 
 	.site-description {
@@ -3683,7 +3617,6 @@ p > video {
 	.comment-awaiting-moderation,
 	.logged-in-as,
 	.comment-form label,
-	.comment-form .comment-form-cookies-consent label,
 	.form-allowed-tags,
 	.site-info,
 	.wp-caption-text,
@@ -3760,14 +3693,6 @@ p > video {
 		font-size: 32px;
 		font-size: 3.2rem;
 		line-height: 1.25;
-	}
-
-	.custom-logo {
-		max-height: 104px;
-	}
-
-	.wp-custom-logo .site-title {
-		margin-top: 0.5em;
 	}
 
 	.site-description {
@@ -4303,7 +4228,6 @@ p > video {
 	.comment-awaiting-moderation,
 	.logged-in-as,
 	.comment-form label,
-	.comment-form .comment-form-cookies-consent label,
 	.form-allowed-tags,
 	.site-info,
 	.wp-caption-text,
@@ -4404,14 +4328,6 @@ p > video {
 		font-size: 22px;
 		font-size: 2.2rem;
 		line-height: 1.3636;
-	}
-
-	.custom-logo {
-		max-height: none;
-	}
-
-	.wp-custom-logo .site-title {
-		margin-top: 0.545454545em;
 	}
 
 	.site-description {
@@ -4961,7 +4877,6 @@ p > video {
 	.comment-awaiting-moderation,
 	.logged-in-as,
 	.comment-form label,
-	.comment-form .comment-form-cookies-consent label,
 	.form-allowed-tags,
 	.site-info,
 	.wp-caption-text,
@@ -5032,10 +4947,6 @@ p > video {
 		font-size: 24px;
 		font-size: 2.4rem;
 		line-height: 1.1667;
-	}
-
-	.wp-custom-logo .site-title {
-		margin-top: 0.583333333em;
 	}
 
 	.site-description {
@@ -5503,7 +5414,6 @@ p > video {
 	.comment-awaiting-moderation,
 	.logged-in-as,
 	.comment-form label,
-	.comment-form .comment-form-cookies-consent label,
 	.form-allowed-tags,
 	.site-info,
 	.wp-caption-text,
@@ -5575,10 +5485,6 @@ p > video {
 		font-size: 27px;
 		font-size: 2.7rem;
 		line-height: 1.1852;
-	}
-
-	.wp-custom-logo .site-title {
-		margin-top: 0.592592593em;
 	}
 
 	.site-description {
@@ -5963,7 +5869,7 @@ p > video {
 	.page-content,
 	.comments-area,
 	.widecolumn {
-		background: none !important; /* Make sure color schemes don't affect to print */
+		background: none !important; /* Make sure color schemes dont't affect to print */
 	}
 
 	body,

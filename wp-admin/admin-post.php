@@ -13,16 +13,15 @@ if ( ! defined( 'WP_ADMIN' ) ) {
 	define( 'WP_ADMIN', true );
 }
 
-if ( defined( 'ABSPATH' ) ) {
-	require_once( ABSPATH . 'wp-load.php' );
-} else {
+if ( defined('ABSPATH') )
+	require_once(ABSPATH . 'wp-load.php');
+else
 	require_once( dirname( dirname( __FILE__ ) ) . '/wp-load.php' );
-}
 
-/** Allow for cross-domain requests (from the front end). */
+/** Allow for cross-domain requests (from the frontend). */
 send_origin_headers();
 
-require_once( ABSPATH . 'wp-admin/includes/admin.php' );
+require_once(ABSPATH . 'wp-admin/includes/admin.php');
 
 nocache_headers();
 
@@ -31,10 +30,10 @@ do_action( 'admin_init' );
 
 $action = empty( $_REQUEST['action'] ) ? '' : $_REQUEST['action'];
 
-if ( ! is_user_logged_in() ) {
+if ( ! wp_validate_auth_cookie() ) {
 	if ( empty( $action ) ) {
 		/**
-		 * Fires on a non-authenticated admin post request where no action is supplied.
+		 * Fires on a non-authenticated admin post request where no action was supplied.
 		 *
 		 * @since 2.6.0
 		 */
@@ -53,7 +52,7 @@ if ( ! is_user_logged_in() ) {
 } else {
 	if ( empty( $action ) ) {
 		/**
-		 * Fires on an authenticated admin post request where no action is supplied.
+		 * Fires on an authenticated admin post request where no action was supplied.
 		 *
 		 * @since 2.6.0
 		 */

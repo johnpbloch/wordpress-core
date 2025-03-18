@@ -1,13 +1,8 @@
-/**
- * Cookie functions.
- *
- * @output wp-includes/js/utils.js
- */
-
-/* global userSettings, getAllUserSettings, wpCookies, setUserSetting */
+/* global userSettings */
 /* exported getUserSetting, setUserSetting, deleteUserSetting */
+// utility functions
 
-window.wpCookies = {
+var wpCookies = {
 // The following functions are from Cookie.js class in TinyMCE 3, Moxiecode, used under LGPL.
 
 	each: function( obj, cb, scope ) {
@@ -115,7 +110,7 @@ window.wpCookies = {
 		if ( typeof( expires ) === 'object' && expires.toGMTString ) {
 			expires = expires.toGMTString();
 		} else if ( parseInt( expires, 10 ) ) {
-			d.setTime( d.getTime() + ( parseInt( expires, 10 ) * 1000 ) ); // time must be in milliseconds
+			d.setTime( d.getTime() + ( parseInt( expires, 10 ) * 1000 ) ); // time must be in miliseconds
 			expires = d.toGMTString();
 		} else {
 			expires = '';
@@ -139,7 +134,7 @@ window.wpCookies = {
 };
 
 // Returns the value as string. Second arg or empty string is returned when value is not set.
-window.getUserSetting = function( name, def ) {
+function getUserSetting( name, def ) {
 	var settings = getAllUserSettings();
 
 	if ( settings.hasOwnProperty( name ) ) {
@@ -151,12 +146,12 @@ window.getUserSetting = function( name, def ) {
 	}
 
 	return '';
-};
+}
 
 // Both name and value must be only ASCII letters, numbers or underscore
 // and the shorter, the better (cookies can store maximum 4KB). Not suitable to store text.
 // The value is converted and stored as string.
-window.setUserSetting = function( name, value, _del ) {
+function setUserSetting( name, value, _del ) {
 	if ( 'object' !== typeof userSettings ) {
 		return false;
 	}
@@ -166,12 +161,12 @@ window.setUserSetting = function( name, value, _del ) {
 		path = userSettings.url,
 		secure = !! userSettings.secure;
 
-	name = name.toString().replace( /[^A-Za-z0-9_-]/g, '' );
+	name = name.toString().replace( /[^A-Za-z0-9_]/, '' );
 
 	if ( typeof value === 'number' ) {
 		value = parseInt( value, 10 );
 	} else {
-		value = value.toString().replace( /[^A-Za-z0-9_-]/g, '' );
+		value = value.toString().replace( /[^A-Za-z0-9_]/, '' );
 	}
 
 	settings = settings || {};
@@ -186,17 +181,17 @@ window.setUserSetting = function( name, value, _del ) {
 	wpCookies.set( 'wp-settings-time-' + uid, userSettings.time, 31536000, path, '', secure );
 
 	return name;
-};
+}
 
-window.deleteUserSetting = function( name ) {
+function deleteUserSetting( name ) {
 	return setUserSetting( name, '', 1 );
-};
+}
 
 // Returns all settings as js object.
-window.getAllUserSettings = function() {
+function getAllUserSettings() {
 	if ( 'object' !== typeof userSettings ) {
 		return {};
 	}
 
 	return wpCookies.getHash( 'wp-settings-' + userSettings.uid ) || {};
-};
+}

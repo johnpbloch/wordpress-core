@@ -1,14 +1,6 @@
-/**
- * Utility functions for parsing and handling shortcodes in JavaScript.
- *
- * @output wp-includes/js/shortcode.js
- */
+// Utility functions for parsing and handling shortcodes in JavaScript.
 
-/**
- * Ensure the global `wp` object exists.
- *
- * @namespace wp
- */
+// Ensure the global `wp` object exists.
 window.wp = window.wp || {};
 
 (function(){
@@ -142,9 +134,8 @@ window.wp = window.wp || {};
 			// 5. An attribute name, that corresponds to...
 			// 6. an unquoted value.
 			// 7. A numeric attribute in double quotes.
-			// 8. A numeric attribute in single quotes.
-			// 9. An unquoted numeric attribute.
-			pattern = /([\w-]+)\s*=\s*"([^"]*)"(?:\s|$)|([\w-]+)\s*=\s*'([^']*)'(?:\s|$)|([\w-]+)\s*=\s*([^\s'"]+)(?:\s|$)|"([^"]*)"(?:\s|$)|'([^']*)'(?:\s|$)|(\S+)(?:\s|$)/g;
+			// 8. An unquoted numeric attribute.
+			pattern = /(\w+)\s*=\s*"([^"]*)"(?:\s|$)|(\w+)\s*=\s*\'([^\']*)\'(?:\s|$)|(\w+)\s*=\s*([^\s\'"]+)(?:\s|$)|"([^"]*)"(?:\s|$)|(\S+)(?:\s|$)/g;
 
 			// Map zero-width spaces to actual spaces.
 			text = text.replace( /[\u00a0\u200b]/g, ' ' );
@@ -161,8 +152,6 @@ window.wp = window.wp || {};
 					numeric.push( match[7] );
 				} else if ( match[8] ) {
 					numeric.push( match[8] );
-				} else if ( match[9] ) {
-					numeric.push( match[9] );
 				}
 			}
 
@@ -336,6 +325,11 @@ window.wp = window.wp || {};
 
 			_.each( options.attrs, function( value, attr ) {
 				text += ' ' + attr;
+
+				// Use empty attribute notation where possible.
+				if ( '' === value ) {
+					return;
+				}
 
 				// Convert boolean values to strings.
 				if ( _.isBoolean( value ) ) {

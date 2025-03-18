@@ -12,12 +12,9 @@ get_header(); ?>
 		<div id="container">
 			<div id="content" role="main">
 
-				<h1 class="page-title">
-				<?php
-					/* translators: %s: Tag title. */
+				<h1 class="page-title"><?php
 					printf( __( 'Tag Archives: %s', 'twentyten' ), '<span>' . single_tag_title( '', false ) . '</span>' );
-				?>
-				</h1>
+				?></h1>
 
 <?php
 /*

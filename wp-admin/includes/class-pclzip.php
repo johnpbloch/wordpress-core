@@ -212,7 +212,7 @@
   //   Note that no real action is taken, if the archive does not exist it is not
   //   created. Use create() for that.
   // --------------------------------------------------------------------------------
-  function __construct($p_zipname)
+  function PclZip($p_zipname)
   {
 
     // ----- Tests the zlib
@@ -228,10 +228,6 @@
 
     // ----- Return
     return;
-  }
-
-  public function PclZip($p_zipname) {
-    self::__construct($p_zipname);
   }
   // --------------------------------------------------------------------------------
 
@@ -1839,19 +1835,18 @@
     // ----- Get 'memory_limit' configuration value
     $v_memory_limit = ini_get('memory_limit');
     $v_memory_limit = trim($v_memory_limit);
-    $v_memory_limit_int = (int) $v_memory_limit;
     $last = strtolower(substr($v_memory_limit, -1));
 
     if($last == 'g')
-        //$v_memory_limit_int = $v_memory_limit_int*1024*1024*1024;
-        $v_memory_limit_int = $v_memory_limit_int*1073741824;
+        //$v_memory_limit = $v_memory_limit*1024*1024*1024;
+        $v_memory_limit = $v_memory_limit*1073741824;
     if($last == 'm')
-        //$v_memory_limit_int = $v_memory_limit_int*1024*1024;
-        $v_memory_limit_int = $v_memory_limit_int*1048576;
+        //$v_memory_limit = $v_memory_limit*1024*1024;
+        $v_memory_limit = $v_memory_limit*1048576;
     if($last == 'k')
-        $v_memory_limit_int = $v_memory_limit_int*1024;
+        $v_memory_limit = $v_memory_limit*1024;
 
-    $p_options[PCLZIP_OPT_TEMP_FILE_THRESHOLD] = floor($v_memory_limit_int*PCLZIP_TEMPORARY_FILE_RATIO);
+    $p_options[PCLZIP_OPT_TEMP_FILE_THRESHOLD] = floor($v_memory_limit*PCLZIP_TEMPORARY_FILE_RATIO);
 
 
     // ----- Sanity check : No threshold if value lower than 1M
@@ -5326,10 +5321,6 @@
   {
     $v_result=1;
 
-	// EDIT for WordPress 5.3.0
-	// magic_quote functions are deprecated in PHP 7.4, now assuming it's always off.
-	/*
-
     // ----- Look if function exists
     if (   (!function_exists("get_magic_quotes_runtime"))
 	    || (!function_exists("set_magic_quotes_runtime"))) {
@@ -5348,7 +5339,6 @@
 	if ($this->magic_quotes_status == 1) {
 	  @set_magic_quotes_runtime(0);
 	}
-	*/
 
     // ----- Return
     return $v_result;
@@ -5364,10 +5354,6 @@
   function privSwapBackMagicQuotes()
   {
     $v_result=1;
-
-	// EDIT for WordPress 5.3.0
-	// magic_quote functions are deprecated in PHP 7.4, now assuming it's always off.
-	/*
 
     // ----- Look if function exists
     if (   (!function_exists("get_magic_quotes_runtime"))
@@ -5385,7 +5371,6 @@
   	  @set_magic_quotes_runtime($this->magic_quotes_status);
 	}
 
-	*/
     // ----- Return
     return $v_result;
   }

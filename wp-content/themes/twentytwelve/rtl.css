@@ -4,7 +4,7 @@ Description: Adds support for languages written in a Right To Left (RTL) directi
 It's easy, just a matter of overwriting all the horizontal positioning attributes
 of your CSS stylesheet in a separate stylesheet file named rtl.css.
 
-See https://codex.wordpress.org/Right_to_Left_Language_Support
+See http://codex.wordpress.org/Right_to_Left_Language_Support
 */
 
 
@@ -133,9 +133,6 @@ label ~ span.required {
 	float: right;
 	margin: -18px -16px 0 0;
 	margin: -1.285714286rem -1.142857143rem 0 0;
-}
-#respond #wp-comment-cookies-consent {
-	margin: 0 0 0 10px;
 }
 
 

@@ -34,7 +34,6 @@ add_action( 'after_switch_theme', 'twentythirteen_switch_theme' );
  * @since Twenty Thirteen 1.0
  */
 function twentythirteen_upgrade_notice() {
-	/* translators: %s: WordPress version. */
 	$message = sprintf( __( 'Twenty Thirteen requires at least WordPress version 3.6. You are running version %s. Please upgrade and try again.', 'twentythirteen' ), $GLOBALS['wp_version'] );
 	printf( '<div class="error"><p>%s</p></div>', $message );
 }
@@ -45,14 +44,9 @@ function twentythirteen_upgrade_notice() {
  * @since Twenty Thirteen 1.0
  */
 function twentythirteen_customize() {
-	wp_die(
-		/* translators: %s: WordPress version. */
-		sprintf( __( 'Twenty Thirteen requires at least WordPress version 3.6. You are running version %s. Please upgrade and try again.', 'twentythirteen' ), $GLOBALS['wp_version'] ),
-		'',
-		array(
-			'back_link' => true,
-		)
-	);
+	wp_die( sprintf( __( 'Twenty Thirteen requires at least WordPress version 3.6. You are running version %s. Please upgrade and try again.', 'twentythirteen' ), $GLOBALS['wp_version'] ), '', array(
+		'back_link' => true,
+	) );
 }
 add_action( 'load-customize.php', 'twentythirteen_customize' );
 
@@ -63,7 +57,6 @@ add_action( 'load-customize.php', 'twentythirteen_customize' );
  */
 function twentythirteen_preview() {
 	if ( isset( $_GET['preview'] ) ) {
-		/* translators: %s: WordPress version. */
 		wp_die( sprintf( __( 'Twenty Thirteen requires at least WordPress version 3.6. You are running version %s. Please upgrade and try again.', 'twentythirteen' ), $GLOBALS['wp_version'] ) );
 	}
 }

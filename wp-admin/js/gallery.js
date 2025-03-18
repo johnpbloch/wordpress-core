@@ -1,8 +1,4 @@
-/**
- * @output wp-admin/js/gallery.js
- */
-
-/* global unescape, getUserSetting, setUserSetting, wpgallery, tinymce */
+/* global unescape, getUserSetting, setUserSetting */
 
 jQuery(document).ready(function($) {
 	var gallerySortable, gallerySortableInit, sortIt, clearAll, w, desc = false;
@@ -42,33 +38,33 @@ jQuery(document).ready(function($) {
 		});
 	};
 
-	$('#asc').click( function( e ) {
-		e.preventDefault();
+	$('#asc').click( function() {
 		desc = false;
 		sortIt();
+		return false;
 	});
-	$('#desc').click( function( e ) {
-		e.preventDefault();
+	$('#desc').click( function() {
 		desc = true;
 		sortIt();
+		return false;
 	});
-	$('#clear').click( function( e ) {
-		e.preventDefault();
+	$('#clear').click( function() {
 		clearAll(1);
+		return false;
 	});
-	$('#showall').click( function( e ) {
-		e.preventDefault();
+	$('#showall').click( function() {
 		$('#sort-buttons span a').toggle();
 		$('a.describe-toggle-on').hide();
 		$('a.describe-toggle-off, table.slidetoggle').show();
 		$('img.pinkynail').toggle(false);
+		return false;
 	});
-	$('#hideall').click( function( e ) {
-		e.preventDefault();
+	$('#hideall').click( function() {
 		$('#sort-buttons span a').toggle();
 		$('a.describe-toggle-on').show();
 		$('a.describe-toggle-off, table.slidetoggle').hide();
 		$('img.pinkynail').toggle(true);
+		return false;
 	});
 
 	// initialize sortable
@@ -88,12 +84,12 @@ jQuery(document).ready(function($) {
 	}
 });
 
-jQuery(window).unload( function () { window.tinymce = window.tinyMCE = window.wpgallery = null; } ); // Cleanup
+jQuery(window).unload( function () { tinymce = tinyMCE = wpgallery = null; } ); // Cleanup
 
 /* gallery settings */
-window.tinymce = null;
+var tinymce = null, tinyMCE, wpgallery;
 
-window.wpgallery = {
+wpgallery = {
 	mcemode : false,
 	editor : {},
 	dom : {},
@@ -123,8 +119,8 @@ window.wpgallery = {
 		}
 
 		// Find window & API
-		window.tinymce = w.tinymce;
-		window.tinyMCE = w.tinyMCE;
+		tinymce = w.tinymce;
+		tinyMCE = w.tinyMCE;
 		t.editor = tinymce.EditorManager.activeEditor;
 
 		t.setup();

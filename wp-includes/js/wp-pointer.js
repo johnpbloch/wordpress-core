@@ -1,17 +1,12 @@
-/**
- * @output wp-includes/js/wp-pointer.js
- */
-
 /* global wpPointerL10n */
-
 /**
- * Initializes the wp-pointer widget using jQuery UI Widget Factory.
+ * Pointer jQuery widget.
  */
 (function($){
 	var identifier = 0,
 		zindex = 9999;
 
-	$.widget('wp.pointer',/** @lends $.widget.wp.pointer.prototype */{
+	$.widget('wp.pointer', {
 		options: {
 			pointerClass: 'wp-pointer',
 			pointerWidth: 320,
@@ -39,14 +34,6 @@
 			document: document
 		},
 
-		/**
-		 * A class that represents a WordPress pointer.
-		 *
-		 * @since 3.3.0
-		 * @private
-		 *
-		 * @constructs $.widget.wp.pointer
-		 */
 		_create: function() {
 			var positioning,
 				family;
@@ -69,23 +56,6 @@
 				.appendTo( this.options.document.body );
 		},
 
-		/**
-		 * Sets an option on the pointer instance.
-		 *
-		 * There are 4 special values that do something extra:
-		 *
-		 * - `document`     will transfer the pointer to the body of the new document
-		 *                  specified by the value.
-		 * - `pointerClass` will change the class of the pointer element.
-		 * - `position`     will reposition the pointer.
-		 * - `content`      will update the content of the pointer.
-		 *
-		 * @since 3.3.0
-		 * @private
-		 *
-		 * @param {string} key   The key of the option to set.
-		 * @param {*}      value The value to set the option to.
-		 */
 		_setOption: function( key, value ) {
 			var o   = this.options,
 				tip = this.pointer;
@@ -112,45 +82,15 @@
 			}
 		},
 
-		/**
-		 * Removes the pointer element from of the DOM.
-		 *
-		 * Makes sure that the widget and all associated bindings are destroyed.
-		 *
-		 * @since 3.3.0
-		 */
 		destroy: function() {
 			this.pointer.remove();
 			$.Widget.prototype.destroy.call( this );
 		},
 
-		/**
-		 * Returns the pointer element.
-		 *
-		 * @since 3.3.0
-		 *
-		 * @return {Object} Pointer The pointer object.
-		 */
 		widget: function() {
 			return this.pointer;
 		},
 
-		/**
-		 * Updates the content of the pointer.
-		 *
-		 * This function doesn't update the content of the pointer itself. That is done
-		 * by the `_update` method. This method will make sure that the `_update` method
-		 * is called with the right content.
-		 *
-		 * The content in the options can either be a string or a callback. If it is a
-		 * callback the result of this callback is used as the content.
-		 *
-		 * @since 3.3.0
-		 *
-		 * @param {Object} event The event that caused the update.
-		 *
-		 * @return {Promise} Resolves when the update has been executed.
-		 */
 		update: function( event ) {
 			var self = this,
 				o    = this.options,
@@ -181,15 +121,8 @@
 		},
 
 		/**
-		 * Updates the content of the pointer.
-		 *
-		 * Will make sure that the pointer is correctly positioned.
-		 *
-		 * @since 3.3.0
-		 * @private
-		 *
-		 * @param {Object} event   The event that caused the update.
-		 * @param {*}      content The content object. Either a string or a jQuery tree.
+		 * Update is separated into two functions to allow events to defer
+		 * updating the pointer (e.g. fetch content with ajax, etc).
 		 */
 		_update: function( event, content ) {
 			var buttons,
@@ -198,8 +131,7 @@
 			if ( ! content )
 				return;
 
-			// Kill any animations on the pointer.
-			this.pointer.stop();
+			this.pointer.stop(); // Kill any animations on the pointer.
 			this.content.html( content );
 
 			buttons = o.buttons.call( this.element[0], event, this._handoff() );
@@ -210,14 +142,6 @@
 			this.reposition();
 		},
 
-		/**
-		 * Repositions the pointer.
-		 *
-		 * Makes sure the pointer is the correct size for its content and makes sure it
-		 * is positioned to point to the right element.
-		 *
-		 * @since 3.3.0
-		 */
 		reposition: function() {
 			var position;
 
@@ -239,11 +163,6 @@
 			this.repoint();
 		},
 
-		/**
-		 * Sets the arrow of the pointer to the correct side of the pointer element.
-		 *
-		 * @since 3.3.0
-		 */
 		repoint: function() {
 			var o = this.options,
 				edge;
@@ -260,17 +179,6 @@
 			this.pointer.addClass( 'wp-pointer-' + edge );
 		},
 
-		/**
-		 * Calculates the correct position based on a position in the settings.
-		 *
-		 * @since 3.3.0
-		 * @private
-		 *
-		 * @param {string|Object} position Either a side of a pointer or an object
-		 *                                 containing a pointer.
-		 *
-		 * @return {Object} result  An object containing position related data.
-		 */
 		_processPosition: function( position ) {
 			var opposite = {
 					top: 'bottom',
@@ -307,17 +215,6 @@
 			return result;
 		},
 
-		/**
-		 * Opens the pointer.
-		 *
-		 * Only opens the pointer widget in case it is closed and not disabled, and
-		 * calls 'update' before doing so. Calling update makes sure that the pointer
-		 * is correctly sized and positioned.
-		 *
-		 * @since 3.3.0
-		 *
-		 * @param {Object} event The event that triggered the opening of this pointer.
-		 */
 		open: function( event ) {
 			var self = this,
 				o    = this.options;
@@ -330,14 +227,6 @@
 			});
 		},
 
-		/**
-		 * Opens and shows the pointer element.
-		 *
-		 * @since 3.3.0
-		 * @private
-		 *
-		 * @param {Object} event An event object.
-		 */
 		_open: function( event ) {
 			var self = this,
 				o    = this.options;
@@ -356,13 +245,6 @@
 			}));
 		},
 
-		/**
-		 * Closes and hides the pointer element.
-		 *
-		 * @since 3.3.0
-		 *
-		 * @param {Object} event An event object.
-		 */
 		close: function( event ) {
 			if ( !this.active || this.options.disabled )
 				return;
@@ -378,23 +260,11 @@
 			}));
 		},
 
-		/**
-		 * Puts the pointer on top by increasing the z-index.
-		 *
-		 * @since 3.3.0
-		 */
 		sendToTop: function() {
 			if ( this.active )
 				this.pointer.css( 'z-index', zindex++ );
 		},
 
-		/**
-		 * Toggles the element between shown and hidden.
-		 *
-		 * @since 3.3.0
-		 *
-		 * @param {Object} event An event object.
-		 */
 		toggle: function( event ) {
 			if ( this.pointer.is(':hidden') )
 				this.open( event );
@@ -402,17 +272,6 @@
 				this.close( event );
 		},
 
-		/**
-		 * Extends the pointer and the widget element with the supplied parameter, which
-		 * is either an element or a function.
-		 *
-		 * @since 3.3.0
-		 * @private
-		 *
-		 * @param {Object} extend The object to be merged into the original object.
-		 *
-		 * @return {Object} The extended object.
-		 */
 		_handoff: function( extend ) {
 			return $.extend({
 				pointer: this.pointer,

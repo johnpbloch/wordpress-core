@@ -31,7 +31,7 @@ class PHPMailer
      * The PHPMailer Version number.
      * @var string
      */
-    public $Version = '5.2.27';
+    public $Version = '5.2.22';
 
     /**
      * Email priority.
@@ -440,9 +440,9 @@ class PHPMailer
      *
      * Parameters:
      *   boolean $result        result of the send action
-     *   array   $to            email addresses of the recipients
-     *   array   $cc            cc email addresses
-     *   array   $bcc           bcc email addresses
+     *   string  $to            email address of the recipient
+     *   string  $cc            cc email addresses
+     *   string  $bcc           bcc email addresses
      *   string  $subject       the subject
      *   string  $body          the email body
      *   string  $from          email address of sender
@@ -659,8 +659,6 @@ class PHPMailer
         if ($exceptions !== null) {
             $this->exceptions = (boolean)$exceptions;
         }
-        //Pick an appropriate debug output format automatically
-        $this->Debugoutput = (strpos(PHP_SAPI, 'cli') !== false ? 'echo' : 'html');
     }
 
     /**
@@ -1488,7 +1486,7 @@ class PHPMailer
      */
     protected static function fileIsAccessible($path)
     {
-        if (!static::isPermittedPath($path)) {
+        if (!self::isPermittedPath($path)) {
                 return false;
         }
         $readable = file_exists($path);
@@ -1661,13 +1659,8 @@ class PHPMailer
 
         foreach ($hosts as $hostentry) {
             $hostinfo = array();
-            if (!preg_match(
-                '/^((ssl|tls):\/\/)*([a-zA-Z0-9\.-]*|\[[a-fA-F0-9:]+\]):?([0-9]*)$/',
-                trim($hostentry),
-                $hostinfo
-            )) {
+            if (!preg_match('/^((ssl|tls):\/\/)*([a-zA-Z0-9\.-]*):?([0-9]*)$/', trim($hostentry), $hostinfo)) {
                 // Not a valid host entry
-                $this->edebug('Ignoring invalid host: ' . $hostentry);
                 continue;
             }
             // $hostinfo[2]: optional ssl or tls prefix
@@ -1786,7 +1779,6 @@ class PHPMailer
             'dk' => 'da',
             'no' => 'nb',
             'se' => 'sv',
-            'sr' => 'rs'
         );
 
         if (isset($renamed_langcodes[$langcode])) {
@@ -1828,7 +1820,7 @@ class PHPMailer
         // There is no English translation file
         if ($langcode != 'en') {
             // Make sure language file path is readable
-            if (!static::fileIsAccessible($lang_file)) {
+            if (!self::fileIsAccessible($lang_file)) {
                 $foundlang = false;
             } else {
                 // Overwrite language-specific strings.
@@ -2069,7 +2061,10 @@ class PHPMailer
     {
         $result = '';
 
-        $result .= $this->headerLine('Date', $this->MessageDate == '' ? self::rfcDate() : $this->MessageDate);
+        if ($this->MessageDate == '') {
+            $this->MessageDate = self::rfcDate();
+        }
+        $result .= $this->headerLine('Date', $this->MessageDate);
 
         // To be created automatically by mail()
         if ($this->SingleTo) {
@@ -2549,7 +2544,7 @@ class PHPMailer
     public function addAttachment($path, $name = '', $encoding = 'base64', $type = '', $disposition = 'attachment')
     {
         try {
-            if (!static::fileIsAccessible($path)) {
+            if (!self::fileIsAccessible($path)) {
                 throw new phpmailerException($this->lang('file_access') . $path, self::STOP_CONTINUE);
             }
 
@@ -2730,10 +2725,10 @@ class PHPMailer
     protected function encodeFile($path, $encoding = 'base64')
     {
         try {
-            if (!static::fileIsAccessible($path)) {
+            if (!self::fileIsAccessible($path)) {
                 throw new phpmailerException($this->lang('file_open') . $path, self::STOP_CONTINUE);
             }
-            $magic_quotes = ( PHP_VERSION_ID < 70400 && get_magic_quotes_runtime() ); // WP: Patched for PHP 7.4.
+            $magic_quotes = get_magic_quotes_runtime();
             if ($magic_quotes) {
                 if (version_compare(PHP_VERSION, '5.3.0', '<')) {
                     set_magic_quotes_runtime(false);
@@ -3074,7 +3069,7 @@ class PHPMailer
      */
     public function addEmbeddedImage($path, $cid, $name = '', $encoding = 'base64', $type = '', $disposition = 'inline')
     {
-        if (!static::fileIsAccessible($path)) {
+        if (!self::fileIsAccessible($path)) {
             $this->setError($this->lang('file_access') . $path);
             return false;
         }
@@ -4077,7 +4072,7 @@ class phpmailerException extends Exception
      */
     public function errorMessage()
     {
-        $errorMsg = '<strong>' . htmlspecialchars($this->getMessage()) . "</strong><br />\n";
+        $errorMsg = '<strong>' . $this->getMessage() . "</strong><br />\n";
         return $errorMsg;
     }
 }

@@ -1,11 +1,11 @@
 <?php
-
 /////////////////////////////////////////////////////////////////
 /// getID3() by James Heinrich <info@getid3.org>               //
-//  available at https://github.com/JamesHeinrich/getID3       //
-//            or https://www.getid3.org                        //
-//            or http://getid3.sourceforge.net                 //
-//  see readme.txt for more details                            //
+//  available at http://getid3.sourceforge.net                 //
+//            or http://www.getid3.org                         //
+//          also https://github.com/JamesHeinrich/getID3       //
+/////////////////////////////////////////////////////////////////
+// See readme.txt for more details                             //
 /////////////////////////////////////////////////////////////////
 //                                                             //
 // module.audio.flac.php                                       //
@@ -24,9 +24,6 @@ class getid3_flac extends getid3_handler
 {
 	const syncword = 'fLaC';
 
-	/**
-	 * @return bool
-	 */
 	public function Analyze() {
 		$info = &$this->getid3->info;
 
@@ -44,30 +41,22 @@ class getid3_flac extends getid3_handler
 		return $this->parseMETAdata();
 	}
 
-	/**
-	 * @return bool
-	 */
 	public function parseMETAdata() {
 		$info = &$this->getid3->info;
 		do {
 			$BlockOffset   = $this->ftell();
 			$BlockHeader   = $this->fread(4);
-			$LBFBT         = getid3_lib::BigEndian2Int(substr($BlockHeader, 0, 1));  // LBFBT = LastBlockFlag + BlockType
+			$LBFBT         = getid3_lib::BigEndian2Int(substr($BlockHeader, 0, 1));
 			$LastBlockFlag = (bool) ($LBFBT & 0x80);
 			$BlockType     =        ($LBFBT & 0x7F);
 			$BlockLength   = getid3_lib::BigEndian2Int(substr($BlockHeader, 1, 3));
 			$BlockTypeText = self::metaBlockTypeLookup($BlockType);
 
 			if (($BlockOffset + 4 + $BlockLength) > $info['avdataend']) {
-				$this->warning('METADATA_BLOCK_HEADER.BLOCK_TYPE ('.$BlockTypeText.') at offset '.$BlockOffset.' extends beyond end of file');
+				$this->error('METADATA_BLOCK_HEADER.BLOCK_TYPE ('.$BlockTypeText.') at offset '.$BlockOffset.' extends beyond end of file');
 				break;
 			}
 			if ($BlockLength < 1) {
-				if ($BlockTypeText != 'reserved') {
-					// probably supposed to be zero-length
-					$this->warning('METADATA_BLOCK_HEADER.BLOCK_LENGTH ('.$BlockTypeText.') at offset '.$BlockOffset.' is zero bytes');
-					continue;
-				}
 				$this->error('METADATA_BLOCK_HEADER.BLOCK_LENGTH ('.$BlockLength.') at offset '.$BlockOffset.' is invalid');
 				break;
 			}
@@ -146,17 +135,7 @@ class getid3_flac extends getid3_handler
 		if (isset($info['flac']['PICTURE']) && ($this->getid3->option_save_attachments !== getID3::ATTACHMENTS_NONE)) {
 			foreach ($info['flac']['PICTURE'] as $entry) {
 				if (!empty($entry['data'])) {
-					if (!isset($info['flac']['comments']['picture'])) {
-						$info['flac']['comments']['picture'] = array();
-					}
-					$comments_picture_data = array();
-					foreach (array('data', 'image_mime', 'image_width', 'image_height', 'imagetype', 'picturetype', 'description', 'datalength') as $picture_key) {
-						if (isset($entry[$picture_key])) {
-							$comments_picture_data[$picture_key] = $entry[$picture_key];
-						}
-					}
-					$info['flac']['comments']['picture'][] = $comments_picture_data;
-					unset($comments_picture_data);
+					$info['flac']['comments']['picture'][] = array('image_mime'=>$entry['image_mime'], 'data'=>$entry['data']);
 				}
 			}
 		}
@@ -178,7 +157,7 @@ class getid3_flac extends getid3_handler
 		if (isset($info['flac']['STREAMINFO']['audio_signature'])) {
 
 			if ($info['flac']['STREAMINFO']['audio_signature'] === str_repeat("\x00", 16)) {
-				$this->warning('FLAC STREAMINFO.audio_signature is null (known issue with libOggFLAC)');
+                $this->warning('FLAC STREAMINFO.audio_signature is null (known issue with libOggFLAC)');
 			}
 			else {
 				$info['md5_data_source'] = '';
@@ -205,14 +184,12 @@ class getid3_flac extends getid3_handler
 		return true;
 	}
 
+	private function parseSTREAMINFO($BlockData) {
+		$info = &$this->getid3->info;
 
-	/**
-	 * @param string $BlockData
-	 *
-	 * @return array
-	 */
-	public static function parseSTREAMINFOdata($BlockData) {
-		$streaminfo = array();
+		$info['flac']['STREAMINFO'] = array();
+		$streaminfo = &$info['flac']['STREAMINFO'];
+
 		$streaminfo['min_block_size']  = getid3_lib::BigEndian2Int(substr($BlockData, 0, 2));
 		$streaminfo['max_block_size']  = getid3_lib::BigEndian2Int(substr($BlockData, 2, 2));
 		$streaminfo['min_frame_size']  = getid3_lib::BigEndian2Int(substr($BlockData, 4, 3));
@@ -224,28 +201,15 @@ class getid3_flac extends getid3_handler
 		$streaminfo['bits_per_sample'] = getid3_lib::Bin2Dec(substr($SRCSBSS, 23,  5)) + 1;
 		$streaminfo['samples_stream']  = getid3_lib::Bin2Dec(substr($SRCSBSS, 28, 36));
 
-		$streaminfo['audio_signature'] =                           substr($BlockData, 18, 16);
+		$streaminfo['audio_signature'] = substr($BlockData, 18, 16);
 
-		return $streaminfo;
-	}
-
-	/**
-	 * @param string $BlockData
-	 *
-	 * @return bool
-	 */
-	private function parseSTREAMINFO($BlockData) {
-		$info = &$this->getid3->info;
-
-		$info['flac']['STREAMINFO'] = self::parseSTREAMINFOdata($BlockData);
-
-		if (!empty($info['flac']['STREAMINFO']['sample_rate'])) {
+		if (!empty($streaminfo['sample_rate'])) {
 
 			$info['audio']['bitrate_mode']    = 'vbr';
-			$info['audio']['sample_rate']     = $info['flac']['STREAMINFO']['sample_rate'];
-			$info['audio']['channels']        = $info['flac']['STREAMINFO']['channels'];
-			$info['audio']['bits_per_sample'] = $info['flac']['STREAMINFO']['bits_per_sample'];
-			$info['playtime_seconds']         = $info['flac']['STREAMINFO']['samples_stream'] / $info['flac']['STREAMINFO']['sample_rate'];
+			$info['audio']['sample_rate']     = $streaminfo['sample_rate'];
+			$info['audio']['channels']        = $streaminfo['channels'];
+			$info['audio']['bits_per_sample'] = $streaminfo['bits_per_sample'];
+			$info['playtime_seconds']         = $streaminfo['samples_stream'] / $streaminfo['sample_rate'];
 			if ($info['playtime_seconds'] > 0) {
 				if (!$this->isDependencyFor('matroska')) {
 					$info['audio']['bitrate'] = (($info['avdataend'] - $info['avdataoffset']) * 8) / $info['playtime_seconds'];
@@ -262,11 +226,6 @@ class getid3_flac extends getid3_handler
 		return true;
 	}
 
-	/**
-	 * @param string $BlockData
-	 *
-	 * @return bool
-	 */
 	private function parseAPPLICATION($BlockData) {
 		$info = &$this->getid3->info;
 
@@ -277,11 +236,6 @@ class getid3_flac extends getid3_handler
 		return true;
 	}
 
-	/**
-	 * @param string $BlockData
-	 *
-	 * @return bool
-	 */
 	private function parseSEEKTABLE($BlockData) {
 		$info = &$this->getid3->info;
 
@@ -311,11 +265,6 @@ class getid3_flac extends getid3_handler
 		return true;
 	}
 
-	/**
-	 * @param string $BlockData
-	 *
-	 * @return bool
-	 */
 	private function parseVORBIS_COMMENT($BlockData) {
 		$info = &$this->getid3->info;
 
@@ -335,11 +284,6 @@ class getid3_flac extends getid3_handler
 		return true;
 	}
 
-	/**
-	 * @param string $BlockData
-	 *
-	 * @return bool
-	 */
 	private function parseCUESHEET($BlockData) {
 		$info = &$this->getid3->info;
 		$offset = 0;
@@ -392,34 +336,32 @@ class getid3_flac extends getid3_handler
 	}
 
 	/**
-	 * Parse METADATA_BLOCK_PICTURE flac structure and extract attachment
-	 * External usage: audio.ogg
-	 *
-	 * @return bool
-	 */
+	* Parse METADATA_BLOCK_PICTURE flac structure and extract attachment
+	* External usage: audio.ogg
+	*/
 	public function parsePICTURE() {
 		$info = &$this->getid3->info;
 
 		$picture['typeid']         = getid3_lib::BigEndian2Int($this->fread(4));
-		$picture['picturetype']    = self::pictureTypeLookup($picture['typeid']);
+		$picture['type']           = self::pictureTypeLookup($picture['typeid']);
 		$picture['image_mime']     = $this->fread(getid3_lib::BigEndian2Int($this->fread(4)));
 		$descr_length              = getid3_lib::BigEndian2Int($this->fread(4));
 		if ($descr_length) {
 			$picture['description'] = $this->fread($descr_length);
 		}
-		$picture['image_width']    = getid3_lib::BigEndian2Int($this->fread(4));
-		$picture['image_height']   = getid3_lib::BigEndian2Int($this->fread(4));
+		$picture['width']          = getid3_lib::BigEndian2Int($this->fread(4));
+		$picture['height']         = getid3_lib::BigEndian2Int($this->fread(4));
 		$picture['color_depth']    = getid3_lib::BigEndian2Int($this->fread(4));
 		$picture['colors_indexed'] = getid3_lib::BigEndian2Int($this->fread(4));
-		$picture['datalength']     = getid3_lib::BigEndian2Int($this->fread(4));
+		$data_length               = getid3_lib::BigEndian2Int($this->fread(4));
 
 		if ($picture['image_mime'] == '-->') {
-			$picture['data'] = $this->fread($picture['datalength']);
+			$picture['data'] = $this->fread($data_length);
 		} else {
 			$picture['data'] = $this->saveAttachment(
-				str_replace('/', '_', $picture['picturetype']).'_'.$this->ftell(),
+				str_replace('/', '_', $picture['type']).'_'.$this->ftell(),
 				$this->ftell(),
-				$picture['datalength'],
+				$data_length,
 				$picture['image_mime']);
 		}
 
@@ -428,11 +370,6 @@ class getid3_flac extends getid3_handler
 		return true;
 	}
 
-	/**
-	 * @param int $blocktype
-	 *
-	 * @return string
-	 */
 	public static function metaBlockTypeLookup($blocktype) {
 		static $lookup = array(
 			0 => 'STREAMINFO',
@@ -446,11 +383,6 @@ class getid3_flac extends getid3_handler
 		return (isset($lookup[$blocktype]) ? $lookup[$blocktype] : 'reserved');
 	}
 
-	/**
-	 * @param int $applicationid
-	 *
-	 * @return string
-	 */
 	public static function applicationIDLookup($applicationid) {
 		// http://flac.sourceforge.net/id.html
 		static $lookup = array(
@@ -481,11 +413,6 @@ class getid3_flac extends getid3_handler
 		return (isset($lookup[$applicationid]) ? $lookup[$applicationid] : 'reserved');
 	}
 
-	/**
-	 * @param int $type_id
-	 *
-	 * @return string
-	 */
 	public static function pictureTypeLookup($type_id) {
 		static $lookup = array (
 			 0 => 'Other',

@@ -6,27 +6,21 @@
  *
  * @package WordPress
  * @subpackage Administration
- * @output wp-admin/js/nav-menu.js
  */
 
-/* global menus, postboxes, columns, isRtl, navMenuL10n, ajaxurl, wpNavMenu */
+/* global menus, postboxes, columns, isRtl, navMenuL10n, ajaxurl */
+
+var wpNavMenu;
 
 (function($) {
 
 	var api;
 
-	/**
-	 * Contains all the functions to handle WordPress navigation menus administration.
-	 *
-	 * @namespace wpNavMenu
-	 */
-	api = window.wpNavMenu = {
+	api = wpNavMenu = {
 
 		options : {
 			menuItemDepthPerLevel : 30, // Do not use directly. Use depthToPx and pxToDepth instead.
-			globalMaxDepth:  11,
-			sortableItems:   '> *',
-			targetTolerance: 0
+			globalMaxDepth : 11
 		},
 
 		menuList : undefined,	// Set in init.
@@ -34,7 +28,6 @@
 		menusChanged : false,
 		isRTL: !! ( 'undefined' != typeof isRtl && isRtl ),
 		negateIfRTL: ( 'undefined' != typeof isRtl && isRtl ) ? -1 : 1,
-		lastSearch: '',
 
 		// Functions that run on init.
 		init : function() {
@@ -45,9 +38,9 @@
 
 			this.attachMenuEditListeners();
 
+			this.setupInputWithDefaultTitle();
 			this.attachQuickSearchListeners();
 			this.attachThemeLocationsListeners();
-			this.attachMenuSaveSubmitListeners();
 
 			this.attachTabsPanelListeners();
 
@@ -86,24 +79,18 @@
 				shiftDepthClass : function(change) {
 					return this.each(function(){
 						var t = $(this),
-							depth = t.menuItemDepth(),
-							newDepth = depth + change;
-
-						t.removeClass( 'menu-item-depth-'+ depth )
-							.addClass( 'menu-item-depth-'+ ( newDepth ) );
-
-						if ( 0 === newDepth ) {
-							t.find( '.is-submenu' ).hide();
-						}
+							depth = t.menuItemDepth();
+						$(this).removeClass('menu-item-depth-'+ depth )
+							.addClass('menu-item-depth-'+ (depth + change) );
 					});
 				},
 				childMenuItems : function() {
 					var result = $();
 					this.each(function(){
-						var t = $(this), depth = t.menuItemDepth(), next = t.next( '.menu-item' );
+						var t = $(this), depth = t.menuItemDepth(), next = t.next();
 						while( next.length && next.menuItemDepth() > depth ) {
 							result = result.add( next );
-							next = next.next( '.menu-item' );
+							next = next.next();
 						}
 					});
 					return result;
@@ -171,8 +158,6 @@
 				/**
 				 * Adds selected menu items to the menu.
 				 *
-				 * @ignore
-				 *
 				 * @param jQuery metabox The metabox jQuery object.
 				 */
 				addSelectedToMenu : function(processMethod) {
@@ -192,7 +177,7 @@
 							return false;
 
 						// Show the ajax spinner
-						t.find( '.button-controls .spinner' ).addClass( 'is-active' );
+						t.find( '.spinner' ).addClass( 'is-active' );
 
 						// Retrieve menu item data
 						$(checkboxes).each(function(){
@@ -208,9 +193,8 @@
 						// Add the items
 						api.addItemToMenu(menuItems, processMethod, function(){
 							// Deselect the items and hide the ajax spinner
-							checkboxes.prop( 'checked', false );
-							t.find( '.button-controls .select-all' ).prop( 'checked', false );
-							t.find( '.button-controls .spinner' ).removeClass( 'is-active' );
+							checkboxes.removeAttr('checked');
+							t.find( '.spinner' ).removeClass( 'is-active' );
 						});
 					});
 				},
@@ -404,22 +388,23 @@
 
 			// Refresh the accessibility when the user comes close to the item in any way
 			menu.on( 'mouseenter.refreshAccessibility focus.refreshAccessibility touchstart.refreshAccessibility' , '.menu-item' , function(){
-				api.refreshAdvancedAccessibilityOfItem( $( this ).find( 'a.item-edit' ) );
+				api.refreshAdvancedAccessibilityOfItem( $( this ).find( '.item-edit' ) );
 			} );
 
 			// We have to update on click as well because we might hover first, change the item, and then click.
-			menu.on( 'click', 'a.item-edit', function() {
+			menu.on( 'click', '.item-edit', function() {
 				api.refreshAdvancedAccessibilityOfItem( $( this ) );
 			} );
 
 			// Links for moving items
-			menu.on( 'click', '.menus-move', function () {
+			menu.on( 'click', '.menus-move', function ( e ) {
 				var $this = $( this ),
 					dir = $this.data( 'dir' );
 
 				if ( 'undefined' !== typeof dir ) {
 					api.moveMenuItem( $( this ).parents( 'li.menu-item' ).find( 'a.item-edit' ), dir );
 				}
+				e.preventDefault();
 			});
 		},
 
@@ -452,40 +437,40 @@
 				totalMenuItems = $('#menu-to-edit li').length,
 				hasSameDepthSibling = menuItem.nextAll( '.menu-item-depth-' + depth ).length;
 
-				menuItem.find( '.field-move' ).toggle( totalMenuItems > 1 );
+				menuItem.find( '.field-move' ).toggle( totalMenuItems > 1 ); 
 
 			// Where can they move this menu item?
 			if ( 0 !== position ) {
 				thisLink = menuItem.find( '.menus-move-up' );
-				thisLink.attr( 'aria-label', menus.moveUp ).css( 'display', 'inline' );
+				thisLink.prop( 'title', menus.moveUp ).css( 'display', 'inline' );
 			}
 
 			if ( 0 !== position && isPrimaryMenuItem ) {
 				thisLink = menuItem.find( '.menus-move-top' );
-				thisLink.attr( 'aria-label', menus.moveToTop ).css( 'display', 'inline' );
+				thisLink.prop( 'title', menus.moveToTop ).css( 'display', 'inline' );
 			}
 
 			if ( position + 1 !== totalMenuItems && 0 !== position ) {
 				thisLink = menuItem.find( '.menus-move-down' );
-				thisLink.attr( 'aria-label', menus.moveDown ).css( 'display', 'inline' );
+				thisLink.prop( 'title', menus.moveDown ).css( 'display', 'inline' );
 			}
 
 			if ( 0 === position && 0 !== hasSameDepthSibling ) {
 				thisLink = menuItem.find( '.menus-move-down' );
-				thisLink.attr( 'aria-label', menus.moveDown ).css( 'display', 'inline' );
+				thisLink.prop( 'title', menus.moveDown ).css( 'display', 'inline' );
 			}
 
 			if ( ! isPrimaryMenuItem ) {
 				thisLink = menuItem.find( '.menus-move-left' ),
 				thisLinkText = menus.outFrom.replace( '%s', prevItemNameLeft );
-				thisLink.attr( 'aria-label', menus.moveOutFrom.replace( '%s', prevItemNameLeft ) ).text( thisLinkText ).css( 'display', 'inline' );
+				thisLink.prop( 'title', menus.moveOutFrom.replace( '%s', prevItemNameLeft ) ).text( thisLinkText ).css( 'display', 'inline' );
 			}
 
 			if ( 0 !== position ) {
 				if ( menuItem.find( '.menu-item-data-parent-id' ).val() !== menuItem.prev().find( '.menu-item-data-db-id' ).val() ) {
 					thisLink = menuItem.find( '.menus-move-right' ),
 					thisLinkText = menus.under.replace( '%s', prevItemNameRight );
-					thisLink.attr( 'aria-label', menus.moveUnder.replace( '%s', prevItemNameRight ) ).text( thisLinkText ).css( 'display', 'inline' );
+					thisLink.prop( 'title', menus.moveUnder.replace( '%s', prevItemNameRight ) ).text( thisLinkText ).css( 'display', 'inline' );
 				}
 			}
 
@@ -507,7 +492,7 @@
 				title = menus.subMenuFocus.replace( '%1$s', itemName ).replace( '%2$d', itemPosition ).replace( '%3$s', parentItemName );
 			}
 
-			$this.attr( 'aria-label', title );
+			$this.prop('title', title).text( title );
 
 			// Mark this item's accessibility as refreshed
 			$this.data( 'needs_accessibility_refresh', false );
@@ -520,20 +505,20 @@
 		 */
 		refreshAdvancedAccessibility : function() {
 
-			// Hide all the move buttons by default.
-			$( '.menu-item-settings .field-move .menus-move' ).hide();
+			// Hide all links by default
+			$( '.menu-item-settings .field-move a' ).hide();
 
 			// Mark all menu items as unprocessed
-			$( 'a.item-edit' ).data( 'needs_accessibility_refresh', true );
+			$( '.item-edit' ).data( 'needs_accessibility_refresh', true );
 
 			// All open items have to be refreshed or they will show no links
-			$( '.menu-item-edit-active a.item-edit' ).each( function() {
+			$( '.menu-item-edit-active .item-edit' ).each( function() {
 				api.refreshAdvancedAccessibilityOfItem( this );
 			} );
 		},
 
 		refreshKeyboardAccessibility : function() {
-			$( 'a.item-edit' ).off( 'focus' ).on( 'focus', function(){
+			$( '.item-edit' ).off( 'focus' ).on( 'focus', function(){
 				$(this).off( 'keydown' ).on( 'keydown', function(e){
 
 					var arrows,
@@ -635,7 +620,6 @@
 			api.menuList.sortable({
 				handle: '.menu-item-handle',
 				placeholder: 'sortable-placeholder',
-				items: api.options.sortableItems,
 				start: function(e, ui) {
 					var height, width, parent, children, tempHolder;
 
@@ -676,7 +660,7 @@
 					ui.placeholder.width(width);
 
 					// Update the list of menu items.
-					tempHolder = ui.placeholder.next( '.menu-item' );
+					tempHolder = ui.placeholder.next();
 					tempHolder.css( 'margin-top', helperHeight + 'px' ); // Set the margin to absorb the placeholder
 					ui.placeholder.detach(); // detach or jQuery UI will think the placeholder is a menu item
 					$(this).sortable( 'refresh' ); // The children aren't sortable. We should let jQ UI know.
@@ -735,15 +719,11 @@
 					var offset = ui.helper.offset(),
 						edge = api.isRTL ? offset.left + ui.helper.width() : offset.left,
 						depth = api.negateIfRTL * api.pxToDepth( edge - menuEdge );
-
 					// Check and correct if depth is not within range.
 					// Also, if the dragged element is dragged upwards over
 					// an item, shift the placeholder to a child position.
-					if ( depth > maxDepth || offset.top < ( prevBottom - api.options.targetTolerance ) ) {
-						depth = maxDepth;
-					} else if ( depth < minDepth ) {
-						depth = minDepth;
-					}
+					if ( depth > maxDepth || offset.top < prevBottom ) depth = maxDepth;
+					else if ( depth < minDepth ) depth = minDepth;
 
 					if( depth != currentDepth )
 						updateCurrentDepth(ui, depth);
@@ -760,12 +740,12 @@
 			function updateSharedVars(ui) {
 				var depth;
 
-				prev = ui.placeholder.prev( '.menu-item' );
-				next = ui.placeholder.next( '.menu-item' );
+				prev = ui.placeholder.prev();
+				next = ui.placeholder.next();
 
 				// Make sure we don't select the moving item.
-				if( prev[0] == ui.item[0] ) prev = prev.prev( '.menu-item' );
-				if( next[0] == ui.item[0] ) next = next.next( '.menu-item' );
+				if( prev[0] == ui.item[0] ) prev = prev.prev();
+				if( next[0] == ui.item[0] ) next = next.next();
 
 				prevBottom = (prev.length) ? prev.offset().top + prev.height() : 0;
 				nextThreshold = (next.length) ? next.offset().top + next.height() / 3 : 0;
@@ -836,23 +816,7 @@
 					}
 				}
 			});
-
-			$( '#menu-name' ).on( 'input', _.debounce( function () {
-				var menuName = $( document.getElementById( 'menu-name' ) ),
-					menuNameVal = menuName.val();
-
-				if ( ! menuNameVal || ! menuNameVal.replace( /\s+/, '' ) ) {
-					// Add warning for invalid menu name.
-					menuName.parent().addClass( 'form-invalid' );
-				} else {
-					// Remove warning for valid menu name.
-					menuName.parent().removeClass( 'form-invalid' );
-				}
-			}, 500 ) );
-
 			$('#add-custom-links input[type="text"]').keypress(function(e){
-				$('#customlinkdiv').removeClass('form-invalid');
-
 				if ( e.keyCode === 13 ) {
 					e.preventDefault();
 					$( '#submit-customlinkdiv' ).click();
@@ -860,15 +824,34 @@
 			});
 		},
 
-		attachMenuSaveSubmitListeners : function() {
-			/*
-			 * When a navigation menu is saved, store a JSON representation of all form data
-			 * in a single input to avoid PHP `max_input_vars` limitations. See #14134.
-			 */
-			$( '#update-nav-menu' ).submit( function() {
-				var navMenuData = $( '#update-nav-menu' ).serializeArray();
-				$( '[name="nav-menu-data"]' ).val( JSON.stringify( navMenuData ) );
+		/**
+		 * An interface for managing default values for input elements
+		 * that is both JS and accessibility-friendly.
+		 *
+		 * Input elements that add the class 'input-with-default-title'
+		 * will have their values set to the provided HTML title when empty.
+		 */
+		setupInputWithDefaultTitle : function() {
+			var name = 'input-with-default-title';
+
+			$('.' + name).each( function(){
+				var $t = $(this), title = $t.attr('title'), val = $t.val();
+				$t.data( name, title );
+
+				if( '' === val ) $t.val( title );
+				else if ( title == val ) return;
+				else $t.removeClass( name );
+			}).focus( function(){
+				var $t = $(this);
+				if( $t.val() == $t.data(name) )
+					$t.val('').removeClass( name );
+			}).blur( function(){
+				var $t = $(this);
+				if( '' === $t.val() )
+					$t.addClass( name ).val( $t.data(name) );
 			});
+
+			$( '.blank-slate .input-with-default-title' ).focus();
 		},
 
 		attachThemeLocationsListeners : function() {
@@ -890,42 +873,28 @@
 		attachQuickSearchListeners : function() {
 			var searchTimer;
 
-			// Prevent form submission.
-			$( '#nav-menu-meta' ).on( 'submit', function( event ) {
-				event.preventDefault();
-			});
+			$('.quick-search').keypress(function(e){
+				var t = $(this);
 
-			$( '#nav-menu-meta' ).on( 'input', '.quick-search', function() {
-				var $this = $( this );
-
-				$this.attr( 'autocomplete', 'off' );
-
-				if ( searchTimer ) {
-					clearTimeout( searchTimer );
+				if( 13 == e.which ) {
+					api.updateQuickSearchResults( t );
+					return false;
 				}
 
-				searchTimer = setTimeout( function() {
-					api.updateQuickSearchResults( $this );
- 				}, 500 );
-			}).on( 'blur', '.quick-search', function() {
-				api.lastSearch = '';
-			});
+				if( searchTimer ) clearTimeout(searchTimer);
+
+				searchTimer = setTimeout(function(){
+					api.updateQuickSearchResults( t );
+				}, 400);
+			}).attr('autocomplete','off');
 		},
 
 		updateQuickSearchResults : function(input) {
 			var panel, params,
-				minSearchLength = 2,
-				q = input.val();
+			minSearchLength = 2,
+			q = input.val();
 
-			/*
-			 * Minimum characters for a search. Also avoid a new AJAX search when
-			 * the pressed key (e.g. arrows) doesn't change the searched term.
-			 */
-			if ( q.length < minSearchLength || api.lastSearch == q ) {
-				return;
-			}
-
-			api.lastSearch = q;
+			if( q.length < minSearchLength ) return;
 
 			panel = input.parents('.tabs-panel');
 			params = {
@@ -945,15 +914,13 @@
 		},
 
 		addCustomLink : function( processMethod ) {
-			var url = $('#custom-menu-item-url').val().trim(),
+			var url = $('#custom-menu-item-url').val(),
 				label = $('#custom-menu-item-name').val();
 
 			processMethod = processMethod || api.addMenuItemToBottom;
 
-			if ( '' === url || 'https://' == url || 'http://' == url ) {
-				$('#customlinkdiv').addClass('form-invalid');
+			if ( '' === url || 'http://' == url )
 				return false;
-			}
 
 			// Show the ajax spinner
 			$( '.customlinkdiv .spinner' ).addClass( 'is-active' );
@@ -962,7 +929,7 @@
 				$( '.customlinkdiv .spinner' ).removeClass( 'is-active' );
 				// Set custom link form back to defaults
 				$('#custom-menu-item-name').val('').blur();
-				$( '#custom-menu-item-url' ).val( '' ).attr( 'placeholder', 'https://' );
+				$('#custom-menu-item-url').val('http://');
 			});
 		},
 
@@ -1011,33 +978,21 @@
 		},
 
 		/**
-		 * Process the add menu item request response into menu list item. Appends to menu.
+		 * Process the add menu item request response into menu list item.
 		 *
-		 * @param {string} menuMarkup The text server response of menu item markup.
-		 *
-		 * @fires document#menu-item-added Passes menuMarkup as a jQuery object.
+		 * @param string menuMarkup The text server response of menu item markup.
+		 * @param object req The request arguments.
 		 */
 		addMenuItemToBottom : function( menuMarkup ) {
-			var $menuMarkup = $( menuMarkup );
-			$menuMarkup.hideAdvancedMenuItemFields().appendTo( api.targetList );
+			$(menuMarkup).hideAdvancedMenuItemFields().appendTo( api.targetList );
 			api.refreshKeyboardAccessibility();
 			api.refreshAdvancedAccessibility();
-			$( document ).trigger( 'menu-item-added', [ $menuMarkup ] );
 		},
 
-		/**
-		 * Process the add menu item request response into menu list item. Prepends to menu.
-		 *
-		 * @param {string} menuMarkup The text server response of menu item markup.
-		 *
-		 * @fires document#menu-item-added Passes menuMarkup as a jQuery object.
-		 */
 		addMenuItemToTop : function( menuMarkup ) {
-			var $menuMarkup = $( menuMarkup );
-			$menuMarkup.hideAdvancedMenuItemFields().prependTo( api.targetList );
+			$(menuMarkup).hideAdvancedMenuItemFields().prependTo( api.targetList );
 			api.refreshKeyboardAccessibility();
 			api.refreshAdvancedAccessibility();
-			$( document ).trigger( 'menu-item-added', [ $menuMarkup ] );
 		},
 
 		attachUnsavedChangesListener : function() {
@@ -1062,7 +1017,7 @@
 
 		attachTabsPanelListeners : function() {
 			$('#menu-settings-column').bind('click', function(e) {
-				var selectAreaMatch, selectAll, panelId, wrapper, items,
+				var selectAreaMatch, panelId, wrapper, items,
 					target = $(e.target);
 
 				if ( target.hasClass('nav-tab-link') ) {
@@ -1072,7 +1027,7 @@
 					wrapper = target.parents('.accordion-section-content').first();
 
 					// upon changing tabs, we want to uncheck all checkboxes
-					$( 'input', wrapper ).prop( 'checked', false );
+					$('input', wrapper).removeAttr('checked');
 
 					$('.tabs-panel-active', wrapper).removeClass('tabs-panel-active').addClass('tabs-panel-inactive');
 					$('#' + panelId, wrapper).removeClass('tabs-panel-inactive').addClass('tabs-panel-active');
@@ -1083,36 +1038,16 @@
 					// select the search bar
 					$('.quick-search', wrapper).focus();
 
-					// Hide controls in the search tab if no items found.
-					if ( ! wrapper.find( '.tabs-panel-active .menu-item-title' ).length ) {
-						wrapper.addClass( 'has-no-menu-item' );
-					} else {
-						wrapper.removeClass( 'has-no-menu-item' );
-					}
-
 					e.preventDefault();
-				} else if ( target.hasClass( 'select-all' ) ) {
-					selectAreaMatch = target.closest( '.button-controls' ).data( 'items-type' );
-					if ( selectAreaMatch ) {
-						items = $( '#' + selectAreaMatch + ' .tabs-panel-active .menu-item-title input' );
-
-						if ( items.length === items.filter( ':checked' ).length && ! target.is( ':checked' ) ) {
-							items.prop( 'checked', false );
-						} else if ( target.is( ':checked' ) ) {
-							items.prop( 'checked', true );
-						}
-					}
-				} else if ( target.hasClass( 'menu-item-checkbox' ) ) {
-					selectAreaMatch = target.closest( '.tabs-panel-active' ).parent().attr( 'id' );
-					if ( selectAreaMatch ) {
-						items     = $( '#' + selectAreaMatch + ' .tabs-panel-active .menu-item-title input' );
-						selectAll = $( '.button-controls[data-items-type="' + selectAreaMatch + '"] .select-all' );
-
-						if ( items.length === items.filter( ':checked' ).length && ! selectAll.is( ':checked' ) ) {
-							selectAll.prop( 'checked', true );
-						} else if ( selectAll.is( ':checked' ) ) {
-							selectAll.prop( 'checked', false );
-						}
+				} else if ( target.hasClass('select-all') ) {
+					selectAreaMatch = /#(.*)$/.exec(e.target.href);
+					if ( selectAreaMatch && selectAreaMatch[1] ) {
+						items = $('#' + selectAreaMatch[1] + ' .tabs-panel-active .menu-item-title input');
+						if( items.length === items.filter(':checked').length )
+							items.removeAttr('checked');
+						else
+							items.prop('checked', true);
+						return false;
 					}
 				} else if ( target.hasClass('submit-add-to-menu') ) {
 					api.registerChange();
@@ -1122,38 +1057,34 @@
 					else if ( e.target.id && -1 != e.target.id.indexOf('submit-') )
 						$('#' + e.target.id.replace(/submit-/, '')).addSelectedToMenu( api.addMenuItemToBottom );
 					return false;
+				} else if ( target.hasClass('page-numbers') ) {
+					$.post( ajaxurl, e.target.href.replace(/.*\?/, '').replace(/action=([^&]*)/, '') + '&action=menu-get-metabox',
+						function( resp ) {
+							if ( -1 == resp.indexOf('replace-id') )
+								return;
+
+							var metaBoxData = $.parseJSON(resp),
+							toReplace = document.getElementById(metaBoxData['replace-id']),
+							placeholder = document.createElement('div'),
+							wrap = document.createElement('div');
+
+							if ( ! metaBoxData.markup || ! toReplace )
+								return;
+
+							wrap.innerHTML = metaBoxData.markup ? metaBoxData.markup : '';
+
+							toReplace.parentNode.insertBefore( placeholder, toReplace );
+							placeholder.parentNode.removeChild( toReplace );
+
+							placeholder.parentNode.insertBefore( wrap, placeholder );
+
+							placeholder.parentNode.removeChild( placeholder );
+
+						}
+					);
+
+					return false;
 				}
-			});
-
-			/*
-			 * Delegate the `click` event and attach it just to the pagination
-			 * links thus excluding the current page `<span>`. See ticket #35577.
-			 */
-			$( '#nav-menu-meta' ).on( 'click', 'a.page-numbers', function() {
-				var $container = $( this ).closest( '.inside' );
-
-				$.post( ajaxurl, this.href.replace( /.*\?/, '' ).replace( /action=([^&]*)/, '' ) + '&action=menu-get-metabox',
-					function( resp ) {
-						var metaBoxData = $.parseJSON( resp ),
-							toReplace;
-
-						if ( -1 === resp.indexOf( 'replace-id' ) ) {
-							return;
-						}
-
-						// Get the post type menu meta box to update.
-						toReplace = document.getElementById( metaBoxData['replace-id'] );
-
-						if ( ! metaBoxData.markup || ! toReplace ) {
-							return;
-						}
-
-						// Update the post type menu meta box with new content from the response.
-						$container.html( metaBoxData.markup );
-					}
-				);
-
-				return false;
 			});
 		},
 
@@ -1194,8 +1125,8 @@
 			menuName = $('#menu-name'),
 			menuNameVal = menuName.val();
 			// Cancel and warn if invalid menu name
-			if ( ! menuNameVal || ! menuNameVal.replace( /\s+/, '' ) ) {
-				menuName.parent().addClass( 'form-invalid' );
+			if( !menuNameVal || menuNameVal == menuName.attr('title') || !menuNameVal.replace(/\s+/, '') ) {
+				menuName.parent().addClass('form-invalid');
 				return false;
 			}
 			// Copy menu theme locations
@@ -1239,14 +1170,11 @@
 			form = document.getElementById('nav-menu-meta'),
 			pattern = /menu-item[(\[^]\]*/,
 			$items = $('<div>').html(resp).find('li'),
-			wrapper = panel.closest( '.accordion-section-content' ),
-			selectAll = wrapper.find( '.button-controls .select-all' ),
 			$item;
 
 			if( ! $items.length ) {
 				$('.categorychecklist', panel).html( '<li><p>' + navMenuL10n.noResultsFound + '</p></li>' );
 				$( '.spinner', panel ).removeClass( 'is-active' );
-				wrapper.addClass( 'has-no-menu-item' );
 				return;
 			}
 
@@ -1274,23 +1202,11 @@
 
 			$('.categorychecklist', panel).html( $items );
 			$( '.spinner', panel ).removeClass( 'is-active' );
-			wrapper.removeClass( 'has-no-menu-item' );
-
-			if ( selectAll.is( ':checked' ) ) {
-				selectAll.prop( 'checked', false );
-			}
 		},
 
-		/**
-		 * Remove a menu item.
-		 * @param  {object} el The element to be removed as a jQuery object.
-		 *
-		 * @fires document#menu-removing-item Passes the element to be removed.
-		 */
 		removeMenuItem : function(el) {
 			var children = el.childMenuItems();
 
-			$( document ).trigger( 'menu-removing-item', [ el ] );
 			el.addClass('deleting').animate({
 					opacity : 0,
 					height: 0

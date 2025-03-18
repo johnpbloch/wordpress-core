@@ -2,7 +2,7 @@
 /**
  * The template for displaying Category pages
  *
- * @link https://developer.wordpress.org/themes/basics/template-hierarchy/
+ * @link https://codex.wordpress.org/Template_Hierarchy
  *
  * @package WordPress
  * @subpackage Twenty_Thirteen
@@ -16,12 +16,7 @@ get_header(); ?>
 
 		<?php if ( have_posts() ) : ?>
 			<header class="archive-header">
-				<h1 class="archive-title">
-				<?php
-				/* translators: %s: Category title. */
-				printf( __( 'Category Archives: %s', 'twentythirteen' ), single_cat_title( '', false ) );
-				?>
-				</h1>
+				<h1 class="archive-title"><?php printf( __( 'Category Archives: %s', 'twentythirteen' ), single_cat_title( '', false ) ); ?></h1>
 
 				<?php if ( category_description() ) : // Show an optional category description ?>
 				<div class="archive-meta"><?php echo category_description(); ?></div>
@@ -29,10 +24,7 @@ get_header(); ?>
 			</header><!-- .archive-header -->
 
 			<?php /* The loop */ ?>
-			<?php
-			while ( have_posts() ) :
-				the_post();
-				?>
+			<?php while ( have_posts() ) : the_post(); ?>
 				<?php get_template_part( 'content', get_post_format() ); ?>
 			<?php endwhile; ?>
 

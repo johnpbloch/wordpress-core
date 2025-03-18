@@ -34,12 +34,12 @@
 	 * Enables menu toggle for small screens.
 	 */
 	( function() {
-		if ( ! nav.length || ! button.length ) {
+		if ( ! nav || ! button ) {
 			return;
 		}
 
 		// Hide button if menu is missing or empty.
-		if ( ! menu.length || ! menu.children().length ) {
+		if ( ! menu || ! menu.children().length ) {
 			button.hide();
 			return;
 		}
@@ -75,11 +75,9 @@
 	} )();
 
 	/**
-	 * Add or remove ARIA attributes.
-	 *
+	 * @summary Add or remove ARIA attributes.
 	 * Uses jQuery's width() function to determine the size of the window and add
 	 * the default ARIA attributes for the menu toggle if it's visible.
-	 *
 	 * @since Twenty Thirteen 1.5
 	 */
 	function onResizeARIA() {
@@ -121,47 +119,14 @@
 	/**
 	 * Arranges footer widgets vertically.
 	 */
-	$( function() {
-		var columnWidth, widgetArea;
-		if ( ! $.isFunction( $.fn.masonry ) ) {
-			return;
-		}
-		columnWidth = body.is( '.sidebar' ) ? 228 : 245;
-		widgetArea = $( '#secondary .widget-area' );
+	if ( $.isFunction( $.fn.masonry ) ) {
+		var columnWidth = body.is( '.sidebar' ) ? 228 : 245;
 
-		widgetArea.masonry( {
+		$( '#secondary .widget-area' ).masonry( {
 			itemSelector: '.widget',
 			columnWidth: columnWidth,
 			gutterWidth: 20,
 			isRTL: body.is( '.rtl' )
 		} );
-
-		if ( 'undefined' !== typeof wp && wp.customize && wp.customize.selectiveRefresh ) {
-
-			// Retain previous masonry-brick initial position.
-			wp.customize.selectiveRefresh.bind( 'partial-content-rendered', function( placement ) {
-				var copyPosition = (
-					placement.partial.extended( wp.customize.widgetsPreview.WidgetPartial ) &&
-					placement.removedNodes instanceof jQuery &&
-					placement.removedNodes.is( '.masonry-brick' ) &&
-					placement.container instanceof jQuery
-				);
-				if ( copyPosition ) {
-					placement.container.css( {
-						position: placement.removedNodes.css( 'position' ),
-						top: placement.removedNodes.css( 'top' ),
-						left: placement.removedNodes.css( 'left' )
-					} );
-				}
-			} );
-
-			// Re-arrange footer widgets when sidebar is updated via selective refresh in the Customizer.
-			wp.customize.selectiveRefresh.bind( 'sidebar-updated', function( sidebarPartial ) {
-				if ( 'sidebar-1' === sidebarPartial.sidebarId ) {
-					widgetArea.masonry( 'reloadItems' );
-					widgetArea.masonry( 'layout' );
-				}
-			} );
-		}
-	} );
+	}
 } )( jQuery );

@@ -3,8 +3,9 @@
 	position: relative;
 	font-size: 13px;
 	background: #fff;
-	border: 1px solid #ddd;
-	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.075);
+	border: 1px solid #dfdfdf;
+	-webkit-box-shadow: 0 3px 6px rgba(0,0,0,0.075);
+	box-shadow: 0 3px 6px rgba(0,0,0,0.075);
 }
 
 .wp-pointer-content h3 {
@@ -13,7 +14,7 @@
 	padding: 15px 60px 14px 18px;
 	border: 1px solid #3592b6;
 	border-bottom: none;
-	line-height: 1.4;
+	line-height: 1.4em;
 	font-size: 14px;
 	color: #fff;
 	background: #00a0d2;
@@ -21,10 +22,11 @@
 
 .wp-pointer-content h3:before {
 	background: #fff;
+	-webkit-border-radius: 50%;
 	border-radius: 50%;
 	color: #00a0d2;
-	content: "\f227";
-	font: normal 20px/1.6 dashicons;
+	content: '\f227';
+	font: normal 20px/1.6 'dashicons';
 	position: absolute;
 	top: 8px;
 	right: 15px;
@@ -36,13 +38,8 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
-.wp-pointer-content h4 {
-	margin: 1.33em 20px 1em;
-	font-size: 1.15em;
-}
-
 .wp-pointer-content p {
-	padding: 0 20px;
+	padding: 0 15px;
 }
 
 .wp-pointer-buttons {
@@ -64,10 +61,10 @@
 
 .wp-pointer-buttons a.close:before {
 	background: none;
-	color: #72777c;
-	content: "\f153";
+	color: #b4b9be;
+	content: '\f153';
 	display: block !important;
-	font: normal 16px/1 dashicons;
+	font: normal 16px/1 'dashicons';
 	speak: none;
 	margin: 1px 0;
 	text-align: center;
@@ -152,7 +149,7 @@
 	border: 13px solid transparent;
 	border-bottom-color: #00a0d2;
 	display: block;
-	content: " ";
+	content: ' ';
 }
 
 .wp-pointer-bottom .wp-pointer-arrow {
@@ -168,7 +165,7 @@
 	border: 13px solid transparent;
 	border-top-color: #fff;
 	display: block;
-	content: " ";
+	content: ' ';
 }
 
 /* rtl:ignore */
@@ -186,7 +183,7 @@
 	border: 13px solid transparent;
 	border-right-color: #fff;
 	display: block;
-	content: " ";
+	content: ' ';
 }
 
 /* rtl:ignore */
@@ -204,20 +201,11 @@
 	border: 13px solid transparent;
 	border-left-color: #fff;
 	display: block;
-	content: " ";
-}
-
-.wp-pointer.arrow-bottom .wp-pointer-content {
-	margin-bottom: -45px;
-}
-
-.wp-pointer.arrow-bottom .wp-pointer-arrow {
-	top: 100%;
-	margin-top: -30px;
+	content: ' ';
 }
 
 /* Disable pointers at responsive sizes */
-@media screen and (max-width: 782px) {
+@media screen and ( max-width: 782px ) {
 	.wp-pointer {
 		display: none;
 	}

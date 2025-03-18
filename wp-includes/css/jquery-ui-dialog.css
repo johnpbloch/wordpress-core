@@ -107,6 +107,7 @@
 	position: absolute;
 	font-size: 0.1px;
 	display: block;
+	-ms-touch-action: none;
 	touch-action: none;
 }
 .ui-resizable-disabled .ui-resizable-handle,
@@ -182,7 +183,7 @@
 	display: inline-block;
 	text-decoration: none;
 	font-size: 13px;
-	line-height: 2;
+	line-height: 26px;
 	height: 28px;
 	margin: 0;
 	padding: 0 10px 1px;
@@ -190,13 +191,17 @@
 	border-width: 1px;
 	border-style: solid;
 	-webkit-appearance: none;
+	-webkit-border-radius: 3px;
 	border-radius: 3px;
 	white-space: nowrap;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 	color: #555;
 	border-color: #cccccc;
 	background: #f7f7f7;
-	box-shadow: 0 1px 0 #cccccc;
+	-webkit-box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba( 0, 0, 0, 0.08 );
+	box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba( 0, 0, 0, 0.08 );
 	vertical-align: top;
 }
 
@@ -207,8 +212,9 @@
 
 /* Remove the dotted border on :focus and the extra padding in Firefox */
 .ui-button::-moz-focus-inner {
-	border-width: 0;
-	border-style: none;
+	border-width: 1px 0;
+	border-style: solid none;
+	border-color: transparent;
 	padding: 0;
 }
 
@@ -220,14 +226,20 @@
 }
 
 .ui-button:focus {
-	border-color: #5b9dd9;
-	box-shadow: 0 0 3px rgba(0, 115, 170, 0.8);
+	-webkit-box-shadow:
+		0 0 0 1px #5b9dd9,
+		0 0 2px 1px rgba( 30, 140, 190, 0.8 );
+	box-shadow:
+		0 0 0 1px #5b9dd9,
+		0 0 2px 1px rgba( 30, 140, 190, 0.8 );
 }
 
 .ui-button:active {
 	background: #eee;
 	border-color: #999;
-	box-shadow: inset 0 2px 5px -3px rgba(0, 0, 0, 0.5);
+	color: #32373c;
+	-webkit-box-shadow: inset 0 2px 5px -3px rgba( 0, 0, 0, 0.5 );
+	box-shadow: inset 0 2px 5px -3px rgba( 0, 0, 0, 0.5 );
 }
 
 .ui-button[disabled],
@@ -235,17 +247,17 @@
 	color: #a0a5aa !important;
 	border-color: #ddd !important;
 	background: #f7f7f7 !important;
+	-webkit-box-shadow: none !important;
 	box-shadow: none !important;
 	text-shadow: 0 1px 0 #fff !important;
 	cursor: default;
-	transform: none !important;
 }
 
-@media screen and (max-width: 782px) {
+@media screen and ( max-width: 782px ) {
 
 	.ui-button {
-		padding: 6px 14px;
-		line-height: normal;
+		padding: 10px 14px;
+		line-height: 1;
 		font-size: 14px;
 		vertical-align: middle;
 		height: auto;
@@ -262,8 +274,8 @@
 	left: 0;
 	z-index: 100102;
 	background-color: #fff;
-	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
-	overflow: hidden;
+	-webkit-box-shadow: 0 3px 6px rgba( 0, 0, 0, 0.3 );
+	box-shadow: 0 3px 6px rgba( 0, 0, 0, 0.3 );
 }
 
 .ui-dialog-titlebar {
@@ -272,13 +284,14 @@
 	height: 36px;
 	font-size: 18px;
 	font-weight: 600;
-	line-height: 2;
+	line-height: 36px;
 	padding: 0 36px 0 16px;
 }
 
 .ui-button.ui-dialog-titlebar-close {
 	background: none;
 	border: none;
+	-webkit-box-shadow: none;
 	box-shadow: none;
 	color: #666;
 	cursor: pointer;
@@ -290,33 +303,22 @@
 	width: 36px;
 	height: 36px;
 	text-align: center;
-	border-radius: 0;
 }
 
 .ui-dialog-titlebar-close:before {
-	font: normal 20px/1 dashicons;
+	font: normal 20px/1 'dashicons';
 	vertical-align: top;
 	speak: none;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-	line-height: 1.8;
+	line-height: 36px;
 	width: 36px;
 	height: 36px;
-	content: "\f158";
+	content: '\f158';
 }
 
-.ui-button.ui-dialog-titlebar-close:hover,
-.ui-button.ui-dialog-titlebar-close:focus {
+.ui-button.ui-dialog-titlebar-close:hover {
 	color: #00a0d2;
-}
-
-.ui-button.ui-dialog-titlebar-close:focus {
-	box-shadow:
-		0 0 0 1px #5b9dd9,
-		0 0 2px 1px rgba(30, 140, 190, 0.8);
-	/* Only visible in Windows High Contrast mode */
-	outline: 2px solid transparent;
-	outline-offset: -2px;
 }
 
 .ui-dialog-titlebar-close .ui-button-text {

@@ -87,49 +87,13 @@ class AtomParser {
     var $feed;
     var $current;
 
-	/**
-	 * PHP5 constructor.
-	 */
-    function __construct() {
+    function AtomParser() {
 
         $this->feed = new AtomFeed();
         $this->current = null;
-        $this->map_attrs_func = array( __CLASS__, 'map_attrs' );
-        $this->map_xmlns_func = array( __CLASS__, 'map_xmlns' );
+        $this->map_attrs_func = create_function('$k,$v', 'return "$k=\"$v\"";');
+        $this->map_xmlns_func = create_function('$p,$n', '$xd = "xmlns"; if(strlen($n[0])>0) $xd .= ":{$n[0]}"; return "{$xd}=\"{$n[1]}\"";');
     }
-
-	/**
-	 * PHP4 constructor.
-	 */
-	public function AtomParser() {
-		self::__construct();
-	}
-
-	/**
-	 * Map attributes to key="val"
-	 *
-	 * @param string $k Key
-	 * @param string $v Value
-	 * @return string
-	 */
-	public static function map_attrs($k, $v) {
-		return "$k=\"$v\"";
-	}
-
-	/**
-	 * Map XML namespace to string.
-	 *
-	 * @param indexish $p XML Namespace element index
-	 * @param array $n Two-element array pair. [ 0 => {namespace}, 1 => {url} ]
-	 * @return string 'xmlns="{url}"' or 'xmlns:{namespace}="{url}"'
-	 */
-	public static function map_xmlns($p, $n) {
-		$xd = "xmlns";
-		if( 0 < strlen($n[0]) ) {
-			$xd .= ":{$n[0]}";
-		}
-		return "{$xd}=\"{$n[1]}\"";
-	}
 
     function _p($msg) {
         if($this->debug) {
@@ -146,11 +110,6 @@ class AtomParser {
         set_error_handler(array(&$this, 'error_handler'));
 
         array_unshift($this->ns_contexts, array());
-
-        if ( ! function_exists( 'xml_parser_create_ns' ) ) {
-        	trigger_error( __( "PHP's XML extension is not available. Please contact your hosting provider to enable PHP's XML extension." ) );
-        	return false;
-        }
 
         $parser = xml_parser_create_ns();
         xml_set_object($parser, $this);
@@ -171,8 +130,7 @@ class AtomParser {
             if($this->debug) $this->content .= $data;
 
             if(!xml_parse($parser, $data, feof($fp))) {
-                /* translators: 1: Error message, 2: Line number. */
-                trigger_error(sprintf(__('XML Error: %1$s at line %2$s')."\n",
+                trigger_error(sprintf(__('XML error: %s at line %d')."\n",
                     xml_error_string(xml_get_error_code($parser)),
                     xml_get_current_line_number($parser)));
                 $ret = false;
@@ -190,7 +148,7 @@ class AtomParser {
 
     function start_element($parser, $name, $attrs) {
 
-        $tag = array_pop(explode(":", $name));
+        $tag = array_pop(split(":", $name));
 
         switch($name) {
             case $this->NS . ':feed':
@@ -269,7 +227,7 @@ class AtomParser {
 
     function end_element($parser, $name) {
 
-        $tag = array_pop(explode(":", $name));
+        $tag = array_pop(split(":", $name));
 
         $ccount = count($this->in_content);
 
@@ -344,7 +302,7 @@ class AtomParser {
 
     function ns_to_prefix($qname, $attr=false) {
         # split 'http://www.w3.org/1999/xhtml:div' into ('http','//www.w3.org/1999/xhtml','div')
-        $components = explode(":", $qname);
+        $components = split(":", $qname);
 
         # grab the last one (e.g 'div')
         $name = array_pop($components);

@@ -331,7 +331,6 @@ class SimplePie_Parse_Date
 		'CCT' => 23400,
 		'CDT' => -18000,
 		'CEDT' => 7200,
-		'CEST' => 7200,
 		'CET' => 3600,
 		'CGST' => -7200,
 		'CGT' => -10800,
@@ -542,8 +541,8 @@ class SimplePie_Parse_Date
 	 */
 	public function __construct()
 	{
-		$this->day_pcre = '(' . implode('|', array_keys($this->day)) . ')';
-		$this->month_pcre = '(' . implode('|', array_keys($this->month)) . ')';
+		$this->day_pcre = '(' . implode(array_keys($this->day), '|') . ')';
+		$this->month_pcre = '(' . implode(array_keys($this->month), '|') . ')';
 
 		static $cache;
 		if (!isset($cache[get_class($this)]))
@@ -614,7 +613,7 @@ class SimplePie_Parse_Date
 	 *
 	 * @final
 	 * @access public
-	 * @param callable $callback
+	 * @param callback $callback
 	 */
 	public function add_callback($callback)
 	{

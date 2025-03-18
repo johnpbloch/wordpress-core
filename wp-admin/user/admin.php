@@ -7,9 +7,9 @@
  * @since 3.1.0
  */
 
-define( 'WP_USER_ADMIN', true );
+define('WP_USER_ADMIN', true);
 
-require_once( dirname( dirname( __FILE__ ) ) . '/admin.php' );
+require_once( dirname(dirname(__FILE__)) . '/admin.php');
 
 if ( ! is_multisite() ) {
 	wp_redirect( admin_url() );
@@ -18,7 +18,7 @@ if ( ! is_multisite() ) {
 
 $redirect_user_admin_request = ( ( $current_blog->domain != $current_site->domain ) || ( $current_blog->path != $current_site->path ) );
 /**
- * Filters whether to redirect the request to the User Admin in Multisite.
+ * Filter whether to redirect the request to the User Admin in Multisite.
  *
  * @since 3.2.0
  *
