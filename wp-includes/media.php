@@ -1872,7 +1872,8 @@ function gallery_shortcode( $attr ) {
 			$attachments[ $val->ID ] = $_attachments[ $key ];
 		}
 	} elseif ( ! empty( $atts['exclude'] ) ) {
-		$attachments = get_children(
+		$post_parent_id = $id;
+		$attachments    = get_children(
 			array(
 				'post_parent'    => $id,
 				'exclude'        => $atts['exclude'],
@@ -1884,7 +1885,8 @@ function gallery_shortcode( $attr ) {
 			)
 		);
 	} else {
-		$attachments = get_children(
+		$post_parent_id = $id;
+		$attachments    = get_children(
 			array(
 				'post_parent'    => $id,
 				'post_status'    => 'inherit',
@@ -1894,6 +1896,17 @@ function gallery_shortcode( $attr ) {
 				'orderby'        => $atts['orderby'],
 			)
 		);
+	}
+
+	if ( ! empty( $post_parent_id ) ) {
+		$post_parent = get_post( $post_parent_id );
+
+		// terminate the shortcode execution if user cannot read the post or password-protected
+		if (
+		( ! is_post_publicly_viewable( $post_parent->ID ) && ! current_user_can( 'read_post', $post_parent->ID ) )
+		|| post_password_required( $post_parent ) ) {
+			return '';
+		}
 	}
 
 	if ( empty( $attachments ) ) {
@@ -2212,6 +2225,15 @@ function wp_playlist_shortcode( $attr ) {
 	} else {
 		$args['post_parent'] = $id;
 		$attachments         = get_children( $args );
+	}
+
+	if ( ! empty( $args['post_parent'] ) ) {
+		$post_parent = get_post( $id );
+
+		// terminate the shortcode execution if user cannot read the post or password-protected
+		if ( ! current_user_can( 'read_post', $post_parent->ID ) || post_password_required( $post_parent ) ) {
+			return '';
+		}
 	}
 
 	if ( empty( $attachments ) ) {
@@ -3752,7 +3774,8 @@ function wp_enqueue_media( $args = array() ) {
 		/** This filter is documented in wp-admin/includes/media.php */
 		'captions'         => ! apply_filters( 'disable_captions', '' ),
 		'nonce'            => array(
-			'sendToEditor' => wp_create_nonce( 'media-send-to-editor' ),
+			'sendToEditor'           => wp_create_nonce( 'media-send-to-editor' ),
+			'setAttachmentThumbnail' => wp_create_nonce( 'set-attachment-thumbnail' ),
 		),
 		'post'             => array(
 			'id' => 0,
@@ -4255,11 +4278,26 @@ function attachment_url_to_postid( $url ) {
 	}
 
 	$sql = $wpdb->prepare(
-		"SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_wp_attached_file' AND meta_value = %s",
+		"SELECT post_id, meta_value FROM $wpdb->postmeta WHERE meta_key = '_wp_attached_file' AND meta_value = %s",
 		$path
 	);
 
-	$post_id = $wpdb->get_var( $sql );
+	$results = $wpdb->get_results( $sql );
+	$post_id = null;
+
+	if ( $results ) {
+		// Use the first available result, but prefer a case-sensitive match, if exists.
+		$post_id = reset( $results )->post_id;
+
+		if ( count( $results ) > 1 ) {
+			foreach ( $results as $result ) {
+				if ( $path === $result->meta_value ) {
+					$post_id = $result->post_id;
+					break;
+				}
+			}
+		}
+	}
 
 	/**
 	 * Filters an attachment id found by URL.

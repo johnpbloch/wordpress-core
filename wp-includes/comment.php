@@ -1831,7 +1831,12 @@ function wp_get_unapproved_comment_author_email() {
 		$comment    = get_comment( $comment_id );
 
 		if ( $comment && hash_equals( $_GET['moderation-hash'], wp_hash( $comment->comment_date_gmt ) ) ) {
-			$commenter_email = $comment->comment_author_email;
+			// The comment will only be viewable by the comment author for 1 minute.
+			$comment_preview_expires = strtotime( $comment->comment_date_gmt . '+1 minute' );
+
+			if ( time() < $comment_preview_expires ) {
+				$commenter_email = $comment->comment_author_email;
+			}
 		}
 	}
 
@@ -2326,6 +2331,15 @@ function wp_update_comment( $commentarr ) {
 		return 0;
 	}
 
+	$filter_comment = false;
+	if ( ! has_filter( 'pre_comment_content', 'wp_filter_kses' ) ) {
+		$filter_comment = ! user_can( isset( $comment['user_id'] ) ? $comment['user_id'] : 0, 'unfiltered_html' );
+	}
+
+	if ( $filter_comment ) {
+		add_filter( 'pre_comment_content', 'wp_filter_kses' );
+	}
+
 	// Escape data pulled from DB.
 	$comment = wp_slash( $comment );
 
@@ -2335,6 +2349,10 @@ function wp_update_comment( $commentarr ) {
 	$commentarr = array_merge( $comment, $commentarr );
 
 	$commentarr = wp_filter_comment( $commentarr );
+
+	if ( $filter_comment ) {
+		remove_filter( 'pre_comment_content', 'wp_filter_kses' );
+	}
 
 	// Now extract the merged array.
 	$data = wp_unslash( $commentarr );

@@ -1706,7 +1706,11 @@ function is_blog_installed() {
 			continue;
 		}
 
-		if ( ! $wpdb->get_results( "DESCRIBE $table;" ) ) {
+		$described_table = $wpdb->get_results( "DESCRIBE $table;" );
+		if (
+			( ! $described_table && empty( $wpdb->last_error ) ) ||
+			( is_array( $described_table ) && 0 === count( $described_table ) )
+		) {
 			continue;
 		}
 
@@ -2410,6 +2414,7 @@ function _wp_upload_dir( $time = null ) {
 function wp_unique_filename( $dir, $filename, $unique_filename_callback = null ) {
 	// Sanitize the file name before we begin processing.
 	$filename = sanitize_file_name( $filename );
+	$ext2     = null;
 
 	// Separate the filename into a name and extension.
 	$ext  = pathinfo( $filename, PATHINFO_EXTENSION );
@@ -2472,17 +2477,32 @@ function wp_unique_filename( $dir, $filename, $unique_filename_callback = null )
 
 		// Prevent collisions with existing file names that contain dimension-like strings
 		// (whether they are subsizes or originals uploaded prior to #42437).
+		$upload_dir = wp_get_upload_dir();
 
 		// The (resized) image files would have name and extension, and will be in the uploads dir.
-		if ( @is_dir( $dir ) && $name && $ext ) {
-			// List of all files and directories contained in $dir (with the "dot" files removed).
-			$files = array_diff( scandir( $dir ), array( '.', '..' ) );
+		if ( $name && $ext && @is_dir( $dir ) && false !== strpos( $dir, $upload_dir['basedir'] ) ) {
+			// List of all files and directories contained in $dir.
+			$files = @scandir( $dir );
 
 			if ( ! empty( $files ) ) {
-				while ( _wp_check_existing_file_names( $filename, $files ) ) {
+				// Remove "dot" dirs.
+				$files = array_diff( $files, array( '.', '..' ) );
+			}
+
+			if ( ! empty( $files ) ) {
+				// The extension case may have changed above.
+				$new_ext = ! empty( $ext2 ) ? $ext2 : $ext;
+
+				// Ensure this never goes into infinite loop
+				// as it uses pathinfo() and regex in the check but string replacement for the changes.
+				$count = count( $files );
+				$i     = 0;
+
+				while ( $i <= $count && _wp_check_existing_file_names( $filename, $files ) ) {
 					$new_number = (int) $number + 1;
-					$filename   = str_replace( array( "-{$number}{$ext}", "{$number}{$ext}" ), "-{$new_number}{$ext}", $filename );
+					$filename   = str_replace( array( "-{$number}{$new_ext}", "{$number}{$new_ext}" ), "-{$new_number}{$new_ext}", $filename );
 					$number     = $new_number;
+					$i++;
 				}
 			}
 		}
@@ -2524,7 +2544,7 @@ function _wp_check_existing_file_names( $filename, $files ) {
 		$ext = ".$ext";
 	}
 
-	$regex = '/^' . preg_quote( $fname ) . '-(?:\d+x\d+|scaled|rotated)' . preg_quote( $ext ) . '$/';
+	$regex = '/^' . preg_quote( $fname ) . '-(?:\d+x\d+|scaled|rotated)' . preg_quote( $ext ) . '$/i';
 
 	foreach ( $files as $file ) {
 		if ( preg_match( $regex, $file ) ) {
@@ -3144,10 +3164,12 @@ function wp_nonce_ays( $action ) {
 	} else {
 		$html = __( 'The link you followed has expired.' );
 		if ( wp_get_referer() ) {
-			$html .= '</p><p>';
-			$html .= sprintf(
+			$wp_http_referer = remove_query_arg( 'updated', wp_get_referer() );
+			$wp_http_referer = wp_validate_redirect( esc_url_raw( $wp_http_referer ) );
+			$html           .= '</p><p>';
+			$html           .= sprintf(
 				'<a href="%s">%s</a>',
-				esc_url( remove_query_arg( 'updated', wp_get_referer() ) ),
+				esc_url( $wp_http_referer ),
 				__( 'Please try again.' )
 			);
 		}
@@ -3230,9 +3252,9 @@ function wp_die( $message = '', $title = '', $args = array() ) {
 		 * @param callable $function Callback function name.
 		 */
 		$function = apply_filters( 'wp_die_json_handler', '_json_wp_die_handler' );
-	} elseif ( wp_is_jsonp_request() ) {
+	} elseif ( defined( 'REST_REQUEST' ) && REST_REQUEST && wp_is_jsonp_request() ) {
 		/**
-		 * Filters the callback for killing WordPress execution for JSONP requests.
+		 * Filters the callback for killing WordPress execution for JSONP REST requests.
 		 *
 		 * @since 5.2.0
 		 *
@@ -5082,6 +5104,9 @@ function iis7_supports_permalinks() {
  * @return int 0 means nothing is wrong, greater than 0 means something was wrong.
  */
 function validate_file( $file, $allowed_files = array() ) {
+	// Normalize path for Windows servers
+	$file = wp_normalize_path( $file );
+
 	// `../` on its own is not allowed:
 	if ( '../' === $file ) {
 		return 1;

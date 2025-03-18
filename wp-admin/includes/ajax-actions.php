@@ -2694,6 +2694,10 @@ function wp_ajax_set_attachment_thumbnail() {
 		wp_send_json_error();
 	}
 
+	if ( false === check_ajax_referer( 'set-attachment-thumbnail', '_ajax_nonce', false ) ) {
+		wp_send_json_error();
+	}
+
 	$post_ids = array();
 	// For each URL, try to find its corresponding post ID.
 	foreach ( $_POST['urls'] as $url ) {
@@ -2946,7 +2950,7 @@ function wp_ajax_query_attachments() {
 
 	// Filter query clauses to include filenames.
 	if ( isset( $query['s'] ) ) {
-		add_filter( 'posts_clauses', '_filter_query_attachment_filenames' );
+		add_filter( 'wp_allow_query_attachment_by_filename', '__return_true' );
 	}
 
 	/**
@@ -3731,13 +3735,29 @@ function wp_ajax_parse_media_shortcode() {
 
 	$shortcode = wp_unslash( $_POST['shortcode'] );
 
+	// Only process previews for media related shortcodes:
+	$found_shortcodes = get_shortcode_tags_in_content( $shortcode );
+	$media_shortcodes = array(
+		'audio',
+		'embed',
+		'playlist',
+		'video',
+		'gallery',
+	);
+
+	$other_shortcodes = array_diff( $found_shortcodes, $media_shortcodes );
+
+	if ( ! empty( $other_shortcodes ) ) {
+		wp_send_json_error();
+	}
+
 	if ( ! empty( $_POST['post_ID'] ) ) {
 		$post = get_post( (int) $_POST['post_ID'] );
 	}
 
 	// the embed shortcode requires a post
 	if ( ! $post || ! current_user_can( 'edit_post', $post->ID ) ) {
-		if ( 'embed' === $shortcode ) {
+		if ( in_array( 'embed', $found_shortcodes, true ) ) {
 			wp_send_json_error();
 		}
 	} else {

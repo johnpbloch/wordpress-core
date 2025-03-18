@@ -311,6 +311,8 @@ if ( ! function_exists( 'wp_mail' ) ) :
 		$phpmailer->clearAttachments();
 		$phpmailer->clearCustomHeaders();
 		$phpmailer->clearReplyTos();
+		$phpmailer->Body    = '';
+		$phpmailer->AltBody = '';
 
 		// From email and name
 		// If we don't have a name from the input headers
@@ -1391,9 +1393,9 @@ if ( ! function_exists( 'wp_validate_redirect' ) ) :
 	 * @return string redirect-sanitized URL
 	 */
 	function wp_validate_redirect( $location, $default = '' ) {
-		$location = trim( $location, " \t\n\r\0\x08\x0B" );
-		// browsers will assume 'http' is your protocol, and will obey a redirect to a URL starting with '//'
-		if ( substr( $location, 0, 2 ) == '//' ) {
+		$location = wp_sanitize_redirect( trim( $location, " \t\n\r\0\x08\x0B" ) );
+		// Browsers will assume 'http' is your protocol, and will obey a redirect to a URL starting with '//'.
+		if ( '//' === substr( $location, 0, 2 ) ) {
 			$location = 'http:' . $location;
 		}
 

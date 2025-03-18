@@ -1155,12 +1155,14 @@ function wp_check_invalid_utf8( $string, $strip = false ) {
  * Encode the Unicode values to be used in the URI.
  *
  * @since 1.5.0
+ * @since 5.8.3 Added the `encode_ascii_characters` parameter.
  *
- * @param string $utf8_string
- * @param int    $length Max  length of the string
+ * @param string $utf8_string             String to encode.
+ * @param int    $length                  Max length of the string
+ * @param bool   $encode_ascii_characters Whether to encode ascii characters such as < " '
  * @return string String with Unicode encoded for URI.
  */
-function utf8_uri_encode( $utf8_string, $length = 0 ) {
+function utf8_uri_encode( $utf8_string, $length = 0, $encode_ascii_characters = false ) {
 	$unicode        = '';
 	$values         = array();
 	$num_octets     = 1;
@@ -1175,11 +1177,14 @@ function utf8_uri_encode( $utf8_string, $length = 0 ) {
 		$value = ord( $utf8_string[ $i ] );
 
 		if ( $value < 128 ) {
-			if ( $length && ( $unicode_length >= $length ) ) {
+			$char                = chr( $value );
+			$encoded_char        = $encode_ascii_characters ? rawurlencode( $char ) : $char;
+			$encoded_char_length = strlen( $encoded_char );
+			if ( $length && ( $unicode_length + $encoded_char_length ) > $length ) {
 				break;
 			}
-			$unicode .= chr( $value );
-			$unicode_length++;
+			$unicode        .= $encoded_char;
+			$unicode_length += $encoded_char_length;
 		} else {
 			if ( count( $values ) == 0 ) {
 				if ( $value < 224 ) {
@@ -2003,6 +2008,24 @@ function remove_accents( $string ) {
 function sanitize_file_name( $filename ) {
 	$filename_raw  = $filename;
 	$special_chars = array( '?', '[', ']', '/', '\\', '=', '<', '>', ':', ';', ',', "'", '"', '&', '$', '#', '*', '(', ')', '|', '~', '`', '!', '{', '}', '%', '+', chr( 0 ) );
+
+	// Check for support for utf8 in the installed PCRE library once and store the result in a static.
+	static $utf8_pcre = null;
+	if ( ! isset( $utf8_pcre ) ) {
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$utf8_pcre = @preg_match( '/^./u', 'a' );
+	}
+
+	if ( ! seems_utf8( $filename ) ) {
+		$_ext     = pathinfo( $filename, PATHINFO_EXTENSION );
+		$_name    = pathinfo( $filename, PATHINFO_FILENAME );
+		$filename = sanitize_title_with_dashes( $_name ) . '.' . $_ext;
+	}
+
+	if ( $utf8_pcre ) {
+		$filename = preg_replace( "#\x{00a0}#siu", ' ', $filename );
+	}
+
 	/**
 	 * Filters the list of characters to remove from a filename.
 	 *
@@ -2012,7 +2035,6 @@ function sanitize_file_name( $filename ) {
 	 * @param string $filename_raw  Filename as it was passed into sanitize_file_name().
 	 */
 	$special_chars = apply_filters( 'sanitize_file_name_chars', $special_chars, $filename_raw );
-	$filename      = preg_replace( "#\x{00a0}#siu", ' ', $filename );
 	$filename      = str_replace( $special_chars, '', $filename );
 	$filename      = str_replace( array( '%20', '+' ), '-', $filename );
 	$filename      = preg_replace( '/[\r\n\t -]+/', '-', $filename );
@@ -2346,6 +2368,29 @@ function sanitize_html_class( $class, $fallback = '' ) {
 	 * @param string $fallback  The fallback string.
 	 */
 	return apply_filters( 'sanitize_html_class', $sanitized, $class, $fallback );
+}
+
+/**
+ * Strips out all characters not allowed in a locale name.
+ *
+ * @since 6.2.1
+ *
+ * @param string $locale_name The locale name to be sanitized.
+ * @return string The sanitized value.
+ */
+function sanitize_locale_name( $locale_name ) {
+	// Limit to A-Z, a-z, 0-9, '_', '-'.
+	$sanitized = preg_replace( '/[^A-Za-z0-9_-]/', '', $locale_name );
+
+	/**
+	 * Filters a sanitized locale name string.
+	 *
+	 * @since 6.2.1
+	 *
+	 * @param string $sanitized   The sanitized locale name.
+	 * @param string $locale_name The locale name before sanitization.
+	 */
+	return apply_filters( 'sanitize_locale_name', $sanitized, $locale_name );
 }
 
 /**
@@ -5686,7 +5731,7 @@ function _print_emoji_detection_script() {
 		?>
 		<script<?php echo $type_attr; ?>>
 			window._wpemojiSettings = <?php echo wp_json_encode( $settings ); ?>;
-			!function(e,a,t){var r,n,o,i,p=a.createElement("canvas"),s=p.getContext&&p.getContext("2d");function c(e,t){var a=String.fromCharCode;s.clearRect(0,0,p.width,p.height),s.fillText(a.apply(this,e),0,0);var r=p.toDataURL();return s.clearRect(0,0,p.width,p.height),s.fillText(a.apply(this,t),0,0),r===p.toDataURL()}function l(e){if(!s||!s.fillText)return!1;switch(s.textBaseline="top",s.font="600 32px Arial",e){case"flag":return!c([127987,65039,8205,9895,65039],[127987,65039,8203,9895,65039])&&(!c([55356,56826,55356,56819],[55356,56826,8203,55356,56819])&&!c([55356,57332,56128,56423,56128,56418,56128,56421,56128,56430,56128,56423,56128,56447],[55356,57332,8203,56128,56423,8203,56128,56418,8203,56128,56421,8203,56128,56430,8203,56128,56423,8203,56128,56447]));case"emoji":return!c([55357,56424,55356,57342,8205,55358,56605,8205,55357,56424,55356,57340],[55357,56424,55356,57342,8203,55358,56605,8203,55357,56424,55356,57340])}return!1}function d(e){var t=a.createElement("script");t.src=e,t.defer=t.type="text/javascript",a.getElementsByTagName("head")[0].appendChild(t)}for(i=Array("flag","emoji"),t.supports={everything:!0,everythingExceptFlag:!0},o=0;o<i.length;o++)t.supports[i[o]]=l(i[o]),t.supports.everything=t.supports.everything&&t.supports[i[o]],"flag"!==i[o]&&(t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&t.supports[i[o]]);t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&!t.supports.flag,t.DOMReady=!1,t.readyCallback=function(){t.DOMReady=!0},t.supports.everything||(n=function(){t.readyCallback()},a.addEventListener?(a.addEventListener("DOMContentLoaded",n,!1),e.addEventListener("load",n,!1)):(e.attachEvent("onload",n),a.attachEvent("onreadystatechange",function(){"complete"===a.readyState&&t.readyCallback()})),(r=t.source||{}).concatemoji?d(r.concatemoji):r.wpemoji&&r.twemoji&&(d(r.twemoji),d(r.wpemoji)))}(window,document,window._wpemojiSettings);
+			!function(e,a,t){var n,r,o,i=a.createElement("canvas"),p=i.getContext&&i.getContext("2d");function s(e,t){var a=String.fromCharCode;p.clearRect(0,0,i.width,i.height),p.fillText(a.apply(this,e),0,0);e=i.toDataURL();return p.clearRect(0,0,i.width,i.height),p.fillText(a.apply(this,t),0,0),e===i.toDataURL()}function c(e){var t=a.createElement("script");t.src=e,t.defer=t.type="text/javascript",a.getElementsByTagName("head")[0].appendChild(t)}for(o=Array("flag","emoji"),t.supports={everything:!0,everythingExceptFlag:!0},r=0;r<o.length;r++)t.supports[o[r]]=function(e){if(!p||!p.fillText)return!1;switch(p.textBaseline="top",p.font="600 32px Arial",e){case"flag":return s([127987,65039,8205,9895,65039],[127987,65039,8203,9895,65039])?!1:!s([55356,56826,55356,56819],[55356,56826,8203,55356,56819])&&!s([55356,57332,56128,56423,56128,56418,56128,56421,56128,56430,56128,56423,56128,56447],[55356,57332,8203,56128,56423,8203,56128,56418,8203,56128,56421,8203,56128,56430,8203,56128,56423,8203,56128,56447]);case"emoji":return!s([55357,56424,55356,57342,8205,55358,56605,8205,55357,56424,55356,57340],[55357,56424,55356,57342,8203,55358,56605,8203,55357,56424,55356,57340])}return!1}(o[r]),t.supports.everything=t.supports.everything&&t.supports[o[r]],"flag"!==o[r]&&(t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&t.supports[o[r]]);t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&!t.supports.flag,t.DOMReady=!1,t.readyCallback=function(){t.DOMReady=!0},t.supports.everything||(n=function(){t.readyCallback()},a.addEventListener?(a.addEventListener("DOMContentLoaded",n,!1),e.addEventListener("load",n,!1)):(e.attachEvent("onload",n),a.attachEvent("onreadystatechange",function(){"complete"===a.readyState&&t.readyCallback()})),(n=t.source||{}).concatemoji?c(n.concatemoji):n.wpemoji&&n.twemoji&&(c(n.twemoji),c(n.wpemoji)))}(window,document,window._wpemojiSettings);
 		</script>
 		<?php
 	}

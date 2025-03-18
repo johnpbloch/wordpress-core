@@ -82,71 +82,273 @@ this["wp"] = this["wp"] || {}; this["wp"]["editor"] =
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 343);
+/******/ 	return __webpack_require__(__webpack_require__.s = "PLxR");
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 0:
-/***/ (function(module, exports) {
+/***/ "16Al":
+/***/ (function(module, exports, __webpack_require__) {
 
-(function() { module.exports = this["wp"]["element"]; }());
+"use strict";
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+
+
+var ReactPropTypesSecret = __webpack_require__("WbBG");
+
+function emptyFunction() {}
+function emptyFunctionWithReset() {}
+emptyFunctionWithReset.resetWarningCache = emptyFunction;
+
+module.exports = function() {
+  function shim(props, propName, componentName, location, propFullName, secret) {
+    if (secret === ReactPropTypesSecret) {
+      // It is still safe when called from React.
+      return;
+    }
+    var err = new Error(
+      'Calling PropTypes validators directly is not supported by the `prop-types` package. ' +
+      'Use PropTypes.checkPropTypes() to call them. ' +
+      'Read more at http://fb.me/use-check-prop-types'
+    );
+    err.name = 'Invariant Violation';
+    throw err;
+  };
+  shim.isRequired = shim;
+  function getShim() {
+    return shim;
+  };
+  // Important!
+  // Keep this list in sync with production version in `./factoryWithTypeCheckers.js`.
+  var ReactPropTypes = {
+    array: shim,
+    bool: shim,
+    func: shim,
+    number: shim,
+    object: shim,
+    string: shim,
+    symbol: shim,
+
+    any: shim,
+    arrayOf: getShim,
+    element: shim,
+    elementType: shim,
+    instanceOf: getShim,
+    node: shim,
+    objectOf: getShim,
+    oneOf: getShim,
+    oneOfType: getShim,
+    shape: getShim,
+    exact: getShim,
+
+    checkPropTypes: emptyFunctionWithReset,
+    resetWarningCache: emptyFunction
+  };
+
+  ReactPropTypes.PropTypes = ReactPropTypes;
+
+  return ReactPropTypes;
+};
+
 
 /***/ }),
 
-/***/ 1:
-/***/ (function(module, exports) {
+/***/ "17x9":
+/***/ (function(module, exports, __webpack_require__) {
 
-(function() { module.exports = this["wp"]["i18n"]; }());
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+if (false) { var throwOnDirectAccess, ReactIs; } else {
+  // By explicitly using `prop-types` you are opting into new production behavior.
+  // http://fb.me/prop-types-in-prod
+  module.exports = __webpack_require__("16Al")();
+}
+
 
 /***/ }),
 
-/***/ 10:
+/***/ "1OyB":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _defineProperty; });
-function _defineProperty(obj, key, value) {
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value: value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    });
-  } else {
-    obj[key] = value;
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _classCallCheck; });
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
   }
-
-  return obj;
 }
 
 /***/ }),
 
-/***/ 11:
+/***/ "1ZqX":
+/***/ (function(module, exports) {
+
+(function() { module.exports = this["wp"]["data"]; }());
+
+/***/ }),
+
+/***/ "25BE":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _createClass; });
-function _defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
-    descriptor.enumerable = descriptor.enumerable || false;
-    descriptor.configurable = true;
-    if ("value" in descriptor) descriptor.writable = true;
-    Object.defineProperty(target, descriptor.key, descriptor);
-  }
-}
-
-function _createClass(Constructor, protoProps, staticProps) {
-  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-  if (staticProps) _defineProperties(Constructor, staticProps);
-  return Constructor;
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _iterableToArray; });
+function _iterableToArray(iter) {
+  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
 }
 
 /***/ }),
 
-/***/ 115:
+/***/ "4eJC":
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = function memize( fn, options ) {
+	var size = 0,
+		maxSize, head, tail;
+
+	if ( options && options.maxSize ) {
+		maxSize = options.maxSize;
+	}
+
+	function memoized( /* ...args */ ) {
+		var node = head,
+			len = arguments.length,
+			args, i;
+
+		searchCache: while ( node ) {
+			// Perform a shallow equality test to confirm that whether the node
+			// under test is a candidate for the arguments passed. Two arrays
+			// are shallowly equal if their length matches and each entry is
+			// strictly equal between the two sets. Avoid abstracting to a
+			// function which could incur an arguments leaking deoptimization.
+
+			// Check whether node arguments match arguments length
+			if ( node.args.length !== arguments.length ) {
+				node = node.next;
+				continue;
+			}
+
+			// Check whether node arguments match arguments values
+			for ( i = 0; i < len; i++ ) {
+				if ( node.args[ i ] !== arguments[ i ] ) {
+					node = node.next;
+					continue searchCache;
+				}
+			}
+
+			// At this point we can assume we've found a match
+
+			// Surface matched node to head if not already
+			if ( node !== head ) {
+				// As tail, shift to previous. Must only shift if not also
+				// head, since if both head and tail, there is no previous.
+				if ( node === tail ) {
+					tail = node.prev;
+				}
+
+				// Adjust siblings to point to each other. If node was tail,
+				// this also handles new tail's empty `next` assignment.
+				node.prev.next = node.next;
+				if ( node.next ) {
+					node.next.prev = node.prev;
+				}
+
+				node.next = head;
+				node.prev = null;
+				head.prev = node;
+				head = node;
+			}
+
+			// Return immediately
+			return node.val;
+		}
+
+		// No cached value found. Continue to insertion phase:
+
+		// Create a copy of arguments (avoid leaking deoptimization)
+		args = new Array( len );
+		for ( i = 0; i < len; i++ ) {
+			args[ i ] = arguments[ i ];
+		}
+
+		node = {
+			args: args,
+
+			// Generate the result from original function
+			val: fn.apply( null, args )
+		};
+
+		// Don't need to check whether node is already head, since it would
+		// have been returned above already if it was
+
+		// Shift existing head down list
+		if ( head ) {
+			head.prev = node;
+			node.next = head;
+		} else {
+			// If no head, follows that there's no tail (at initial or reset)
+			tail = node;
+		}
+
+		// Trim tail if we're reached max size and are pending cache insertion
+		if ( size === maxSize ) {
+			tail = tail.prev;
+			tail.next = null;
+		} else {
+			size++;
+		}
+
+		head = node;
+
+		return node.val;
+	}
+
+	memoized.clear = function() {
+		head = null;
+		tail = null;
+		size = 0;
+	};
+
+	if ( false ) {}
+
+	return memoized;
+};
+
+
+/***/ }),
+
+/***/ "51Zz":
+/***/ (function(module, exports) {
+
+(function() { module.exports = this["wp"]["dataControls"]; }());
+
+/***/ }),
+
+/***/ "6aBm":
+/***/ (function(module, exports) {
+
+(function() { module.exports = this["wp"]["mediaUtils"]; }());
+
+/***/ }),
+
+/***/ "7fqt":
+/***/ (function(module, exports) {
+
+(function() { module.exports = this["wp"]["wordcount"]; }());
+
+/***/ }),
+
+/***/ "CNgt":
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -179,10 +381,10 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 exports.__esModule = true;
-var React = __webpack_require__(28);
-var PropTypes = __webpack_require__(33);
-var autosize = __webpack_require__(116);
-var _getLineHeight = __webpack_require__(117);
+var React = __webpack_require__("cDcd");
+var PropTypes = __webpack_require__("17x9");
+var autosize = __webpack_require__("GemG");
+var _getLineHeight = __webpack_require__("Rk8H");
 var getLineHeight = _getLineHeight;
 var UPDATE = 'autosize:update';
 var DESTROY = 'autosize:destroy';
@@ -275,11 +477,82 @@ exports["default"] = TextareaAutosize;
 
 /***/ }),
 
-/***/ 116:
+/***/ "DSFK":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _arrayWithHoles; });
+function _arrayWithHoles(arr) {
+  if (Array.isArray(arr)) return arr;
+}
+
+/***/ }),
+
+/***/ "Ff2n":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ _objectWithoutProperties; });
+
+// CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js
+function _objectWithoutPropertiesLoose(source, excluded) {
+  if (source == null) return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0) continue;
+    target[key] = source[key];
+  }
+
+  return target;
+}
+// CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js
+
+function _objectWithoutProperties(source, excluded) {
+  if (source == null) return {};
+  var target = _objectWithoutPropertiesLoose(source, excluded);
+  var key, i;
+
+  if (Object.getOwnPropertySymbols) {
+    var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
+
+    for (i = 0; i < sourceSymbolKeys.length; i++) {
+      key = sourceSymbolKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue;
+      target[key] = source[key];
+    }
+  }
+
+  return target;
+}
+
+/***/ }),
+
+/***/ "FqII":
+/***/ (function(module, exports) {
+
+(function() { module.exports = this["wp"]["date"]; }());
+
+/***/ }),
+
+/***/ "GRId":
+/***/ (function(module, exports) {
+
+(function() { module.exports = this["wp"]["element"]; }());
+
+/***/ }),
+
+/***/ "GemG":
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	autosize 4.0.2
+	autosize 4.0.4
 	license: MIT
 	http://www.jacklmoore.com/autosize
 */
@@ -564,201 +837,85 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 /***/ }),
 
-/***/ 117:
-/***/ (function(module, exports, __webpack_require__) {
-
-// Load in dependencies
-var computedStyle = __webpack_require__(118);
-
-/**
- * Calculate the `line-height` of a given node
- * @param {HTMLElement} node Element to calculate line height of. Must be in the DOM.
- * @returns {Number} `line-height` of the element in pixels
- */
-function lineHeight(node) {
-  // Grab the line-height via style
-  var lnHeightStr = computedStyle(node, 'line-height');
-  var lnHeight = parseFloat(lnHeightStr, 10);
-
-  // If the lineHeight did not contain a unit (i.e. it was numeric), convert it to ems (e.g. '2.3' === '2.3em')
-  if (lnHeightStr === lnHeight + '') {
-    // Save the old lineHeight style and update the em unit to the element
-    var _lnHeightStyle = node.style.lineHeight;
-    node.style.lineHeight = lnHeightStr + 'em';
-
-    // Calculate the em based height
-    lnHeightStr = computedStyle(node, 'line-height');
-    lnHeight = parseFloat(lnHeightStr, 10);
-
-    // Revert the lineHeight style
-    if (_lnHeightStyle) {
-      node.style.lineHeight = _lnHeightStyle;
-    } else {
-      delete node.style.lineHeight;
-    }
-  }
-
-  // If the lineHeight is in `pt`, convert it to pixels (4px for 3pt)
-  // DEV: `em` units are converted to `pt` in IE6
-  // Conversion ratio from https://developer.mozilla.org/en-US/docs/Web/CSS/length
-  if (lnHeightStr.indexOf('pt') !== -1) {
-    lnHeight *= 4;
-    lnHeight /= 3;
-  // Otherwise, if the lineHeight is in `mm`, convert it to pixels (96px for 25.4mm)
-  } else if (lnHeightStr.indexOf('mm') !== -1) {
-    lnHeight *= 96;
-    lnHeight /= 25.4;
-  // Otherwise, if the lineHeight is in `cm`, convert it to pixels (96px for 2.54cm)
-  } else if (lnHeightStr.indexOf('cm') !== -1) {
-    lnHeight *= 96;
-    lnHeight /= 2.54;
-  // Otherwise, if the lineHeight is in `in`, convert it to pixels (96px for 1in)
-  } else if (lnHeightStr.indexOf('in') !== -1) {
-    lnHeight *= 96;
-  // Otherwise, if the lineHeight is in `pc`, convert it to pixels (12pt for 1pc)
-  } else if (lnHeightStr.indexOf('pc') !== -1) {
-    lnHeight *= 16;
-  }
-
-  // Continue our computation
-  lnHeight = Math.round(lnHeight);
-
-  // If the line-height is "normal", calculate by font-size
-  if (lnHeightStr === 'normal') {
-    // Create a temporary node
-    var nodeName = node.nodeName;
-    var _node = document.createElement(nodeName);
-    _node.innerHTML = '&nbsp;';
-
-    // If we have a text area, reset it to only 1 row
-    // https://github.com/twolfson/line-height/issues/4
-    if (nodeName.toUpperCase() === 'TEXTAREA') {
-      _node.setAttribute('rows', '1');
-    }
-
-    // Set the font-size of the element
-    var fontSizeStr = computedStyle(node, 'font-size');
-    _node.style.fontSize = fontSizeStr;
-
-    // Remove default padding/border which can affect offset height
-    // https://github.com/twolfson/line-height/issues/4
-    // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetHeight
-    _node.style.padding = '0px';
-    _node.style.border = '0px';
-
-    // Append it to the body
-    var body = document.body;
-    body.appendChild(_node);
-
-    // Assume the line height of the element is the height
-    var height = _node.offsetHeight;
-    lnHeight = height;
-
-    // Remove our child from the DOM
-    body.removeChild(_node);
-  }
-
-  // Return the calculated height
-  return lnHeight;
-}
-
-// Export lineHeight
-module.exports = lineHeight;
-
-
-/***/ }),
-
-/***/ 118:
+/***/ "HSyU":
 /***/ (function(module, exports) {
 
-// This code has been refactored for 140 bytes
-// You can see the original here: https://github.com/twolfson/computedStyle/blob/04cd1da2e30fa45844f95f5cb1ac898e9b9ef050/lib/computedStyle.js
-var computedStyle = function (el, prop, getComputedStyle) {
-  getComputedStyle = window.getComputedStyle;
-
-  // In one fell swoop
-  return (
-    // If we have getComputedStyle
-    getComputedStyle ?
-      // Query it
-      // TODO: From CSS-Query notes, we might need (node, null) for FF
-      getComputedStyle(el) :
-
-    // Otherwise, we are in IE and use currentStyle
-      el.currentStyle
-  )[
-    // Switch to camelCase for CSSOM
-    // DEV: Grabbed from jQuery
-    // https://github.com/jquery/jquery/blob/1.9-stable/src/css.js#L191-L194
-    // https://github.com/jquery/jquery/blob/1.9-stable/src/core.js#L593-L597
-    prop.replace(/-(\w)/gi, function (word, letter) {
-      return letter.toUpperCase();
-    })
-  ];
-};
-
-module.exports = computedStyle;
-
+(function() { module.exports = this["wp"]["blocks"]; }());
 
 /***/ }),
 
-/***/ 12:
+/***/ "HaE+":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _classCallCheck; });
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _asyncToGenerator; });
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+  try {
+    var info = gen[key](arg);
+    var value = info.value;
+  } catch (error) {
+    reject(error);
+    return;
+  }
+
+  if (info.done) {
+    resolve(value);
+  } else {
+    Promise.resolve(value).then(_next, _throw);
   }
 }
 
-/***/ }),
+function _asyncToGenerator(fn) {
+  return function () {
+    var self = this,
+        args = arguments;
+    return new Promise(function (resolve, reject) {
+      var gen = fn.apply(self, args);
 
-/***/ 13:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+      function _next(value) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
+      }
 
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _possibleConstructorReturn; });
-/* harmony import */ var _helpers_esm_typeof__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var _assertThisInitialized__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
+      function _throw(err) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
+      }
 
-
-function _possibleConstructorReturn(self, call) {
-  if (call && (Object(_helpers_esm_typeof__WEBPACK_IMPORTED_MODULE_0__[/* default */ "a"])(call) === "object" || typeof call === "function")) {
-    return call;
-  }
-
-  return Object(_assertThisInitialized__WEBPACK_IMPORTED_MODULE_1__[/* default */ "a"])(self);
-}
-
-/***/ }),
-
-/***/ 14:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _getPrototypeOf; });
-function _getPrototypeOf(o) {
-  _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
-    return o.__proto__ || Object.getPrototypeOf(o);
+      _next(undefined);
+    });
   };
-  return _getPrototypeOf(o);
 }
 
 /***/ }),
 
-/***/ 142:
+/***/ "JREk":
 /***/ (function(module, exports) {
 
-(function() { module.exports = this["wp"]["notices"]; }());
+(function() { module.exports = this["wp"]["serverSideRender"]; }());
 
 /***/ }),
 
-/***/ 15:
+/***/ "JX7q":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _assertThisInitialized; });
+function _assertThisInitialized(self) {
+  if (self === void 0) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return self;
+}
+
+/***/ }),
+
+/***/ "Ji7U":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ _inherits; });
 
 // CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/setPrototypeOf.js
 function _setPrototypeOf(o, p) {
@@ -770,7 +927,6 @@ function _setPrototypeOf(o, p) {
   return _setPrototypeOf(o, p);
 }
 // CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/inherits.js
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _inherits; });
 
 function _inherits(subClass, superClass) {
   if (typeof superClass !== "function" && superClass !== null) {
@@ -789,68 +945,27 @@ function _inherits(subClass, superClass) {
 
 /***/ }),
 
-/***/ 16:
-/***/ (function(module, exports, __webpack_require__) {
+/***/ "K9lf":
+/***/ (function(module, exports) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
-  Copyright (c) 2017 Jed Watson.
-  Licensed under the MIT License (MIT), see
-  http://jedwatson.github.io/classnames
-*/
-/* global define */
-
-(function () {
-	'use strict';
-
-	var hasOwn = {}.hasOwnProperty;
-
-	function classNames () {
-		var classes = [];
-
-		for (var i = 0; i < arguments.length; i++) {
-			var arg = arguments[i];
-			if (!arg) continue;
-
-			var argType = typeof arg;
-
-			if (argType === 'string' || argType === 'number') {
-				classes.push(arg);
-			} else if (Array.isArray(arg) && arg.length) {
-				var inner = classNames.apply(null, arg);
-				if (inner) {
-					classes.push(inner);
-				}
-			} else if (argType === 'object') {
-				for (var key in arg) {
-					if (hasOwn.call(arg, key) && arg[key]) {
-						classes.push(key);
-					}
-				}
-			}
-		}
-
-		return classes.join(' ');
-	}
-
-	if ( true && module.exports) {
-		classNames.default = classNames;
-		module.exports = classNames;
-	} else if (true) {
-		// register as 'classnames', consistent with npm package name
-		!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = (function () {
-			return classNames;
-		}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	} else {}
-}());
-
+(function() { module.exports = this["wp"]["compose"]; }());
 
 /***/ }),
 
-/***/ 17:
+/***/ "KEfo":
+/***/ (function(module, exports) {
+
+(function() { module.exports = this["wp"]["viewport"]; }());
+
+/***/ }),
+
+/***/ "KQm4":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ _toConsumableArray; });
 
 // CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/arrayWithoutHoles.js
 function _arrayWithoutHoles(arr) {
@@ -863,14 +978,13 @@ function _arrayWithoutHoles(arr) {
   }
 }
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/iterableToArray.js
-var iterableToArray = __webpack_require__(30);
+var iterableToArray = __webpack_require__("25BE");
 
 // CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js
 function _nonIterableSpread() {
   throw new TypeError("Invalid attempt to spread non-iterable instance");
 }
 // CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/toConsumableArray.js
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _toConsumableArray; });
 
 
 
@@ -880,111 +994,42 @@ function _toConsumableArray(arr) {
 
 /***/ }),
 
-/***/ 18:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _extends; });
-function _extends() {
-  _extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
-  return _extends.apply(this, arguments);
-}
-
-/***/ }),
-
-/***/ 19:
+/***/ "Mmq9":
 /***/ (function(module, exports) {
 
-(function() { module.exports = this["wp"]["keycodes"]; }());
+(function() { module.exports = this["wp"]["url"]; }());
 
 /***/ }),
 
-/***/ 2:
+/***/ "NMb1":
 /***/ (function(module, exports) {
 
-(function() { module.exports = this["lodash"]; }());
+(function() { module.exports = this["wp"]["deprecated"]; }());
 
 /***/ }),
 
-/***/ 20:
+/***/ "O6Fj":
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(47);
+"use strict";
+
+exports.__esModule = true;
+var TextareaAutosize_1 = __webpack_require__("CNgt");
+exports["default"] = TextareaAutosize_1["default"];
 
 
 /***/ }),
 
-/***/ 21:
+/***/ "ODXe":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 
-// CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js
-function _objectWithoutPropertiesLoose(source, excluded) {
-  if (source == null) return {};
-  var target = {};
-  var sourceKeys = Object.keys(source);
-  var key, i;
-
-  for (i = 0; i < sourceKeys.length; i++) {
-    key = sourceKeys[i];
-    if (excluded.indexOf(key) >= 0) continue;
-    target[key] = source[key];
-  }
-
-  return target;
-}
-// CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _objectWithoutProperties; });
-
-function _objectWithoutProperties(source, excluded) {
-  if (source == null) return {};
-  var target = _objectWithoutPropertiesLoose(source, excluded);
-  var key, i;
-
-  if (Object.getOwnPropertySymbols) {
-    var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
-
-    for (i = 0; i < sourceSymbolKeys.length; i++) {
-      key = sourceSymbolKeys[i];
-      if (excluded.indexOf(key) >= 0) continue;
-      if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue;
-      target[key] = source[key];
-    }
-  }
-
-  return target;
-}
-
-/***/ }),
-
-/***/ 22:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["richText"]; }());
-
-/***/ }),
-
-/***/ 23:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, "a", function() { return /* binding */ _slicedToArray; });
 
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/arrayWithHoles.js
-var arrayWithHoles = __webpack_require__(38);
+var arrayWithHoles = __webpack_require__("DSFK");
 
 // CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/iterableToArrayLimit.js
 function _iterableToArrayLimit(arr, i) {
@@ -1013,10 +1058,9 @@ function _iterableToArrayLimit(arr, i) {
   return _arr;
 }
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/nonIterableRest.js
-var nonIterableRest = __webpack_require__(39);
+var nonIterableRest = __webpack_require__("PYwp");
 
 // CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/slicedToArray.js
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _slicedToArray; });
 
 
 
@@ -1026,280 +1070,144 @@ function _slicedToArray(arr, i) {
 
 /***/ }),
 
-/***/ 26:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["url"]; }());
-
-/***/ }),
-
-/***/ 27:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["hooks"]; }());
-
-/***/ }),
-
-/***/ 28:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["React"]; }());
-
-/***/ }),
-
-/***/ 3:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["components"]; }());
-
-/***/ }),
-
-/***/ 30:
+/***/ "PLxR":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _iterableToArray; });
-function _iterableToArray(iter) {
-  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
-}
-
-/***/ }),
-
-/***/ 31:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _typeof; });
-function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof2 = function _typeof2(obj) { return typeof obj; }; } else { _typeof2 = function _typeof2(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof2(obj); }
-
-function _typeof(obj) {
-  if (typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol") {
-    _typeof = function _typeof(obj) {
-      return _typeof2(obj);
-    };
-  } else {
-    _typeof = function _typeof(obj) {
-      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : _typeof2(obj);
-    };
-  }
-
-  return _typeof(obj);
-}
-
-/***/ }),
-
-/***/ 32:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["dataControls"]; }());
-
-/***/ }),
-
-/***/ 325:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
-
-var BEGIN = 'BEGIN';
-var COMMIT = 'COMMIT';
-var REVERT = 'REVERT';
-// Array({transactionID: string or null, beforeState: {object}, action: {object}}
-var INITIAL_OPTIMIST = [];
-
-module.exports = optimist;
-module.exports.BEGIN = BEGIN;
-module.exports.COMMIT = COMMIT;
-module.exports.REVERT = REVERT;
-function optimist(fn) {
-  function beginReducer(state, action) {
-    var _separateState = separateState(state);
-
-    var optimist = _separateState.optimist;
-    var innerState = _separateState.innerState;
-
-    optimist = optimist.concat([{ beforeState: innerState, action: action }]);
-    innerState = fn(innerState, action);
-    validateState(innerState, action);
-    return _extends({ optimist: optimist }, innerState);
-  }
-  function commitReducer(state, action) {
-    var _separateState2 = separateState(state);
-
-    var optimist = _separateState2.optimist;
-    var innerState = _separateState2.innerState;
-
-    var newOptimist = [],
-        started = false,
-        committed = false;
-    optimist.forEach(function (entry) {
-      if (started) {
-        if (entry.beforeState && matchesTransaction(entry.action, action.optimist.id)) {
-          committed = true;
-          newOptimist.push({ action: entry.action });
-        } else {
-          newOptimist.push(entry);
-        }
-      } else if (entry.beforeState && !matchesTransaction(entry.action, action.optimist.id)) {
-        started = true;
-        newOptimist.push(entry);
-      } else if (entry.beforeState && matchesTransaction(entry.action, action.optimist.id)) {
-        committed = true;
-      }
-    });
-    if (!committed) {
-      console.error('Cannot commit transaction with id "' + action.optimist.id + '" because it does not exist');
-    }
-    optimist = newOptimist;
-    return baseReducer(optimist, innerState, action);
-  }
-  function revertReducer(state, action) {
-    var _separateState3 = separateState(state);
-
-    var optimist = _separateState3.optimist;
-    var innerState = _separateState3.innerState;
-
-    var newOptimist = [],
-        started = false,
-        gotInitialState = false,
-        currentState = innerState;
-    optimist.forEach(function (entry) {
-      if (entry.beforeState && matchesTransaction(entry.action, action.optimist.id)) {
-        currentState = entry.beforeState;
-        gotInitialState = true;
-      }
-      if (!matchesTransaction(entry.action, action.optimist.id)) {
-        if (entry.beforeState) {
-          started = true;
-        }
-        if (started) {
-          if (gotInitialState && entry.beforeState) {
-            newOptimist.push({
-              beforeState: currentState,
-              action: entry.action
-            });
-          } else {
-            newOptimist.push(entry);
-          }
-        }
-        if (gotInitialState) {
-          currentState = fn(currentState, entry.action);
-          validateState(innerState, action);
-        }
-      }
-    });
-    if (!gotInitialState) {
-      console.error('Cannot revert transaction with id "' + action.optimist.id + '" because it does not exist');
-    }
-    optimist = newOptimist;
-    return baseReducer(optimist, currentState, action);
-  }
-  function baseReducer(optimist, innerState, action) {
-    if (optimist.length) {
-      optimist = optimist.concat([{ action: action }]);
-    }
-    innerState = fn(innerState, action);
-    validateState(innerState, action);
-    return _extends({ optimist: optimist }, innerState);
-  }
-  return function (state, action) {
-    if (action.optimist) {
-      switch (action.optimist.type) {
-        case BEGIN:
-          return beginReducer(state, action);
-        case COMMIT:
-          return commitReducer(state, action);
-        case REVERT:
-          return revertReducer(state, action);
-      }
-    }
-
-    var _separateState4 = separateState(state);
-
-    var optimist = _separateState4.optimist;
-    var innerState = _separateState4.innerState;
-
-    if (state && !optimist.length) {
-      var nextState = fn(innerState, action);
-      if (nextState === innerState) {
-        return state;
-      }
-      validateState(nextState, action);
-      return _extends({ optimist: optimist }, nextState);
-    }
-    return baseReducer(optimist, innerState, action);
-  };
-}
-
-function matchesTransaction(action, id) {
-  return action.optimist && action.optimist.id === id;
-}
-
-function validateState(newState, action) {
-  if (!newState || typeof newState !== 'object' || Array.isArray(newState)) {
-    throw new TypeError('Error while handling "' + action.type + '": Optimist requires that state is always a plain object.');
-  }
-}
-
-function separateState(state) {
-  if (!state) {
-    return { optimist: INITIAL_OPTIMIST, innerState: state };
-  } else {
-    var _state$optimist = state.optimist;
-
-    var _optimist = _state$optimist === undefined ? INITIAL_OPTIMIST : _state$optimist;
-
-    var innerState = _objectWithoutProperties(state, ['optimist']);
-
-    return { optimist: _optimist, innerState: innerState };
-  }
-}
-
-/***/ }),
-
-/***/ 33:
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-if (false) { var throwOnDirectAccess, ReactIs; } else {
-  // By explicitly using `prop-types` you are opting into new production behavior.
-  // http://fb.me/prop-types-in-prod
-  module.exports = __webpack_require__(87)();
-}
-
-
-/***/ }),
-
-/***/ 34:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["apiFetch"]; }());
-
-/***/ }),
-
-/***/ 343:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
+// ESM COMPAT FLAG
 __webpack_require__.r(__webpack_exports__);
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, "blockAutocompleter", function() { return /* reexport */ autocompleters_block; });
+__webpack_require__.d(__webpack_exports__, "userAutocompleter", function() { return /* reexport */ autocompleters_user; });
+__webpack_require__.d(__webpack_exports__, "AutosaveMonitor", function() { return /* reexport */ autosave_monitor; });
+__webpack_require__.d(__webpack_exports__, "DocumentOutline", function() { return /* reexport */ document_outline; });
+__webpack_require__.d(__webpack_exports__, "DocumentOutlineCheck", function() { return /* reexport */ check; });
+__webpack_require__.d(__webpack_exports__, "VisualEditorGlobalKeyboardShortcuts", function() { return /* reexport */ visual_editor_shortcuts; });
+__webpack_require__.d(__webpack_exports__, "EditorGlobalKeyboardShortcuts", function() { return /* reexport */ EditorGlobalKeyboardShortcuts; });
+__webpack_require__.d(__webpack_exports__, "TextEditorGlobalKeyboardShortcuts", function() { return /* reexport */ TextEditorGlobalKeyboardShortcuts; });
+__webpack_require__.d(__webpack_exports__, "EditorHistoryRedo", function() { return /* reexport */ editor_history_redo; });
+__webpack_require__.d(__webpack_exports__, "EditorHistoryUndo", function() { return /* reexport */ editor_history_undo; });
+__webpack_require__.d(__webpack_exports__, "EditorNotices", function() { return /* reexport */ editor_notices; });
+__webpack_require__.d(__webpack_exports__, "ErrorBoundary", function() { return /* reexport */ error_boundary; });
+__webpack_require__.d(__webpack_exports__, "LocalAutosaveMonitor", function() { return /* reexport */ local_autosave_monitor; });
+__webpack_require__.d(__webpack_exports__, "PageAttributesCheck", function() { return /* reexport */ page_attributes_check; });
+__webpack_require__.d(__webpack_exports__, "PageAttributesOrder", function() { return /* reexport */ page_attributes_order; });
+__webpack_require__.d(__webpack_exports__, "PageAttributesParent", function() { return /* reexport */ page_attributes_parent; });
+__webpack_require__.d(__webpack_exports__, "PageTemplate", function() { return /* reexport */ page_attributes_template; });
+__webpack_require__.d(__webpack_exports__, "PostAuthor", function() { return /* reexport */ post_author; });
+__webpack_require__.d(__webpack_exports__, "PostAuthorCheck", function() { return /* reexport */ post_author_check; });
+__webpack_require__.d(__webpack_exports__, "PostComments", function() { return /* reexport */ post_comments; });
+__webpack_require__.d(__webpack_exports__, "PostExcerpt", function() { return /* reexport */ post_excerpt; });
+__webpack_require__.d(__webpack_exports__, "PostExcerptCheck", function() { return /* reexport */ post_excerpt_check; });
+__webpack_require__.d(__webpack_exports__, "PostFeaturedImage", function() { return /* reexport */ post_featured_image; });
+__webpack_require__.d(__webpack_exports__, "PostFeaturedImageCheck", function() { return /* reexport */ post_featured_image_check; });
+__webpack_require__.d(__webpack_exports__, "PostFormat", function() { return /* reexport */ post_format; });
+__webpack_require__.d(__webpack_exports__, "PostFormatCheck", function() { return /* reexport */ post_format_check; });
+__webpack_require__.d(__webpack_exports__, "PostLastRevision", function() { return /* reexport */ post_last_revision; });
+__webpack_require__.d(__webpack_exports__, "PostLastRevisionCheck", function() { return /* reexport */ post_last_revision_check; });
+__webpack_require__.d(__webpack_exports__, "PostLockedModal", function() { return /* reexport */ post_locked_modal; });
+__webpack_require__.d(__webpack_exports__, "PostPendingStatus", function() { return /* reexport */ post_pending_status; });
+__webpack_require__.d(__webpack_exports__, "PostPendingStatusCheck", function() { return /* reexport */ post_pending_status_check; });
+__webpack_require__.d(__webpack_exports__, "PostPingbacks", function() { return /* reexport */ post_pingbacks; });
+__webpack_require__.d(__webpack_exports__, "PostPreviewButton", function() { return /* reexport */ post_preview_button; });
+__webpack_require__.d(__webpack_exports__, "PostPublishButton", function() { return /* reexport */ post_publish_button; });
+__webpack_require__.d(__webpack_exports__, "PostPublishButtonLabel", function() { return /* reexport */ post_publish_button_label; });
+__webpack_require__.d(__webpack_exports__, "PostPublishPanel", function() { return /* reexport */ post_publish_panel; });
+__webpack_require__.d(__webpack_exports__, "PostSavedState", function() { return /* reexport */ post_saved_state; });
+__webpack_require__.d(__webpack_exports__, "PostSchedule", function() { return /* reexport */ post_schedule; });
+__webpack_require__.d(__webpack_exports__, "PostScheduleCheck", function() { return /* reexport */ post_schedule_check; });
+__webpack_require__.d(__webpack_exports__, "PostScheduleLabel", function() { return /* reexport */ post_schedule_label; });
+__webpack_require__.d(__webpack_exports__, "PostSticky", function() { return /* reexport */ post_sticky; });
+__webpack_require__.d(__webpack_exports__, "PostStickyCheck", function() { return /* reexport */ post_sticky_check; });
+__webpack_require__.d(__webpack_exports__, "PostSwitchToDraftButton", function() { return /* reexport */ post_switch_to_draft_button; });
+__webpack_require__.d(__webpack_exports__, "PostTaxonomies", function() { return /* reexport */ post_taxonomies; });
+__webpack_require__.d(__webpack_exports__, "PostTaxonomiesCheck", function() { return /* reexport */ post_taxonomies_check; });
+__webpack_require__.d(__webpack_exports__, "PostTextEditor", function() { return /* reexport */ post_text_editor; });
+__webpack_require__.d(__webpack_exports__, "PostTitle", function() { return /* reexport */ post_title; });
+__webpack_require__.d(__webpack_exports__, "PostTrash", function() { return /* reexport */ post_trash; });
+__webpack_require__.d(__webpack_exports__, "PostTrashCheck", function() { return /* reexport */ post_trash_check; });
+__webpack_require__.d(__webpack_exports__, "PostTypeSupportCheck", function() { return /* reexport */ post_type_support_check; });
+__webpack_require__.d(__webpack_exports__, "PostVisibility", function() { return /* reexport */ post_visibility; });
+__webpack_require__.d(__webpack_exports__, "PostVisibilityLabel", function() { return /* reexport */ post_visibility_label; });
+__webpack_require__.d(__webpack_exports__, "PostVisibilityCheck", function() { return /* reexport */ post_visibility_check; });
+__webpack_require__.d(__webpack_exports__, "TableOfContents", function() { return /* reexport */ table_of_contents; });
+__webpack_require__.d(__webpack_exports__, "UnsavedChangesWarning", function() { return /* reexport */ unsaved_changes_warning; });
+__webpack_require__.d(__webpack_exports__, "WordCount", function() { return /* reexport */ word_count; });
+__webpack_require__.d(__webpack_exports__, "EditorProvider", function() { return /* reexport */ provider; });
+__webpack_require__.d(__webpack_exports__, "ServerSideRender", function() { return /* reexport */ external_this_wp_serverSideRender_default.a; });
+__webpack_require__.d(__webpack_exports__, "RichText", function() { return /* reexport */ RichText; });
+__webpack_require__.d(__webpack_exports__, "Autocomplete", function() { return /* reexport */ Autocomplete; });
+__webpack_require__.d(__webpack_exports__, "AlignmentToolbar", function() { return /* reexport */ AlignmentToolbar; });
+__webpack_require__.d(__webpack_exports__, "BlockAlignmentToolbar", function() { return /* reexport */ BlockAlignmentToolbar; });
+__webpack_require__.d(__webpack_exports__, "BlockControls", function() { return /* reexport */ BlockControls; });
+__webpack_require__.d(__webpack_exports__, "BlockEdit", function() { return /* reexport */ BlockEdit; });
+__webpack_require__.d(__webpack_exports__, "BlockEditorKeyboardShortcuts", function() { return /* reexport */ BlockEditorKeyboardShortcuts; });
+__webpack_require__.d(__webpack_exports__, "BlockFormatControls", function() { return /* reexport */ BlockFormatControls; });
+__webpack_require__.d(__webpack_exports__, "BlockIcon", function() { return /* reexport */ BlockIcon; });
+__webpack_require__.d(__webpack_exports__, "BlockInspector", function() { return /* reexport */ BlockInspector; });
+__webpack_require__.d(__webpack_exports__, "BlockList", function() { return /* reexport */ BlockList; });
+__webpack_require__.d(__webpack_exports__, "BlockMover", function() { return /* reexport */ BlockMover; });
+__webpack_require__.d(__webpack_exports__, "BlockNavigationDropdown", function() { return /* reexport */ BlockNavigationDropdown; });
+__webpack_require__.d(__webpack_exports__, "BlockSelectionClearer", function() { return /* reexport */ BlockSelectionClearer; });
+__webpack_require__.d(__webpack_exports__, "BlockSettingsMenu", function() { return /* reexport */ BlockSettingsMenu; });
+__webpack_require__.d(__webpack_exports__, "BlockTitle", function() { return /* reexport */ BlockTitle; });
+__webpack_require__.d(__webpack_exports__, "BlockToolbar", function() { return /* reexport */ BlockToolbar; });
+__webpack_require__.d(__webpack_exports__, "ColorPalette", function() { return /* reexport */ ColorPalette; });
+__webpack_require__.d(__webpack_exports__, "ContrastChecker", function() { return /* reexport */ ContrastChecker; });
+__webpack_require__.d(__webpack_exports__, "CopyHandler", function() { return /* reexport */ CopyHandler; });
+__webpack_require__.d(__webpack_exports__, "DefaultBlockAppender", function() { return /* reexport */ DefaultBlockAppender; });
+__webpack_require__.d(__webpack_exports__, "FontSizePicker", function() { return /* reexport */ FontSizePicker; });
+__webpack_require__.d(__webpack_exports__, "Inserter", function() { return /* reexport */ Inserter; });
+__webpack_require__.d(__webpack_exports__, "InnerBlocks", function() { return /* reexport */ InnerBlocks; });
+__webpack_require__.d(__webpack_exports__, "InspectorAdvancedControls", function() { return /* reexport */ InspectorAdvancedControls; });
+__webpack_require__.d(__webpack_exports__, "InspectorControls", function() { return /* reexport */ InspectorControls; });
+__webpack_require__.d(__webpack_exports__, "PanelColorSettings", function() { return /* reexport */ PanelColorSettings; });
+__webpack_require__.d(__webpack_exports__, "PlainText", function() { return /* reexport */ PlainText; });
+__webpack_require__.d(__webpack_exports__, "RichTextShortcut", function() { return /* reexport */ RichTextShortcut; });
+__webpack_require__.d(__webpack_exports__, "RichTextToolbarButton", function() { return /* reexport */ RichTextToolbarButton; });
+__webpack_require__.d(__webpack_exports__, "__unstableRichTextInputEvent", function() { return /* reexport */ __unstableRichTextInputEvent; });
+__webpack_require__.d(__webpack_exports__, "MediaPlaceholder", function() { return /* reexport */ MediaPlaceholder; });
+__webpack_require__.d(__webpack_exports__, "MediaUpload", function() { return /* reexport */ MediaUpload; });
+__webpack_require__.d(__webpack_exports__, "MediaUploadCheck", function() { return /* reexport */ MediaUploadCheck; });
+__webpack_require__.d(__webpack_exports__, "MultiBlocksSwitcher", function() { return /* reexport */ MultiBlocksSwitcher; });
+__webpack_require__.d(__webpack_exports__, "MultiSelectScrollIntoView", function() { return /* reexport */ MultiSelectScrollIntoView; });
+__webpack_require__.d(__webpack_exports__, "NavigableToolbar", function() { return /* reexport */ NavigableToolbar; });
+__webpack_require__.d(__webpack_exports__, "ObserveTyping", function() { return /* reexport */ ObserveTyping; });
+__webpack_require__.d(__webpack_exports__, "PreserveScrollInReorder", function() { return /* reexport */ PreserveScrollInReorder; });
+__webpack_require__.d(__webpack_exports__, "SkipToSelectedBlock", function() { return /* reexport */ SkipToSelectedBlock; });
+__webpack_require__.d(__webpack_exports__, "URLInput", function() { return /* reexport */ URLInput; });
+__webpack_require__.d(__webpack_exports__, "URLInputButton", function() { return /* reexport */ URLInputButton; });
+__webpack_require__.d(__webpack_exports__, "URLPopover", function() { return /* reexport */ URLPopover; });
+__webpack_require__.d(__webpack_exports__, "Warning", function() { return /* reexport */ Warning; });
+__webpack_require__.d(__webpack_exports__, "WritingFlow", function() { return /* reexport */ WritingFlow; });
+__webpack_require__.d(__webpack_exports__, "createCustomColorsHOC", function() { return /* reexport */ createCustomColorsHOC; });
+__webpack_require__.d(__webpack_exports__, "getColorClassName", function() { return /* reexport */ getColorClassName; });
+__webpack_require__.d(__webpack_exports__, "getColorObjectByAttributeValues", function() { return /* reexport */ getColorObjectByAttributeValues; });
+__webpack_require__.d(__webpack_exports__, "getColorObjectByColorValue", function() { return /* reexport */ getColorObjectByColorValue; });
+__webpack_require__.d(__webpack_exports__, "getFontSize", function() { return /* reexport */ getFontSize; });
+__webpack_require__.d(__webpack_exports__, "getFontSizeClass", function() { return /* reexport */ getFontSizeClass; });
+__webpack_require__.d(__webpack_exports__, "withColorContext", function() { return /* reexport */ withColorContext; });
+__webpack_require__.d(__webpack_exports__, "withColors", function() { return /* reexport */ withColors; });
+__webpack_require__.d(__webpack_exports__, "withFontSizes", function() { return /* reexport */ withFontSizes; });
+__webpack_require__.d(__webpack_exports__, "mediaUpload", function() { return /* reexport */ media_upload; });
+__webpack_require__.d(__webpack_exports__, "cleanForSlug", function() { return /* reexport */ cleanForSlug; });
+__webpack_require__.d(__webpack_exports__, "storeConfig", function() { return /* reexport */ storeConfig; });
+__webpack_require__.d(__webpack_exports__, "transformStyles", function() { return /* reexport */ external_this_wp_blockEditor_["transformStyles"]; });
+
+// NAMESPACE OBJECT: ./node_modules/@wordpress/editor/build-module/store/block-sources/meta.js
 var meta_namespaceObject = {};
 __webpack_require__.r(meta_namespaceObject);
 __webpack_require__.d(meta_namespaceObject, "getDependencies", function() { return getDependencies; });
 __webpack_require__.d(meta_namespaceObject, "apply", function() { return apply; });
 __webpack_require__.d(meta_namespaceObject, "update", function() { return update; });
+
+// NAMESPACE OBJECT: ./node_modules/@wordpress/editor/build-module/store/block-sources/index.js
 var block_sources_namespaceObject = {};
 __webpack_require__.r(block_sources_namespaceObject);
 __webpack_require__.d(block_sources_namespaceObject, "meta", function() { return meta_namespaceObject; });
+
+// NAMESPACE OBJECT: ./node_modules/@wordpress/editor/build-module/store/actions.js
 var actions_namespaceObject = {};
 __webpack_require__.r(actions_namespaceObject);
 __webpack_require__.d(actions_namespaceObject, "setupEditor", function() { return setupEditor; });
@@ -1357,7 +1265,7 @@ __webpack_require__.d(actions_namespaceObject, "hideInsertionPoint", function() 
 __webpack_require__.d(actions_namespaceObject, "setTemplateValidity", function() { return setTemplateValidity; });
 __webpack_require__.d(actions_namespaceObject, "synchronizeTemplate", function() { return synchronizeTemplate; });
 __webpack_require__.d(actions_namespaceObject, "mergeBlocks", function() { return mergeBlocks; });
-__webpack_require__.d(actions_namespaceObject, "removeBlocks", function() { return actions_removeBlocks; });
+__webpack_require__.d(actions_namespaceObject, "removeBlocks", function() { return removeBlocks; });
 __webpack_require__.d(actions_namespaceObject, "removeBlock", function() { return removeBlock; });
 __webpack_require__.d(actions_namespaceObject, "toggleBlockMode", function() { return toggleBlockMode; });
 __webpack_require__.d(actions_namespaceObject, "startTyping", function() { return startTyping; });
@@ -1366,6 +1274,8 @@ __webpack_require__.d(actions_namespaceObject, "enterFormattedText", function() 
 __webpack_require__.d(actions_namespaceObject, "exitFormattedText", function() { return exitFormattedText; });
 __webpack_require__.d(actions_namespaceObject, "insertDefaultBlock", function() { return insertDefaultBlock; });
 __webpack_require__.d(actions_namespaceObject, "updateBlockListSettings", function() { return updateBlockListSettings; });
+
+// NAMESPACE OBJECT: ./node_modules/@wordpress/editor/build-module/store/selectors.js
 var selectors_namespaceObject = {};
 __webpack_require__.r(selectors_namespaceObject);
 __webpack_require__.d(selectors_namespaceObject, "hasEditorUndo", function() { return hasEditorUndo; });
@@ -1477,65 +1387,49 @@ __webpack_require__.d(selectors_namespaceObject, "canInsertBlockType", function(
 __webpack_require__.d(selectors_namespaceObject, "getInserterItems", function() { return selectors_getInserterItems; });
 __webpack_require__.d(selectors_namespaceObject, "hasInserterItems", function() { return hasInserterItems; });
 __webpack_require__.d(selectors_namespaceObject, "getBlockListSettings", function() { return getBlockListSettings; });
-var store_selectors_namespaceObject = {};
-__webpack_require__.r(store_selectors_namespaceObject);
-__webpack_require__.d(store_selectors_namespaceObject, "isRequestingDownloadableBlocks", function() { return isRequestingDownloadableBlocks; });
-__webpack_require__.d(store_selectors_namespaceObject, "getDownloadableBlocks", function() { return selectors_getDownloadableBlocks; });
-__webpack_require__.d(store_selectors_namespaceObject, "hasInstallBlocksPermission", function() { return selectors_hasInstallBlocksPermission; });
-__webpack_require__.d(store_selectors_namespaceObject, "getInstalledBlockTypes", function() { return selectors_getInstalledBlockTypes; });
-var store_actions_namespaceObject = {};
-__webpack_require__.r(store_actions_namespaceObject);
-__webpack_require__.d(store_actions_namespaceObject, "fetchDownloadableBlocks", function() { return fetchDownloadableBlocks; });
-__webpack_require__.d(store_actions_namespaceObject, "receiveDownloadableBlocks", function() { return receiveDownloadableBlocks; });
-__webpack_require__.d(store_actions_namespaceObject, "setInstallBlocksPermission", function() { return setInstallBlocksPermission; });
-__webpack_require__.d(store_actions_namespaceObject, "downloadBlock", function() { return actions_downloadBlock; });
-__webpack_require__.d(store_actions_namespaceObject, "installBlock", function() { return actions_installBlock; });
-__webpack_require__.d(store_actions_namespaceObject, "uninstallBlock", function() { return uninstallBlock; });
-__webpack_require__.d(store_actions_namespaceObject, "addInstalledBlockType", function() { return addInstalledBlockType; });
-__webpack_require__.d(store_actions_namespaceObject, "removeInstalledBlockType", function() { return removeInstalledBlockType; });
 
 // EXTERNAL MODULE: external {"this":["wp","blockEditor"]}
-var external_this_wp_blockEditor_ = __webpack_require__(6);
+var external_this_wp_blockEditor_ = __webpack_require__("axFQ");
 
 // EXTERNAL MODULE: external {"this":["wp","blocks"]}
-var external_this_wp_blocks_ = __webpack_require__(9);
+var external_this_wp_blocks_ = __webpack_require__("HSyU");
 
 // EXTERNAL MODULE: external {"this":["wp","coreData"]}
-var external_this_wp_coreData_ = __webpack_require__(89);
+var external_this_wp_coreData_ = __webpack_require__("jZUy");
 
 // EXTERNAL MODULE: external {"this":["wp","notices"]}
-var external_this_wp_notices_ = __webpack_require__(142);
+var external_this_wp_notices_ = __webpack_require__("onLe");
 
 // EXTERNAL MODULE: external {"this":["wp","nux"]}
-var external_this_wp_nux_ = __webpack_require__(61);
+var external_this_wp_nux_ = __webpack_require__("ZU7w");
 
 // EXTERNAL MODULE: external {"this":["wp","richText"]}
-var external_this_wp_richText_ = __webpack_require__(22);
+var external_this_wp_richText_ = __webpack_require__("qRz9");
 
 // EXTERNAL MODULE: external {"this":["wp","viewport"]}
-var external_this_wp_viewport_ = __webpack_require__(42);
+var external_this_wp_viewport_ = __webpack_require__("KEfo");
 
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/objectSpread.js
-var objectSpread = __webpack_require__(7);
+var objectSpread = __webpack_require__("vpQ4");
 
 // EXTERNAL MODULE: external {"this":["wp","data"]}
-var external_this_wp_data_ = __webpack_require__(4);
+var external_this_wp_data_ = __webpack_require__("1ZqX");
 
 // EXTERNAL MODULE: external {"this":["wp","dataControls"]}
-var external_this_wp_dataControls_ = __webpack_require__(32);
+var external_this_wp_dataControls_ = __webpack_require__("51Zz");
 
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/defineProperty.js
-var defineProperty = __webpack_require__(10);
+var defineProperty = __webpack_require__("rePB");
 
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/typeof.js
-var esm_typeof = __webpack_require__(31);
+var esm_typeof = __webpack_require__("U8pU");
 
 // EXTERNAL MODULE: ./node_modules/redux-optimist/index.js
-var redux_optimist = __webpack_require__(83);
+var redux_optimist = __webpack_require__("hx/w");
 var redux_optimist_default = /*#__PURE__*/__webpack_require__.n(redux_optimist);
 
 // EXTERNAL MODULE: external "lodash"
-var external_lodash_ = __webpack_require__(2);
+var external_lodash_ = __webpack_require__("YLtl");
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/editor/build-module/store/defaults.js
 
@@ -1986,35 +1880,35 @@ function reducer_editorSettings() {
 })));
 
 // EXTERNAL MODULE: ./node_modules/refx/refx.js
-var refx = __webpack_require__(72);
+var refx = __webpack_require__("gQxa");
 var refx_default = /*#__PURE__*/__webpack_require__.n(refx);
 
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/regenerator/index.js
-var regenerator = __webpack_require__(20);
+var regenerator = __webpack_require__("o0o1");
 var regenerator_default = /*#__PURE__*/__webpack_require__.n(regenerator);
 
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js
-var asyncToGenerator = __webpack_require__(43);
+var asyncToGenerator = __webpack_require__("HaE+");
 
 // EXTERNAL MODULE: external {"this":["wp","apiFetch"]}
-var external_this_wp_apiFetch_ = __webpack_require__(34);
+var external_this_wp_apiFetch_ = __webpack_require__("ywyh");
 var external_this_wp_apiFetch_default = /*#__PURE__*/__webpack_require__.n(external_this_wp_apiFetch_);
 
 // EXTERNAL MODULE: external {"this":["wp","i18n"]}
-var external_this_wp_i18n_ = __webpack_require__(1);
+var external_this_wp_i18n_ = __webpack_require__("l3Sj");
 
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/slicedToArray.js + 1 modules
-var slicedToArray = __webpack_require__(23);
+var slicedToArray = __webpack_require__("ODXe");
 
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/toConsumableArray.js + 2 modules
-var toConsumableArray = __webpack_require__(17);
+var toConsumableArray = __webpack_require__("KQm4");
 
 // EXTERNAL MODULE: external {"this":["wp","deprecated"]}
-var external_this_wp_deprecated_ = __webpack_require__(37);
+var external_this_wp_deprecated_ = __webpack_require__("NMb1");
 var external_this_wp_deprecated_default = /*#__PURE__*/__webpack_require__.n(external_this_wp_deprecated_);
 
 // EXTERNAL MODULE: external {"this":["wp","isShallowEqual"]}
-var external_this_wp_isShallowEqual_ = __webpack_require__(41);
+var external_this_wp_isShallowEqual_ = __webpack_require__("rl8x");
 var external_this_wp_isShallowEqual_default = /*#__PURE__*/__webpack_require__.n(external_this_wp_isShallowEqual_);
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/editor/build-module/store/constants.js
@@ -2172,11 +2066,11 @@ function getNotificationArgumentsForTrashFail(data) {
 }
 
 // EXTERNAL MODULE: ./node_modules/memize/index.js
-var memize = __webpack_require__(44);
+var memize = __webpack_require__("4eJC");
 var memize_default = /*#__PURE__*/__webpack_require__.n(memize);
 
 // EXTERNAL MODULE: external {"this":["wp","autop"]}
-var external_this_wp_autop_ = __webpack_require__(69);
+var external_this_wp_autop_ = __webpack_require__("UuzZ");
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/editor/build-module/store/utils/serialize-blocks.js
 /**
@@ -4052,7 +3946,7 @@ var mergeBlocks = actions_getBlockEditorAction('mergeBlocks');
  * @see removeBlocks in core/block-editor store.
  */
 
-var actions_removeBlocks = actions_getBlockEditorAction('removeBlocks');
+var removeBlocks = actions_getBlockEditorAction('removeBlocks');
 /**
  * @see removeBlock in core/block-editor store.
  */
@@ -4095,13 +3989,13 @@ var insertDefaultBlock = actions_getBlockEditorAction('insertDefaultBlock');
 var updateBlockListSettings = actions_getBlockEditorAction('updateBlockListSettings');
 
 // EXTERNAL MODULE: ./node_modules/rememo/es/rememo.js
-var rememo = __webpack_require__(36);
+var rememo = __webpack_require__("pPDe");
 
 // EXTERNAL MODULE: external {"this":["wp","date"]}
-var external_this_wp_date_ = __webpack_require__(53);
+var external_this_wp_date_ = __webpack_require__("FqII");
 
 // EXTERNAL MODULE: external {"this":["wp","url"]}
-var external_this_wp_url_ = __webpack_require__(26);
+var external_this_wp_url_ = __webpack_require__("Mmq9");
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/editor/build-module/store/selectors.js
 
@@ -6045,10 +5939,10 @@ middlewares(store_store);
 /* harmony default export */ var build_module_store = (store_store);
 
 // EXTERNAL MODULE: external {"this":["wp","hooks"]}
-var external_this_wp_hooks_ = __webpack_require__(27);
+var external_this_wp_hooks_ = __webpack_require__("g56x");
 
 // EXTERNAL MODULE: external {"this":["wp","element"]}
-var external_this_wp_element_ = __webpack_require__(0);
+var external_this_wp_element_ = __webpack_require__("GRId");
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/editor/build-module/components/autocompleters/block.js
 
@@ -6249,22 +6143,22 @@ function createBlockCompleter() {
 
 
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/classCallCheck.js
-var classCallCheck = __webpack_require__(12);
+var classCallCheck = __webpack_require__("1OyB");
 
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/createClass.js
-var createClass = __webpack_require__(11);
+var createClass = __webpack_require__("vuIU");
 
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/possibleConstructorReturn.js
-var possibleConstructorReturn = __webpack_require__(13);
+var possibleConstructorReturn = __webpack_require__("md7G");
 
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/getPrototypeOf.js
-var getPrototypeOf = __webpack_require__(14);
+var getPrototypeOf = __webpack_require__("foSv");
 
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/inherits.js + 1 modules
-var inherits = __webpack_require__(15);
+var inherits = __webpack_require__("Ji7U");
 
 // EXTERNAL MODULE: external {"this":["wp","compose"]}
-var external_this_wp_compose_ = __webpack_require__(8);
+var external_this_wp_compose_ = __webpack_require__("K9lf");
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/editor/build-module/components/autosave-monitor/index.js
 
@@ -6387,7 +6281,7 @@ function (_Component) {
 })])(autosave_monitor_AutosaveMonitor));
 
 // EXTERNAL MODULE: ./node_modules/classnames/index.js
-var classnames = __webpack_require__(16);
+var classnames = __webpack_require__("TSYQ");
 var classnames_default = /*#__PURE__*/__webpack_require__.n(classnames);
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/editor/build-module/components/document-outline/item.js
@@ -6614,13 +6508,13 @@ function DocumentOutlineCheck(_ref) {
 })(DocumentOutlineCheck));
 
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/assertThisInitialized.js
-var assertThisInitialized = __webpack_require__(5);
+var assertThisInitialized = __webpack_require__("JX7q");
 
 // EXTERNAL MODULE: external {"this":["wp","components"]}
-var external_this_wp_components_ = __webpack_require__(3);
+var external_this_wp_components_ = __webpack_require__("tI+e");
 
 // EXTERNAL MODULE: external {"this":["wp","keycodes"]}
-var external_this_wp_keycodes_ = __webpack_require__(19);
+var external_this_wp_keycodes_ = __webpack_require__("RxS6");
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/editor/build-module/components/global-keyboard-shortcuts/save-shortcut.js
 
@@ -6851,7 +6745,7 @@ function EditorHistoryUndo(_ref) {
 })])(EditorHistoryUndo));
 
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js + 1 modules
-var objectWithoutProperties = __webpack_require__(21);
+var objectWithoutProperties = __webpack_require__("Ff2n");
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/editor/build-module/components/template-validation-notice/index.js
 
@@ -7608,7 +7502,7 @@ function PageTemplate(_ref) {
 }))(PageTemplate));
 
 // EXTERNAL MODULE: external {"this":["wp","htmlEntities"]}
-var external_this_wp_htmlEntities_ = __webpack_require__(52);
+var external_this_wp_htmlEntities_ = __webpack_require__("rmEH");
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/editor/build-module/components/post-author/check.js
 
@@ -7822,7 +7716,7 @@ function PostExcerpt(_ref) {
 })])(PostExcerpt));
 
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/extends.js
-var esm_extends = __webpack_require__(18);
+var esm_extends = __webpack_require__("wx14");
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/editor/build-module/components/post-excerpt/check.js
 
@@ -11327,7 +11221,7 @@ function PostTaxonomiesCheck(_ref) {
 })])(PostTaxonomiesCheck));
 
 // EXTERNAL MODULE: ./node_modules/react-autosize-textarea/lib/index.js
-var lib = __webpack_require__(62);
+var lib = __webpack_require__("O6Fj");
 var lib_default = /*#__PURE__*/__webpack_require__.n(lib);
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/editor/build-module/components/post-text-editor/index.js
@@ -12123,7 +12017,7 @@ function PostVisibilityCheck(_ref) {
 })])(PostVisibilityCheck));
 
 // EXTERNAL MODULE: external {"this":["wp","wordcount"]}
-var external_this_wp_wordcount_ = __webpack_require__(97);
+var external_this_wp_wordcount_ = __webpack_require__("7fqt");
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/editor/build-module/components/word-count/index.js
 
@@ -12412,7 +12306,7 @@ var withRegistryProvider = Object(external_this_wp_compose_["createHigherOrderCo
 /* harmony default export */ var with_registry_provider = (withRegistryProvider);
 
 // EXTERNAL MODULE: external {"this":["wp","mediaUtils"]}
-var external_this_wp_mediaUtils_ = __webpack_require__(99);
+var external_this_wp_mediaUtils_ = __webpack_require__("6aBm");
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/editor/build-module/utils/media-upload/index.js
 
@@ -12876,1234 +12770,6 @@ function ConvertToGroupButtons(_ref) {
   };
 })(ConvertToGroupButtons));
 
-// CONCATENATED MODULE: ./node_modules/@wordpress/block-directory/build-module/store/reducer.js
-
-
-
-
-/**
- * WordPress dependencies
- */
-
-/**
- * Reducer returning an array of downloadable blocks.
- *
- * @param {Object} state  Current state.
- * @param {Object} action Dispatched action.
- *
- * @return {Object} Updated state.
- */
-
-var reducer_downloadableBlocks = function downloadableBlocks() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
-    results: {},
-    hasPermission: true,
-    filterValue: undefined,
-    isRequestingDownloadableBlocks: true,
-    installedBlockTypes: []
-  };
-  var action = arguments.length > 1 ? arguments[1] : undefined;
-
-  switch (action.type) {
-    case 'FETCH_DOWNLOADABLE_BLOCKS':
-      return Object(objectSpread["a" /* default */])({}, state, {
-        isRequestingDownloadableBlocks: true
-      });
-
-    case 'RECEIVE_DOWNLOADABLE_BLOCKS':
-      return Object(objectSpread["a" /* default */])({}, state, {
-        results: Object.assign({}, state.results, Object(defineProperty["a" /* default */])({}, action.filterValue, action.downloadableBlocks)),
-        hasPermission: true,
-        isRequestingDownloadableBlocks: false
-      });
-
-    case 'SET_INSTALL_BLOCKS_PERMISSION':
-      return Object(objectSpread["a" /* default */])({}, state, {
-        items: action.hasPermission ? state.items : [],
-        hasPermission: action.hasPermission
-      });
-
-    case 'ADD_INSTALLED_BLOCK_TYPE':
-      return Object(objectSpread["a" /* default */])({}, state, {
-        installedBlockTypes: [].concat(Object(toConsumableArray["a" /* default */])(state.installedBlockTypes), [action.item])
-      });
-
-    case 'REMOVE_INSTALLED_BLOCK_TYPE':
-      return Object(objectSpread["a" /* default */])({}, state, {
-        installedBlockTypes: state.installedBlockTypes.filter(function (blockType) {
-          return blockType.name !== action.item.name;
-        })
-      });
-  }
-
-  return state;
-};
-/* harmony default export */ var store_reducer = (Object(external_this_wp_data_["combineReducers"])({
-  downloadableBlocks: reducer_downloadableBlocks
-}));
-
-// CONCATENATED MODULE: ./node_modules/@wordpress/block-directory/build-module/store/selectors.js
-/**
- * External dependencies
- */
-
-/**
- * Returns true if application is requesting for downloadable blocks.
- *
- * @param {Object} state       Global application state.
- *
- * @return {Array} Downloadable blocks
- */
-
-function isRequestingDownloadableBlocks(state) {
-  return state.downloadableBlocks.isRequestingDownloadableBlocks;
-}
-/**
- * Returns the available uninstalled blocks
- *
- * @param {Object} state       Global application state.
- * @param {string} filterValue Search string.
- *
- * @return {Array} Downloadable blocks
- */
-
-function selectors_getDownloadableBlocks(state, filterValue) {
-  if (!state.downloadableBlocks.results[filterValue]) {
-    return [];
-  }
-
-  return state.downloadableBlocks.results[filterValue];
-}
-/**
- * Returns true if user has permission to install blocks.
- *
- * @param {Object} state Global application state.
- *
- * @return {boolean} User has permission to install blocks.
- */
-
-function selectors_hasInstallBlocksPermission(state) {
-  return state.downloadableBlocks.hasPermission;
-}
-/**
- * Returns the block types that have been installed on the server.
- *
- * @param {Object} state Global application state.
- *
- * @return {Array} Block type items.
- */
-
-function selectors_getInstalledBlockTypes(state) {
-  return Object(external_lodash_["get"])(state, ['downloadableBlocks', 'installedBlockTypes'], []);
-}
-
-// CONCATENATED MODULE: ./node_modules/@wordpress/block-directory/build-module/store/controls.js
-
-
-
-
-var controls_marked =
-/*#__PURE__*/
-regenerator_default.a.mark(loadAssets);
-
-/**
- * External dependencies
- */
-
-/**
- * WordPress dependencies
- */
-
-
-
-/**
- * Calls a selector using the current state.
- *
- * @param {string} storeName    Store name.
- * @param {string} selectorName Selector name.
- * @param {Array}  args         Selector arguments.
- *
- * @return {Object} Control descriptor.
- */
-
-function controls_select(storeName, selectorName) {
-  for (var _len = arguments.length, args = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-    args[_key - 2] = arguments[_key];
-  }
-
-  return {
-    type: 'SELECT',
-    storeName: storeName,
-    selectorName: selectorName,
-    args: args
-  };
-}
-/**
- * Calls a dispatcher using the current state.
- *
- * @param {string} storeName      Store name.
- * @param {string} dispatcherName Dispatcher name.
- * @param {Array}  args           Selector arguments.
- *
- * @return {Object} Control descriptor.
- */
-
-function controls_dispatch(storeName, dispatcherName) {
-  for (var _len2 = arguments.length, args = new Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
-    args[_key2 - 2] = arguments[_key2];
-  }
-
-  return {
-    type: 'DISPATCH',
-    storeName: storeName,
-    dispatcherName: dispatcherName,
-    args: args
-  };
-}
-/**
- * Trigger an API Fetch request.
- *
- * @param {Object} request API Fetch Request Object.
- *
- * @return {Object} Control descriptor.
- */
-
-function apiFetch(request) {
-  return {
-    type: 'API_FETCH',
-    request: request
-  };
-}
-/**
- * Loads JavaScript
- *
- * @param {Array}    asset   The url for the JavaScript.
- * @param {Function} onLoad  Callback function on success.
- * @param {Function} onError Callback function on failure.
- */
-
-var loadScript = function loadScript(asset, onLoad, onError) {
-  if (!asset) {
-    return;
-  }
-
-  var existing = document.querySelector("script[src=\"".concat(asset.src, "\"]"));
-
-  if (existing) {
-    existing.parentNode.removeChild(existing);
-  }
-
-  var script = document.createElement('script');
-  script.src = typeof asset === 'string' ? asset : asset.src;
-  script.onload = onLoad;
-  script.onerror = onError;
-  document.body.appendChild(script);
-};
-/**
- * Loads CSS file.
- *
- * @param {*} asset the url for the CSS file.
- */
-
-
-var loadStyle = function loadStyle(asset) {
-  if (!asset) {
-    return;
-  }
-
-  var link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = typeof asset === 'string' ? asset : asset.src;
-  document.body.appendChild(link);
-};
-/**
- * Load the asset files for a block
- *
- * @param {Array} assets A collection of URL for the assets.
- *
- * @return {Object} Control descriptor.
- */
-
-
-function loadAssets(assets) {
-  return regenerator_default.a.wrap(function loadAssets$(_context) {
-    while (1) {
-      switch (_context.prev = _context.next) {
-        case 0:
-          return _context.abrupt("return", {
-            type: 'LOAD_ASSETS',
-            assets: assets
-          });
-
-        case 1:
-        case "end":
-          return _context.stop();
-      }
-    }
-  }, controls_marked);
-}
-var controls_controls = {
-  SELECT: Object(external_this_wp_data_["createRegistryControl"])(function (registry) {
-    return function (_ref) {
-      var _registry$select;
-
-      var storeName = _ref.storeName,
-          selectorName = _ref.selectorName,
-          args = _ref.args;
-      return (_registry$select = registry.select(storeName))[selectorName].apply(_registry$select, Object(toConsumableArray["a" /* default */])(args));
-    };
-  }),
-  DISPATCH: Object(external_this_wp_data_["createRegistryControl"])(function (registry) {
-    return function (_ref2) {
-      var _registry$dispatch;
-
-      var storeName = _ref2.storeName,
-          dispatcherName = _ref2.dispatcherName,
-          args = _ref2.args;
-      return (_registry$dispatch = registry.dispatch(storeName))[dispatcherName].apply(_registry$dispatch, Object(toConsumableArray["a" /* default */])(args));
-    };
-  }),
-  API_FETCH: function API_FETCH(_ref3) {
-    var request = _ref3.request;
-    return external_this_wp_apiFetch_default()(Object(objectSpread["a" /* default */])({}, request));
-  },
-  LOAD_ASSETS: function LOAD_ASSETS(_ref4) {
-    var assets = _ref4.assets;
-    return new Promise(function (resolve, reject) {
-      if (Array.isArray(assets)) {
-        var scriptsCount = 0;
-        Object(external_lodash_["forEach"])(assets, function (asset) {
-          if (asset.match(/\.js$/) !== null) {
-            scriptsCount++;
-            loadScript(asset, function () {
-              scriptsCount--;
-
-              if (scriptsCount === 0) {
-                return resolve(scriptsCount);
-              }
-            }, reject);
-          } else {
-            loadStyle(asset);
-          }
-        });
-      } else {
-        loadScript(assets.editor_script, function () {
-          return resolve(0);
-        }, reject);
-        loadStyle(assets.style);
-      }
-    });
-  }
-};
-/* harmony default export */ var build_module_store_controls = (controls_controls);
-
-// CONCATENATED MODULE: ./node_modules/@wordpress/block-directory/build-module/store/actions.js
-
-
-var store_actions_marked =
-/*#__PURE__*/
-regenerator_default.a.mark(actions_downloadBlock),
-    store_actions_marked2 =
-/*#__PURE__*/
-regenerator_default.a.mark(actions_installBlock),
-    actions_marked3 =
-/*#__PURE__*/
-regenerator_default.a.mark(uninstallBlock);
-
-/**
- * WordPress dependencies
- */
-
-/**
- * Internal dependencies
- */
-
-
-/**
- * Returns an action object used in signalling that the downloadable blocks have been requested and is loading.
- *
- * @return {Object} Action object.
- */
-
-function fetchDownloadableBlocks() {
-  return {
-    type: 'FETCH_DOWNLOADABLE_BLOCKS'
-  };
-}
-/**
- * Returns an action object used in signalling that the downloadable blocks have been updated.
- *
- * @param {Array} downloadableBlocks Downloadable blocks.
- * @param {string} filterValue Search string.
- *
- * @return {Object} Action object.
- */
-
-function receiveDownloadableBlocks(downloadableBlocks, filterValue) {
-  return {
-    type: 'RECEIVE_DOWNLOADABLE_BLOCKS',
-    downloadableBlocks: downloadableBlocks,
-    filterValue: filterValue
-  };
-}
-/**
- * Returns an action object used in signalling that the user does not have permission to install blocks.
- *
- @param {boolean} hasPermission User has permission to install blocks.
- *
- * @return {Object} Action object.
- */
-
-function setInstallBlocksPermission(hasPermission) {
-  return {
-    type: 'SET_INSTALL_BLOCKS_PERMISSION',
-    hasPermission: hasPermission
-  };
-}
-/**
- * Action triggered to download block assets.
- *
- * @param {Object} item The selected block item
- * @param {Function} onSuccess The callback function when the action has succeeded.
- * @param {Function} onError The callback function when the action has failed.
- */
-
-function actions_downloadBlock(item, onSuccess, onError) {
-  var registeredBlocks;
-  return regenerator_default.a.wrap(function downloadBlock$(_context) {
-    while (1) {
-      switch (_context.prev = _context.next) {
-        case 0:
-          _context.prev = 0;
-
-          if (item.assets.length) {
-            _context.next = 3;
-            break;
-          }
-
-          throw new Error('Block has no assets');
-
-        case 3:
-          _context.next = 5;
-          return loadAssets(item.assets);
-
-        case 5:
-          registeredBlocks = Object(external_this_wp_blocks_["getBlockTypes"])();
-
-          if (!registeredBlocks.length) {
-            _context.next = 10;
-            break;
-          }
-
-          onSuccess(item);
-          _context.next = 11;
-          break;
-
-        case 10:
-          throw new Error('Unable to get block types');
-
-        case 11:
-          _context.next = 17;
-          break;
-
-        case 13:
-          _context.prev = 13;
-          _context.t0 = _context["catch"](0);
-          _context.next = 17;
-          return onError(_context.t0);
-
-        case 17:
-        case "end":
-          return _context.stop();
-      }
-    }
-  }, store_actions_marked, null, [[0, 13]]);
-}
-/**
- * Action triggered to install a block plugin.
- *
- * @param {string} item The block item returned by search.
- * @param {Function} onSuccess The callback function when the action has succeeded.
- * @param {Function} onError The callback function when the action has failed.
- *
- */
-
-function actions_installBlock(_ref, onSuccess, onError) {
-  var id, name, response;
-  return regenerator_default.a.wrap(function installBlock$(_context2) {
-    while (1) {
-      switch (_context2.prev = _context2.next) {
-        case 0:
-          id = _ref.id, name = _ref.name;
-          _context2.prev = 1;
-          _context2.next = 4;
-          return apiFetch({
-            path: '__experimental/block-directory/install',
-            data: {
-              slug: id
-            },
-            method: 'POST'
-          });
-
-        case 4:
-          response = _context2.sent;
-
-          if (!(response.success === false)) {
-            _context2.next = 7;
-            break;
-          }
-
-          throw new Error(response.errorMessage);
-
-        case 7:
-          _context2.next = 9;
-          return addInstalledBlockType({
-            id: id,
-            name: name
-          });
-
-        case 9:
-          onSuccess();
-          _context2.next = 15;
-          break;
-
-        case 12:
-          _context2.prev = 12;
-          _context2.t0 = _context2["catch"](1);
-          onError(_context2.t0);
-
-        case 15:
-        case "end":
-          return _context2.stop();
-      }
-    }
-  }, store_actions_marked2, null, [[1, 12]]);
-}
-/**
- * Action triggered to uninstall a block plugin.
- *
- * @param {string} item The block item returned by search.
- * @param {Function} onSuccess The callback function when the action has succeeded.
- * @param {Function} onError The callback function when the action has failed.
- *
- */
-
-function uninstallBlock(_ref2, onSuccess, onError) {
-  var id, name, response;
-  return regenerator_default.a.wrap(function uninstallBlock$(_context3) {
-    while (1) {
-      switch (_context3.prev = _context3.next) {
-        case 0:
-          id = _ref2.id, name = _ref2.name;
-          _context3.prev = 1;
-          _context3.next = 4;
-          return apiFetch({
-            path: '__experimental/block-directory/uninstall',
-            data: {
-              slug: id
-            },
-            method: 'DELETE'
-          });
-
-        case 4:
-          response = _context3.sent;
-
-          if (!(response.success === false)) {
-            _context3.next = 7;
-            break;
-          }
-
-          throw new Error(response.errorMessage);
-
-        case 7:
-          _context3.next = 9;
-          return removeInstalledBlockType({
-            id: id,
-            name: name
-          });
-
-        case 9:
-          onSuccess();
-          _context3.next = 15;
-          break;
-
-        case 12:
-          _context3.prev = 12;
-          _context3.t0 = _context3["catch"](1);
-          onError(_context3.t0);
-
-        case 15:
-        case "end":
-          return _context3.stop();
-      }
-    }
-  }, actions_marked3, null, [[1, 12]]);
-}
-/**
- * Returns an action object used to add a newly installed block type.
- *
- * @param {string} item The block item with the block id and name.
- *
- * @return {Object} Action object.
- */
-
-function addInstalledBlockType(item) {
-  return {
-    type: 'ADD_INSTALLED_BLOCK_TYPE',
-    item: item
-  };
-}
-/**
- * Returns an action object used to remove a newly installed block type.
- *
- * @param {string} item The block item with the block id and name.
- *
- * @return {Object} Action object.
- */
-
-function removeInstalledBlockType(item) {
-  return {
-    type: 'REMOVE_INSTALLED_BLOCK_TYPE',
-    item: item
-  };
-}
-
-// CONCATENATED MODULE: ./node_modules/@wordpress/block-directory/build-module/store/resolvers.js
-
-
-/**
- * External dependencies
- */
-
-/**
- * Internal dependencies
- */
-
-
-
-/* harmony default export */ var resolvers = ({
-  getDownloadableBlocks:
-  /*#__PURE__*/
-  regenerator_default.a.mark(function getDownloadableBlocks(filterValue) {
-    var results, blocks;
-    return regenerator_default.a.wrap(function getDownloadableBlocks$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            if (filterValue) {
-              _context.next = 2;
-              break;
-            }
-
-            return _context.abrupt("return");
-
-          case 2:
-            _context.prev = 2;
-            _context.next = 5;
-            return fetchDownloadableBlocks(filterValue);
-
-          case 5:
-            _context.next = 7;
-            return apiFetch({
-              path: "__experimental/block-directory/search?term=".concat(filterValue)
-            });
-
-          case 7:
-            results = _context.sent;
-            blocks = results.map(function (result) {
-              return Object(external_lodash_["mapKeys"])(result, function (value, key) {
-                return Object(external_lodash_["camelCase"])(key);
-              });
-            });
-            _context.next = 11;
-            return receiveDownloadableBlocks(blocks, filterValue);
-
-          case 11:
-            _context.next = 18;
-            break;
-
-          case 13:
-            _context.prev = 13;
-            _context.t0 = _context["catch"](2);
-
-            if (!(_context.t0.code === 'rest_user_cannot_view')) {
-              _context.next = 18;
-              break;
-            }
-
-            _context.next = 18;
-            return setInstallBlocksPermission(false);
-
-          case 18:
-          case "end":
-            return _context.stop();
-        }
-      }
-    }, getDownloadableBlocks, null, [[2, 13]]);
-  }),
-  hasInstallBlocksPermission:
-  /*#__PURE__*/
-  regenerator_default.a.mark(function hasInstallBlocksPermission() {
-    return regenerator_default.a.wrap(function hasInstallBlocksPermission$(_context2) {
-      while (1) {
-        switch (_context2.prev = _context2.next) {
-          case 0:
-            _context2.prev = 0;
-            _context2.next = 3;
-            return apiFetch({
-              path: "__experimental/block-directory/search?term="
-            });
-
-          case 3:
-            _context2.next = 5;
-            return setInstallBlocksPermission(true);
-
-          case 5:
-            _context2.next = 12;
-            break;
-
-          case 7:
-            _context2.prev = 7;
-            _context2.t0 = _context2["catch"](0);
-
-            if (!(_context2.t0.code === 'rest_user_cannot_view')) {
-              _context2.next = 12;
-              break;
-            }
-
-            _context2.next = 12;
-            return setInstallBlocksPermission(false);
-
-          case 12:
-          case "end":
-            return _context2.stop();
-        }
-      }
-    }, hasInstallBlocksPermission, null, [[0, 7]]);
-  })
-});
-
-// CONCATENATED MODULE: ./node_modules/@wordpress/block-directory/build-module/store/index.js
-/**
- * WordPress dependencies
- */
-
-/**
- * Internal dependencies
- */
-
-
-
-
-
-
-/**
- * Module Constants
- */
-
-var MODULE_KEY = 'core/block-directory';
-/**
- * Block editor data store configuration.
- *
- * @see https://github.com/WordPress/gutenberg/blob/master/packages/data/README.md#registerStore
- *
- * @type {Object}
- */
-
-var store_storeConfig = {
-  reducer: store_reducer,
-  selectors: store_selectors_namespaceObject,
-  actions: store_actions_namespaceObject,
-  controls: build_module_store_controls,
-  resolvers: resolvers
-};
-var build_module_store_store = Object(external_this_wp_data_["registerStore"])(MODULE_KEY, store_storeConfig);
-/* harmony default export */ var block_directory_build_module_store = (build_module_store_store);
-
-// CONCATENATED MODULE: ./node_modules/@wordpress/block-directory/build-module/components/block-ratings/stars.js
-
-
-/**
- * External dependencies
- */
-
-/**
- * WordPress dependencies
- */
-
-
-
-
-function Stars(_ref) {
-  var rating = _ref.rating;
-  var stars = Math.round(rating / 0.5) * 0.5;
-  var fullStarCount = Math.floor(rating);
-  var halfStarCount = Math.ceil(rating - fullStarCount);
-  var emptyStarCount = 5 - (fullStarCount + halfStarCount);
-  return Object(external_this_wp_element_["createElement"])("div", {
-    "aria-label": Object(external_this_wp_i18n_["sprintf"])(Object(external_this_wp_i18n_["__"])('%s out of 5 stars'), stars)
-  }, Object(external_lodash_["times"])(fullStarCount, function (i) {
-    return Object(external_this_wp_element_["createElement"])(external_this_wp_components_["Icon"], {
-      key: "full_stars_".concat(i),
-      icon: "star-filled",
-      size: 16
-    });
-  }), Object(external_lodash_["times"])(halfStarCount, function (i) {
-    return Object(external_this_wp_element_["createElement"])(external_this_wp_components_["Icon"], {
-      key: "half_stars_".concat(i),
-      icon: "star-half",
-      size: 16
-    });
-  }), Object(external_lodash_["times"])(emptyStarCount, function (i) {
-    return Object(external_this_wp_element_["createElement"])(external_this_wp_components_["Icon"], {
-      key: "empty_stars_".concat(i),
-      icon: "star-empty",
-      size: 16
-    });
-  }));
-}
-
-/* harmony default export */ var block_ratings_stars = (Stars);
-
-// CONCATENATED MODULE: ./node_modules/@wordpress/block-directory/build-module/components/block-ratings/index.js
-
-
-/**
- * WordPress dependencies
- */
-
-/**
- * Internal dependencies
- */
-
-
-var block_ratings_BlockRatings = function BlockRatings(_ref) {
-  var rating = _ref.rating,
-      ratingCount = _ref.ratingCount;
-  return Object(external_this_wp_element_["createElement"])("div", {
-    className: "block-directory-block-ratings"
-  }, Object(external_this_wp_element_["createElement"])(block_ratings_stars, {
-    rating: rating
-  }), Object(external_this_wp_element_["createElement"])("span", {
-    className: "block-directory-block-ratings__rating-count",
-    "aria-label": // translators: %d: number of ratings (number).
-    Object(external_this_wp_i18n_["sprintf"])(Object(external_this_wp_i18n_["_n"])('%d total rating', '%d total ratings', ratingCount), ratingCount)
-  }, "(", ratingCount, ")"));
-};
-/* harmony default export */ var block_ratings = (block_ratings_BlockRatings);
-
-// CONCATENATED MODULE: ./node_modules/@wordpress/block-directory/build-module/components/downloadable-block-header/index.js
-
-
-/**
- * WordPress dependencies
- */
-
-
-/**
- * Internal dependencies
- */
-
-
-
-
-function DownloadableBlockHeader(_ref) {
-  var icon = _ref.icon,
-      title = _ref.title,
-      rating = _ref.rating,
-      ratingCount = _ref.ratingCount,
-      _onClick = _ref.onClick;
-  return Object(external_this_wp_element_["createElement"])("div", {
-    className: "block-directory-downloadable-block-header__row"
-  }, icon.match(/\.(jpeg|jpg|gif|png)$/) !== null ? Object(external_this_wp_element_["createElement"])("img", {
-    src: icon,
-    alt: "block icon"
-  }) : Object(external_this_wp_element_["createElement"])("span", null, Object(external_this_wp_element_["createElement"])(external_this_wp_blockEditor_["BlockIcon"], {
-    icon: icon,
-    showColors: true
-  })), Object(external_this_wp_element_["createElement"])("div", {
-    className: "block-directory-downloadable-block-header__column"
-  }, Object(external_this_wp_element_["createElement"])("span", {
-    role: "heading",
-    className: "block-directory-downloadable-block-header__title"
-  }, title), Object(external_this_wp_element_["createElement"])(block_ratings, {
-    rating: rating,
-    ratingCount: ratingCount
-  })), Object(external_this_wp_element_["createElement"])(external_this_wp_components_["Button"], {
-    isDefault: true,
-    onClick: function onClick(event) {
-      event.preventDefault();
-
-      _onClick();
-    }
-  }, Object(external_this_wp_i18n_["__"])('Add')));
-}
-
-/* harmony default export */ var downloadable_block_header = (DownloadableBlockHeader);
-
-// CONCATENATED MODULE: ./node_modules/@wordpress/block-directory/build-module/components/downloadable-block-author-info/index.js
-
-
-/**
- * WordPress dependencies
- */
-
-
-
-function DownloadableBlockAuthorInfo(_ref) {
-  var author = _ref.author,
-      authorBlockCount = _ref.authorBlockCount,
-      authorBlockRating = _ref.authorBlockRating;
-  return Object(external_this_wp_element_["createElement"])(external_this_wp_element_["Fragment"], null, Object(external_this_wp_element_["createElement"])("span", {
-    className: "block-directory-downloadable-block-author-info__content-author"
-  }, Object(external_this_wp_i18n_["sprintf"])(Object(external_this_wp_i18n_["__"])('Authored by %s'), author)), Object(external_this_wp_element_["createElement"])("span", {
-    className: "block-directory-downloadable-block-author-info__content"
-  }, Object(external_this_wp_i18n_["sprintf"])(Object(external_this_wp_i18n_["_n"])('This author has %d block, with an average rating of %d.', 'This author has %d blocks, with an average rating of %d.', authorBlockCount), authorBlockCount, authorBlockRating)));
-}
-
-/* harmony default export */ var downloadable_block_author_info = (DownloadableBlockAuthorInfo);
-
-// CONCATENATED MODULE: ./node_modules/@wordpress/block-directory/build-module/components/downloadable-block-info/index.js
-
-
-/**
- * WordPress dependencies
- */
-
-
-
-
-function DownloadableBlockInfo(_ref) {
-  var description = _ref.description,
-      activeInstalls = _ref.activeInstalls,
-      humanizedUpdated = _ref.humanizedUpdated;
-  return Object(external_this_wp_element_["createElement"])(external_this_wp_element_["Fragment"], null, Object(external_this_wp_element_["createElement"])("p", {
-    className: "block-directory-downloadable-block-info__content"
-  }, description), Object(external_this_wp_element_["createElement"])("div", {
-    className: "block-directory-downloadable-block-info__row"
-  }, Object(external_this_wp_element_["createElement"])("div", {
-    className: "block-directory-downloadable-block-info__column"
-  }, Object(external_this_wp_element_["createElement"])(external_this_wp_components_["Icon"], {
-    icon: "chart-line"
-  }), Object(external_this_wp_i18n_["sprintf"])(Object(external_this_wp_i18n_["_n"])('%d active installation', '%d active installations', activeInstalls), activeInstalls)), Object(external_this_wp_element_["createElement"])("div", {
-    className: "block-directory-downloadable-block-info__column"
-  }, Object(external_this_wp_element_["createElement"])(external_this_wp_components_["Icon"], {
-    icon: "update"
-  }), Object(external_this_wp_element_["createElement"])("span", {
-    "aria-label": Object(external_this_wp_i18n_["sprintf"])(Object(external_this_wp_i18n_["__"])('Updated %s'), humanizedUpdated)
-  }, humanizedUpdated))));
-}
-
-/* harmony default export */ var downloadable_block_info = (DownloadableBlockInfo);
-
-// CONCATENATED MODULE: ./node_modules/@wordpress/block-directory/build-module/components/downloadable-block-list-item/index.js
-
-
-/**
- * Internal dependencies
- */
-
-
-
-
-function DownloadableBlockListItem(_ref) {
-  var item = _ref.item,
-      onClick = _ref.onClick;
-  var icon = item.icon,
-      title = item.title,
-      description = item.description,
-      rating = item.rating,
-      activeInstalls = item.activeInstalls,
-      ratingCount = item.ratingCount,
-      author = item.author,
-      humanizedUpdated = item.humanizedUpdated,
-      authorBlockCount = item.authorBlockCount,
-      authorBlockRating = item.authorBlockRating;
-  return Object(external_this_wp_element_["createElement"])("li", {
-    className: "block-directory-downloadable-block-list-item"
-  }, Object(external_this_wp_element_["createElement"])("article", {
-    className: "block-directory-downloadable-block-list-item__panel"
-  }, Object(external_this_wp_element_["createElement"])("header", {
-    className: "block-directory-downloadable-block-list-item__header"
-  }, Object(external_this_wp_element_["createElement"])(downloadable_block_header, {
-    icon: icon,
-    onClick: onClick,
-    title: title,
-    rating: rating,
-    ratingCount: ratingCount
-  })), Object(external_this_wp_element_["createElement"])("section", {
-    className: "block-directory-downloadable-block-list-item__body"
-  }, Object(external_this_wp_element_["createElement"])(downloadable_block_info, {
-    activeInstalls: activeInstalls,
-    description: description,
-    humanizedUpdated: humanizedUpdated
-  })), Object(external_this_wp_element_["createElement"])("footer", {
-    className: "block-directory-downloadable-block-list-item__footer"
-  }, Object(external_this_wp_element_["createElement"])(downloadable_block_author_info, {
-    author: author,
-    authorBlockCount: authorBlockCount,
-    authorBlockRating: authorBlockRating
-  }))));
-}
-
-/* harmony default export */ var downloadable_block_list_item = (DownloadableBlockListItem);
-
-// CONCATENATED MODULE: ./node_modules/@wordpress/block-directory/build-module/components/downloadable-blocks-list/index.js
-
-
-/**
- * External dependencies
- */
-
-/**
- * WordPress dependencies
- */
-
-
-
-
-
-/**
- * Internal dependencies
- */
-
-
-var DOWNLOAD_ERROR_NOTICE_ID = 'block-download-error';
-var INSTALL_ERROR_NOTICE_ID = 'block-install-error';
-
-function DownloadableBlocksList(_ref) {
-  var items = _ref.items,
-      _ref$onHover = _ref.onHover,
-      onHover = _ref$onHover === void 0 ? external_lodash_["noop"] : _ref$onHover,
-      children = _ref.children,
-      downloadAndInstallBlock = _ref.downloadAndInstallBlock;
-  return (
-    /*
-     * Disable reason: The `list` ARIA role is redundant but
-     * Safari+VoiceOver won't announce the list otherwise.
-     */
-
-    /* eslint-disable jsx-a11y/no-redundant-roles */
-    Object(external_this_wp_element_["createElement"])("ul", {
-      role: "list",
-      className: "block-directory-downloadable-blocks-list"
-    }, items && items.map(function (item) {
-      return Object(external_this_wp_element_["createElement"])(downloadable_block_list_item, {
-        key: item.id,
-        className: Object(external_this_wp_blocks_["getBlockMenuDefaultClassName"])(item.id),
-        icons: item.icons,
-        onClick: function onClick() {
-          downloadAndInstallBlock(item);
-          onHover(null);
-        },
-        onFocus: function onFocus() {
-          return onHover(item);
-        },
-        onMouseEnter: function onMouseEnter() {
-          return onHover(item);
-        },
-        onMouseLeave: function onMouseLeave() {
-          return onHover(null);
-        },
-        onBlur: function onBlur() {
-          return onHover(null);
-        },
-        item: item
-      });
-    }), children)
-    /* eslint-enable jsx-a11y/no-redundant-roles */
-
-  );
-}
-
-/* harmony default export */ var downloadable_blocks_list = (Object(external_this_wp_compose_["compose"])(Object(external_this_wp_data_["withDispatch"])(function (dispatch, props) {
-  var _dispatch = dispatch('core/block-directory'),
-      installBlock = _dispatch.installBlock,
-      downloadBlock = _dispatch.downloadBlock;
-
-  var _dispatch2 = dispatch('core/notices'),
-      createErrorNotice = _dispatch2.createErrorNotice,
-      removeNotice = _dispatch2.removeNotice;
-
-  var _dispatch3 = dispatch('core/block-editor'),
-      removeBlocks = _dispatch3.removeBlocks;
-
-  var onSelect = props.onSelect;
-  return {
-    downloadAndInstallBlock: function downloadAndInstallBlock(item) {
-      var onDownloadError = function onDownloadError() {
-        createErrorNotice(Object(external_this_wp_i18n_["__"])('Block previews can’t load.'), {
-          id: DOWNLOAD_ERROR_NOTICE_ID,
-          actions: [{
-            label: Object(external_this_wp_i18n_["__"])('Retry'),
-            onClick: function onClick() {
-              removeNotice(DOWNLOAD_ERROR_NOTICE_ID);
-              downloadBlock(item, onSuccess, onDownloadError);
-            }
-          }]
-        });
-      };
-
-      var onSuccess = function onSuccess() {
-        var createdBlock = onSelect(item);
-
-        var onInstallBlockError = function onInstallBlockError() {
-          createErrorNotice(Object(external_this_wp_i18n_["__"])('Block previews can\'t install.'), {
-            id: INSTALL_ERROR_NOTICE_ID,
-            actions: [{
-              label: Object(external_this_wp_i18n_["__"])('Retry'),
-              onClick: function onClick() {
-                removeNotice(INSTALL_ERROR_NOTICE_ID);
-                installBlock(item, external_lodash_["noop"], onInstallBlockError);
-              }
-            }, {
-              label: Object(external_this_wp_i18n_["__"])('Remove'),
-              onClick: function onClick() {
-                removeNotice(INSTALL_ERROR_NOTICE_ID);
-                removeBlocks(createdBlock.clientId);
-                Object(external_this_wp_blocks_["unregisterBlockType"])(item.name);
-              }
-            }]
-          });
-        };
-
-        installBlock(item, external_lodash_["noop"], onInstallBlockError);
-      };
-
-      downloadBlock(item, onSuccess, onDownloadError);
-    }
-  };
-}))(DownloadableBlocksList));
-
-// CONCATENATED MODULE: ./node_modules/@wordpress/block-directory/build-module/components/downloadable-blocks-panel/index.js
-
-
-/**
- * WordPress dependencies
- */
-
-
-
-
-
-/**
- * Internal dependencies
- */
-
-
-
-function DownloadableBlocksPanel(_ref) {
-  var downloadableItems = _ref.downloadableItems,
-      onSelect = _ref.onSelect,
-      onHover = _ref.onHover,
-      hasPermission = _ref.hasPermission,
-      isLoading = _ref.isLoading,
-      isWaiting = _ref.isWaiting,
-      debouncedSpeak = _ref.debouncedSpeak;
-
-  if (!hasPermission) {
-    debouncedSpeak(Object(external_this_wp_i18n_["__"])('No blocks found in your library. Please contact your site administrator to install new blocks.'));
-    return Object(external_this_wp_element_["createElement"])("p", {
-      className: "block-directory-downloadable-blocks-panel__description has-no-results"
-    }, Object(external_this_wp_i18n_["__"])('No blocks found in your library.'), Object(external_this_wp_element_["createElement"])("br", null), Object(external_this_wp_i18n_["__"])('Please contact your site administrator to install new blocks.'));
-  }
-
-  if (isLoading || isWaiting) {
-    return Object(external_this_wp_element_["createElement"])("p", {
-      className: "block-directory-downloadable-blocks-panel__description has-no-results"
-    }, Object(external_this_wp_element_["createElement"])(external_this_wp_components_["Spinner"], null));
-  }
-
-  if (!downloadableItems.length) {
-    return Object(external_this_wp_element_["createElement"])("p", {
-      className: "block-directory-downloadable-blocks-panel__description has-no-results"
-    }, Object(external_this_wp_i18n_["__"])('No blocks found in your library.'));
-  }
-
-  var resultsFoundMessage = Object(external_this_wp_i18n_["sprintf"])(Object(external_this_wp_i18n_["_n"])('No blocks found in your library. We did find %d block available for download.', 'No blocks found in your library. We did find %d blocks available for download.', downloadableItems.length), downloadableItems.length);
-  debouncedSpeak(resultsFoundMessage);
-  return Object(external_this_wp_element_["createElement"])(external_this_wp_element_["Fragment"], null, Object(external_this_wp_element_["createElement"])("p", {
-    className: "block-directory-downloadable-blocks-panel__description"
-  }, Object(external_this_wp_i18n_["__"])('No blocks found in your library. These blocks can be downloaded and installed:')), Object(external_this_wp_element_["createElement"])(downloadable_blocks_list, {
-    items: downloadableItems,
-    onSelect: onSelect,
-    onHover: onHover
-  }));
-}
-
-/* harmony default export */ var downloadable_blocks_panel = (Object(external_this_wp_compose_["compose"])([external_this_wp_components_["withSpokenMessages"], Object(external_this_wp_data_["withSelect"])(function (select, _ref2) {
-  var filterValue = _ref2.filterValue;
-
-  var _select = select('core/block-directory'),
-      getDownloadableBlocks = _select.getDownloadableBlocks,
-      hasInstallBlocksPermission = _select.hasInstallBlocksPermission,
-      isRequestingDownloadableBlocks = _select.isRequestingDownloadableBlocks;
-
-  var hasPermission = hasInstallBlocksPermission();
-  var downloadableItems = hasPermission ? getDownloadableBlocks(filterValue) : [];
-  var isLoading = isRequestingDownloadableBlocks();
-  return {
-    downloadableItems: downloadableItems,
-    hasPermission: hasPermission,
-    isLoading: isLoading
-  };
-})])(DownloadableBlocksPanel));
-
-// CONCATENATED MODULE: ./node_modules/@wordpress/block-directory/build-module/index.js
-/**
- * Internal dependencies
- */
-
-
-
-// CONCATENATED MODULE: ./node_modules/@wordpress/editor/build-module/components/inserter-menu-downloadable-blocks-panel/index.js
-
-
-
-/**
- * External dependencies
- */
-
-/**
- * WordPress dependencies
- */
-
-
-
-
-
-function InserterMenuDownloadableBlocksPanel() {
-  var _useState = Object(external_this_wp_element_["useState"])(''),
-      _useState2 = Object(slicedToArray["a" /* default */])(_useState, 2),
-      debouncedFilterValue = _useState2[0],
-      setFilterValue = _useState2[1];
-
-  var debouncedSetFilterValue = Object(external_lodash_["debounce"])(setFilterValue, 400);
-  return Object(external_this_wp_element_["createElement"])(external_this_wp_blockEditor_["__experimentalInserterMenuExtension"], null, function (_ref) {
-    var onSelect = _ref.onSelect,
-        onHover = _ref.onHover,
-        filterValue = _ref.filterValue,
-        hasItems = _ref.hasItems;
-
-    if (hasItems || !filterValue) {
-      return null;
-    }
-
-    if (debouncedFilterValue !== filterValue) {
-      debouncedSetFilterValue(filterValue);
-    }
-
-    return Object(external_this_wp_element_["createElement"])(downloadable_blocks_panel, {
-      onSelect: onSelect,
-      onHover: onHover,
-      filterValue: debouncedFilterValue,
-      isWaiting: filterValue !== debouncedFilterValue
-    });
-  });
-}
-
-/* harmony default export */ var inserter_menu_downloadable_blocks_panel = (InserterMenuDownloadableBlocksPanel);
-
 // CONCATENATED MODULE: ./node_modules/@wordpress/editor/build-module/components/provider/index.js
 
 
@@ -14136,7 +12802,6 @@ function InserterMenuDownloadableBlocksPanel() {
 /**
  * Internal dependencies
  */
-
 
 
 
@@ -14226,7 +12891,7 @@ function (_Component) {
   Object(createClass["a" /* default */])(EditorProvider, [{
     key: "getBlockEditorSettings",
     value: function getBlockEditorSettings(settings, reusableBlocks, hasUploadPermissions, canUserUseUnfilteredHTML) {
-      return Object(objectSpread["a" /* default */])({}, Object(external_lodash_["pick"])(settings, ['alignWide', 'allowedBlockTypes', '__experimentalPreferredStyleVariations', 'availableLegacyWidgets', 'bodyPlaceholder', 'codeEditingEnabled', 'colors', 'disableCustomColors', 'disableCustomFontSizes', 'focusMode', 'fontSizes', 'hasFixedToolbar', 'hasPermissionsToManageWidgets', 'imageSizes', 'isRTL', 'maxWidth', 'styles', 'template', 'templateLock', 'titlePlaceholder', 'onUpdateDefaultBlockStyles', '__experimentalEnableLegacyWidgetBlock', '__experimentalEnableMenuBlock', '__experimentalBlockDirectory', 'showInserterHelpPanel']), {
+      return Object(objectSpread["a" /* default */])({}, Object(external_lodash_["pick"])(settings, ['alignWide', 'allowedBlockTypes', '__experimentalPreferredStyleVariations', 'availableLegacyWidgets', 'bodyPlaceholder', 'codeEditingEnabled', 'colors', 'disableCustomColors', 'disableCustomFontSizes', 'focusMode', 'fontSizes', 'hasFixedToolbar', 'hasPermissionsToManageWidgets', 'imageSizes', 'isRTL', 'maxWidth', 'styles', 'template', 'templateLock', 'titlePlaceholder', 'onUpdateDefaultBlockStyles', '__experimentalEnableLegacyWidgetBlock', '__experimentalEnableMenuBlock', 'showInserterHelpPanel']), {
         __experimentalReusableBlocks: reusableBlocks,
         __experimentalMediaUpload: hasUploadPermissions ? media_upload : undefined,
         __experimentalFetchLinkSuggestions: fetchLinkSuggestions,
@@ -14254,25 +12919,8 @@ function (_Component) {
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate(prevProps) {
-      var _this2 = this;
-
       if (this.props.settings !== prevProps.settings) {
         this.props.updateEditorSettings(this.props.settings);
-      } // When a block is installed from the inserter and is unused,
-      // it is removed when saving the post.
-      // Todo: move this to the edit-post package into a separate component.
-
-
-      if (!Object(external_lodash_["isEqual"])(this.props.downloadableBlocksToUninstall, prevProps.downloadableBlocksToUninstall)) {
-        this.props.downloadableBlocksToUninstall.forEach(function (blockType) {
-          _this2.props.uninstallBlock(blockType, external_lodash_["noop"], function () {
-            _this2.props.createWarningNotice(Object(external_this_wp_i18n_["__"])('Block previews can\'t uninstall.'), {
-              id: UNINSTALL_ERROR_NOTICE_ID
-            });
-          });
-
-          Object(external_this_wp_blocks_["unregisterBlockType"])(blockType.name);
-        });
       }
     }
   }, {
@@ -14305,7 +12953,7 @@ function (_Component) {
         onChange: resetEditorBlocks,
         settings: editorSettings,
         useSubRegistry: false
-      }, children, Object(external_this_wp_element_["createElement"])(reusable_blocks_buttons, null), Object(external_this_wp_element_["createElement"])(convert_to_group_buttons, null), editorSettings.__experimentalBlockDirectory && Object(external_this_wp_element_["createElement"])(inserter_menu_downloadable_blocks_panel, null));
+      }, children, Object(external_this_wp_element_["createElement"])(reusable_blocks_buttons, null), Object(external_this_wp_element_["createElement"])(convert_to_group_buttons, null));
     }
   }]);
 
@@ -14322,20 +12970,15 @@ function (_Component) {
   var _select2 = select('core'),
       canUser = _select2.canUser;
 
-  var _select3 = select('core/block-directory'),
-      getInstalledBlockTypes = _select3.getInstalledBlockTypes;
+  var _select3 = select('core/block-editor'),
+      getBlocks = _select3.getBlocks;
 
-  var _select4 = select('core/block-editor'),
-      getBlocks = _select4.getBlocks;
-
-  var downloadableBlocksToUninstall = Object(external_lodash_["differenceBy"])(getInstalledBlockTypes(), getBlocks(), 'name');
   return {
     canUserUseUnfilteredHTML: canUserUseUnfilteredHTML(),
     isReady: isEditorReady(),
     blocks: getEditorBlocks(),
     reusableBlocks: __experimentalGetReusableBlocks(),
-    hasUploadPermissions: Object(external_lodash_["defaultTo"])(canUser('create', 'media'), true),
-    downloadableBlocksToUninstall: downloadableBlocksToUninstall
+    hasUploadPermissions: Object(external_lodash_["defaultTo"])(canUser('create', 'media'), true)
   };
 }), Object(external_this_wp_data_["withDispatch"])(function (dispatch) {
   var _dispatch = dispatch('core/editor'),
@@ -14348,9 +12991,6 @@ function (_Component) {
   var _dispatch2 = dispatch('core/notices'),
       createWarningNotice = _dispatch2.createWarningNotice;
 
-  var _dispatch3 = dispatch('core/block-directory'),
-      uninstallBlock = _dispatch3.uninstallBlock;
-
   return {
     setupEditor: setupEditor,
     updatePostLock: updatePostLock,
@@ -14362,13 +13002,12 @@ function (_Component) {
         __unstableShouldCreateUndoLevel: false
       });
     },
-    tearDownEditor: __experimentalTearDownEditor,
-    uninstallBlock: uninstallBlock
+    tearDownEditor: __experimentalTearDownEditor
   };
 })])(provider_EditorProvider));
 
 // EXTERNAL MODULE: external {"this":["wp","serverSideRender"]}
-var external_this_wp_serverSideRender_ = __webpack_require__(58);
+var external_this_wp_serverSideRender_ = __webpack_require__("JREk");
 var external_this_wp_serverSideRender_default = /*#__PURE__*/__webpack_require__.n(external_this_wp_serverSideRender_);
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/editor/build-module/components/deprecated.js
@@ -14566,122 +13205,6 @@ Object(external_this_wp_hooks_["addFilter"])('editor.Autocomplete.completers', '
 
 
 // CONCATENATED MODULE: ./node_modules/@wordpress/editor/build-module/index.js
-/* concated harmony reexport AutosaveMonitor */__webpack_require__.d(__webpack_exports__, "AutosaveMonitor", function() { return autosave_monitor; });
-/* concated harmony reexport DocumentOutline */__webpack_require__.d(__webpack_exports__, "DocumentOutline", function() { return document_outline; });
-/* concated harmony reexport DocumentOutlineCheck */__webpack_require__.d(__webpack_exports__, "DocumentOutlineCheck", function() { return check; });
-/* concated harmony reexport VisualEditorGlobalKeyboardShortcuts */__webpack_require__.d(__webpack_exports__, "VisualEditorGlobalKeyboardShortcuts", function() { return visual_editor_shortcuts; });
-/* concated harmony reexport EditorGlobalKeyboardShortcuts */__webpack_require__.d(__webpack_exports__, "EditorGlobalKeyboardShortcuts", function() { return EditorGlobalKeyboardShortcuts; });
-/* concated harmony reexport TextEditorGlobalKeyboardShortcuts */__webpack_require__.d(__webpack_exports__, "TextEditorGlobalKeyboardShortcuts", function() { return TextEditorGlobalKeyboardShortcuts; });
-/* concated harmony reexport EditorHistoryRedo */__webpack_require__.d(__webpack_exports__, "EditorHistoryRedo", function() { return editor_history_redo; });
-/* concated harmony reexport EditorHistoryUndo */__webpack_require__.d(__webpack_exports__, "EditorHistoryUndo", function() { return editor_history_undo; });
-/* concated harmony reexport EditorNotices */__webpack_require__.d(__webpack_exports__, "EditorNotices", function() { return editor_notices; });
-/* concated harmony reexport ErrorBoundary */__webpack_require__.d(__webpack_exports__, "ErrorBoundary", function() { return error_boundary; });
-/* concated harmony reexport LocalAutosaveMonitor */__webpack_require__.d(__webpack_exports__, "LocalAutosaveMonitor", function() { return local_autosave_monitor; });
-/* concated harmony reexport PageAttributesCheck */__webpack_require__.d(__webpack_exports__, "PageAttributesCheck", function() { return page_attributes_check; });
-/* concated harmony reexport PageAttributesOrder */__webpack_require__.d(__webpack_exports__, "PageAttributesOrder", function() { return page_attributes_order; });
-/* concated harmony reexport PageAttributesParent */__webpack_require__.d(__webpack_exports__, "PageAttributesParent", function() { return page_attributes_parent; });
-/* concated harmony reexport PageTemplate */__webpack_require__.d(__webpack_exports__, "PageTemplate", function() { return page_attributes_template; });
-/* concated harmony reexport PostAuthor */__webpack_require__.d(__webpack_exports__, "PostAuthor", function() { return post_author; });
-/* concated harmony reexport PostAuthorCheck */__webpack_require__.d(__webpack_exports__, "PostAuthorCheck", function() { return post_author_check; });
-/* concated harmony reexport PostComments */__webpack_require__.d(__webpack_exports__, "PostComments", function() { return post_comments; });
-/* concated harmony reexport PostExcerpt */__webpack_require__.d(__webpack_exports__, "PostExcerpt", function() { return post_excerpt; });
-/* concated harmony reexport PostExcerptCheck */__webpack_require__.d(__webpack_exports__, "PostExcerptCheck", function() { return post_excerpt_check; });
-/* concated harmony reexport PostFeaturedImage */__webpack_require__.d(__webpack_exports__, "PostFeaturedImage", function() { return post_featured_image; });
-/* concated harmony reexport PostFeaturedImageCheck */__webpack_require__.d(__webpack_exports__, "PostFeaturedImageCheck", function() { return post_featured_image_check; });
-/* concated harmony reexport PostFormat */__webpack_require__.d(__webpack_exports__, "PostFormat", function() { return post_format; });
-/* concated harmony reexport PostFormatCheck */__webpack_require__.d(__webpack_exports__, "PostFormatCheck", function() { return post_format_check; });
-/* concated harmony reexport PostLastRevision */__webpack_require__.d(__webpack_exports__, "PostLastRevision", function() { return post_last_revision; });
-/* concated harmony reexport PostLastRevisionCheck */__webpack_require__.d(__webpack_exports__, "PostLastRevisionCheck", function() { return post_last_revision_check; });
-/* concated harmony reexport PostLockedModal */__webpack_require__.d(__webpack_exports__, "PostLockedModal", function() { return post_locked_modal; });
-/* concated harmony reexport PostPendingStatus */__webpack_require__.d(__webpack_exports__, "PostPendingStatus", function() { return post_pending_status; });
-/* concated harmony reexport PostPendingStatusCheck */__webpack_require__.d(__webpack_exports__, "PostPendingStatusCheck", function() { return post_pending_status_check; });
-/* concated harmony reexport PostPingbacks */__webpack_require__.d(__webpack_exports__, "PostPingbacks", function() { return post_pingbacks; });
-/* concated harmony reexport PostPreviewButton */__webpack_require__.d(__webpack_exports__, "PostPreviewButton", function() { return post_preview_button; });
-/* concated harmony reexport PostPublishButton */__webpack_require__.d(__webpack_exports__, "PostPublishButton", function() { return post_publish_button; });
-/* concated harmony reexport PostPublishButtonLabel */__webpack_require__.d(__webpack_exports__, "PostPublishButtonLabel", function() { return post_publish_button_label; });
-/* concated harmony reexport PostPublishPanel */__webpack_require__.d(__webpack_exports__, "PostPublishPanel", function() { return post_publish_panel; });
-/* concated harmony reexport PostSavedState */__webpack_require__.d(__webpack_exports__, "PostSavedState", function() { return post_saved_state; });
-/* concated harmony reexport PostSchedule */__webpack_require__.d(__webpack_exports__, "PostSchedule", function() { return post_schedule; });
-/* concated harmony reexport PostScheduleCheck */__webpack_require__.d(__webpack_exports__, "PostScheduleCheck", function() { return post_schedule_check; });
-/* concated harmony reexport PostScheduleLabel */__webpack_require__.d(__webpack_exports__, "PostScheduleLabel", function() { return post_schedule_label; });
-/* concated harmony reexport PostSticky */__webpack_require__.d(__webpack_exports__, "PostSticky", function() { return post_sticky; });
-/* concated harmony reexport PostStickyCheck */__webpack_require__.d(__webpack_exports__, "PostStickyCheck", function() { return post_sticky_check; });
-/* concated harmony reexport PostSwitchToDraftButton */__webpack_require__.d(__webpack_exports__, "PostSwitchToDraftButton", function() { return post_switch_to_draft_button; });
-/* concated harmony reexport PostTaxonomies */__webpack_require__.d(__webpack_exports__, "PostTaxonomies", function() { return post_taxonomies; });
-/* concated harmony reexport PostTaxonomiesCheck */__webpack_require__.d(__webpack_exports__, "PostTaxonomiesCheck", function() { return post_taxonomies_check; });
-/* concated harmony reexport PostTextEditor */__webpack_require__.d(__webpack_exports__, "PostTextEditor", function() { return post_text_editor; });
-/* concated harmony reexport PostTitle */__webpack_require__.d(__webpack_exports__, "PostTitle", function() { return post_title; });
-/* concated harmony reexport PostTrash */__webpack_require__.d(__webpack_exports__, "PostTrash", function() { return post_trash; });
-/* concated harmony reexport PostTrashCheck */__webpack_require__.d(__webpack_exports__, "PostTrashCheck", function() { return post_trash_check; });
-/* concated harmony reexport PostTypeSupportCheck */__webpack_require__.d(__webpack_exports__, "PostTypeSupportCheck", function() { return post_type_support_check; });
-/* concated harmony reexport PostVisibility */__webpack_require__.d(__webpack_exports__, "PostVisibility", function() { return post_visibility; });
-/* concated harmony reexport PostVisibilityLabel */__webpack_require__.d(__webpack_exports__, "PostVisibilityLabel", function() { return post_visibility_label; });
-/* concated harmony reexport PostVisibilityCheck */__webpack_require__.d(__webpack_exports__, "PostVisibilityCheck", function() { return post_visibility_check; });
-/* concated harmony reexport TableOfContents */__webpack_require__.d(__webpack_exports__, "TableOfContents", function() { return table_of_contents; });
-/* concated harmony reexport UnsavedChangesWarning */__webpack_require__.d(__webpack_exports__, "UnsavedChangesWarning", function() { return unsaved_changes_warning; });
-/* concated harmony reexport WordCount */__webpack_require__.d(__webpack_exports__, "WordCount", function() { return word_count; });
-/* concated harmony reexport EditorProvider */__webpack_require__.d(__webpack_exports__, "EditorProvider", function() { return provider; });
-/* concated harmony reexport blockAutocompleter */__webpack_require__.d(__webpack_exports__, "blockAutocompleter", function() { return autocompleters_block; });
-/* concated harmony reexport userAutocompleter */__webpack_require__.d(__webpack_exports__, "userAutocompleter", function() { return autocompleters_user; });
-/* concated harmony reexport ServerSideRender */__webpack_require__.d(__webpack_exports__, "ServerSideRender", function() { return external_this_wp_serverSideRender_default.a; });
-/* concated harmony reexport RichText */__webpack_require__.d(__webpack_exports__, "RichText", function() { return RichText; });
-/* concated harmony reexport Autocomplete */__webpack_require__.d(__webpack_exports__, "Autocomplete", function() { return Autocomplete; });
-/* concated harmony reexport AlignmentToolbar */__webpack_require__.d(__webpack_exports__, "AlignmentToolbar", function() { return AlignmentToolbar; });
-/* concated harmony reexport BlockAlignmentToolbar */__webpack_require__.d(__webpack_exports__, "BlockAlignmentToolbar", function() { return BlockAlignmentToolbar; });
-/* concated harmony reexport BlockControls */__webpack_require__.d(__webpack_exports__, "BlockControls", function() { return BlockControls; });
-/* concated harmony reexport BlockEdit */__webpack_require__.d(__webpack_exports__, "BlockEdit", function() { return BlockEdit; });
-/* concated harmony reexport BlockEditorKeyboardShortcuts */__webpack_require__.d(__webpack_exports__, "BlockEditorKeyboardShortcuts", function() { return BlockEditorKeyboardShortcuts; });
-/* concated harmony reexport BlockFormatControls */__webpack_require__.d(__webpack_exports__, "BlockFormatControls", function() { return BlockFormatControls; });
-/* concated harmony reexport BlockIcon */__webpack_require__.d(__webpack_exports__, "BlockIcon", function() { return BlockIcon; });
-/* concated harmony reexport BlockInspector */__webpack_require__.d(__webpack_exports__, "BlockInspector", function() { return BlockInspector; });
-/* concated harmony reexport BlockList */__webpack_require__.d(__webpack_exports__, "BlockList", function() { return BlockList; });
-/* concated harmony reexport BlockMover */__webpack_require__.d(__webpack_exports__, "BlockMover", function() { return BlockMover; });
-/* concated harmony reexport BlockNavigationDropdown */__webpack_require__.d(__webpack_exports__, "BlockNavigationDropdown", function() { return BlockNavigationDropdown; });
-/* concated harmony reexport BlockSelectionClearer */__webpack_require__.d(__webpack_exports__, "BlockSelectionClearer", function() { return BlockSelectionClearer; });
-/* concated harmony reexport BlockSettingsMenu */__webpack_require__.d(__webpack_exports__, "BlockSettingsMenu", function() { return BlockSettingsMenu; });
-/* concated harmony reexport BlockTitle */__webpack_require__.d(__webpack_exports__, "BlockTitle", function() { return BlockTitle; });
-/* concated harmony reexport BlockToolbar */__webpack_require__.d(__webpack_exports__, "BlockToolbar", function() { return BlockToolbar; });
-/* concated harmony reexport ColorPalette */__webpack_require__.d(__webpack_exports__, "ColorPalette", function() { return ColorPalette; });
-/* concated harmony reexport ContrastChecker */__webpack_require__.d(__webpack_exports__, "ContrastChecker", function() { return ContrastChecker; });
-/* concated harmony reexport CopyHandler */__webpack_require__.d(__webpack_exports__, "CopyHandler", function() { return CopyHandler; });
-/* concated harmony reexport DefaultBlockAppender */__webpack_require__.d(__webpack_exports__, "DefaultBlockAppender", function() { return DefaultBlockAppender; });
-/* concated harmony reexport FontSizePicker */__webpack_require__.d(__webpack_exports__, "FontSizePicker", function() { return FontSizePicker; });
-/* concated harmony reexport Inserter */__webpack_require__.d(__webpack_exports__, "Inserter", function() { return Inserter; });
-/* concated harmony reexport InnerBlocks */__webpack_require__.d(__webpack_exports__, "InnerBlocks", function() { return InnerBlocks; });
-/* concated harmony reexport InspectorAdvancedControls */__webpack_require__.d(__webpack_exports__, "InspectorAdvancedControls", function() { return InspectorAdvancedControls; });
-/* concated harmony reexport InspectorControls */__webpack_require__.d(__webpack_exports__, "InspectorControls", function() { return InspectorControls; });
-/* concated harmony reexport PanelColorSettings */__webpack_require__.d(__webpack_exports__, "PanelColorSettings", function() { return PanelColorSettings; });
-/* concated harmony reexport PlainText */__webpack_require__.d(__webpack_exports__, "PlainText", function() { return PlainText; });
-/* concated harmony reexport RichTextShortcut */__webpack_require__.d(__webpack_exports__, "RichTextShortcut", function() { return RichTextShortcut; });
-/* concated harmony reexport RichTextToolbarButton */__webpack_require__.d(__webpack_exports__, "RichTextToolbarButton", function() { return RichTextToolbarButton; });
-/* concated harmony reexport __unstableRichTextInputEvent */__webpack_require__.d(__webpack_exports__, "__unstableRichTextInputEvent", function() { return __unstableRichTextInputEvent; });
-/* concated harmony reexport MediaPlaceholder */__webpack_require__.d(__webpack_exports__, "MediaPlaceholder", function() { return MediaPlaceholder; });
-/* concated harmony reexport MediaUpload */__webpack_require__.d(__webpack_exports__, "MediaUpload", function() { return MediaUpload; });
-/* concated harmony reexport MediaUploadCheck */__webpack_require__.d(__webpack_exports__, "MediaUploadCheck", function() { return MediaUploadCheck; });
-/* concated harmony reexport MultiBlocksSwitcher */__webpack_require__.d(__webpack_exports__, "MultiBlocksSwitcher", function() { return MultiBlocksSwitcher; });
-/* concated harmony reexport MultiSelectScrollIntoView */__webpack_require__.d(__webpack_exports__, "MultiSelectScrollIntoView", function() { return MultiSelectScrollIntoView; });
-/* concated harmony reexport NavigableToolbar */__webpack_require__.d(__webpack_exports__, "NavigableToolbar", function() { return NavigableToolbar; });
-/* concated harmony reexport ObserveTyping */__webpack_require__.d(__webpack_exports__, "ObserveTyping", function() { return ObserveTyping; });
-/* concated harmony reexport PreserveScrollInReorder */__webpack_require__.d(__webpack_exports__, "PreserveScrollInReorder", function() { return PreserveScrollInReorder; });
-/* concated harmony reexport SkipToSelectedBlock */__webpack_require__.d(__webpack_exports__, "SkipToSelectedBlock", function() { return SkipToSelectedBlock; });
-/* concated harmony reexport URLInput */__webpack_require__.d(__webpack_exports__, "URLInput", function() { return URLInput; });
-/* concated harmony reexport URLInputButton */__webpack_require__.d(__webpack_exports__, "URLInputButton", function() { return URLInputButton; });
-/* concated harmony reexport URLPopover */__webpack_require__.d(__webpack_exports__, "URLPopover", function() { return URLPopover; });
-/* concated harmony reexport Warning */__webpack_require__.d(__webpack_exports__, "Warning", function() { return Warning; });
-/* concated harmony reexport WritingFlow */__webpack_require__.d(__webpack_exports__, "WritingFlow", function() { return WritingFlow; });
-/* concated harmony reexport createCustomColorsHOC */__webpack_require__.d(__webpack_exports__, "createCustomColorsHOC", function() { return createCustomColorsHOC; });
-/* concated harmony reexport getColorClassName */__webpack_require__.d(__webpack_exports__, "getColorClassName", function() { return getColorClassName; });
-/* concated harmony reexport getColorObjectByAttributeValues */__webpack_require__.d(__webpack_exports__, "getColorObjectByAttributeValues", function() { return getColorObjectByAttributeValues; });
-/* concated harmony reexport getColorObjectByColorValue */__webpack_require__.d(__webpack_exports__, "getColorObjectByColorValue", function() { return getColorObjectByColorValue; });
-/* concated harmony reexport getFontSize */__webpack_require__.d(__webpack_exports__, "getFontSize", function() { return getFontSize; });
-/* concated harmony reexport getFontSizeClass */__webpack_require__.d(__webpack_exports__, "getFontSizeClass", function() { return getFontSizeClass; });
-/* concated harmony reexport withColorContext */__webpack_require__.d(__webpack_exports__, "withColorContext", function() { return withColorContext; });
-/* concated harmony reexport withColors */__webpack_require__.d(__webpack_exports__, "withColors", function() { return withColors; });
-/* concated harmony reexport withFontSizes */__webpack_require__.d(__webpack_exports__, "withFontSizes", function() { return withFontSizes; });
-/* concated harmony reexport mediaUpload */__webpack_require__.d(__webpack_exports__, "mediaUpload", function() { return media_upload; });
-/* concated harmony reexport cleanForSlug */__webpack_require__.d(__webpack_exports__, "cleanForSlug", function() { return cleanForSlug; });
-/* concated harmony reexport storeConfig */__webpack_require__.d(__webpack_exports__, "storeConfig", function() { return storeConfig; });
-/* concated harmony reexport transformStyles */__webpack_require__.d(__webpack_exports__, "transformStyles", function() { return external_this_wp_blockEditor_["transformStyles"]; });
 /**
  * WordPress dependencies
  */
@@ -14710,307 +13233,7 @@ Object(external_this_wp_hooks_["addFilter"])('editor.Autocomplete.completers', '
 
 /***/ }),
 
-/***/ 36:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-
-
-var LEAF_KEY, hasWeakMap;
-
-/**
- * Arbitrary value used as key for referencing cache object in WeakMap tree.
- *
- * @type {Object}
- */
-LEAF_KEY = {};
-
-/**
- * Whether environment supports WeakMap.
- *
- * @type {boolean}
- */
-hasWeakMap = typeof WeakMap !== 'undefined';
-
-/**
- * Returns the first argument as the sole entry in an array.
- *
- * @param {*} value Value to return.
- *
- * @return {Array} Value returned as entry in array.
- */
-function arrayOf( value ) {
-	return [ value ];
-}
-
-/**
- * Returns true if the value passed is object-like, or false otherwise. A value
- * is object-like if it can support property assignment, e.g. object or array.
- *
- * @param {*} value Value to test.
- *
- * @return {boolean} Whether value is object-like.
- */
-function isObjectLike( value ) {
-	return !! value && 'object' === typeof value;
-}
-
-/**
- * Creates and returns a new cache object.
- *
- * @return {Object} Cache object.
- */
-function createCache() {
-	var cache = {
-		clear: function() {
-			cache.head = null;
-		},
-	};
-
-	return cache;
-}
-
-/**
- * Returns true if entries within the two arrays are strictly equal by
- * reference from a starting index.
- *
- * @param {Array}  a         First array.
- * @param {Array}  b         Second array.
- * @param {number} fromIndex Index from which to start comparison.
- *
- * @return {boolean} Whether arrays are shallowly equal.
- */
-function isShallowEqual( a, b, fromIndex ) {
-	var i;
-
-	if ( a.length !== b.length ) {
-		return false;
-	}
-
-	for ( i = fromIndex; i < a.length; i++ ) {
-		if ( a[ i ] !== b[ i ] ) {
-			return false;
-		}
-	}
-
-	return true;
-}
-
-/**
- * Returns a memoized selector function. The getDependants function argument is
- * called before the memoized selector and is expected to return an immutable
- * reference or array of references on which the selector depends for computing
- * its own return value. The memoize cache is preserved only as long as those
- * dependant references remain the same. If getDependants returns a different
- * reference(s), the cache is cleared and the selector value regenerated.
- *
- * @param {Function} selector      Selector function.
- * @param {Function} getDependants Dependant getter returning an immutable
- *                                 reference or array of reference used in
- *                                 cache bust consideration.
- *
- * @return {Function} Memoized selector.
- */
-/* harmony default export */ __webpack_exports__["a"] = (function( selector, getDependants ) {
-	var rootCache, getCache;
-
-	// Use object source as dependant if getter not provided
-	if ( ! getDependants ) {
-		getDependants = arrayOf;
-	}
-
-	/**
-	 * Returns the root cache. If WeakMap is supported, this is assigned to the
-	 * root WeakMap cache set, otherwise it is a shared instance of the default
-	 * cache object.
-	 *
-	 * @return {(WeakMap|Object)} Root cache object.
-	 */
-	function getRootCache() {
-		return rootCache;
-	}
-
-	/**
-	 * Returns the cache for a given dependants array. When possible, a WeakMap
-	 * will be used to create a unique cache for each set of dependants. This
-	 * is feasible due to the nature of WeakMap in allowing garbage collection
-	 * to occur on entries where the key object is no longer referenced. Since
-	 * WeakMap requires the key to be an object, this is only possible when the
-	 * dependant is object-like. The root cache is created as a hierarchy where
-	 * each top-level key is the first entry in a dependants set, the value a
-	 * WeakMap where each key is the next dependant, and so on. This continues
-	 * so long as the dependants are object-like. If no dependants are object-
-	 * like, then the cache is shared across all invocations.
-	 *
-	 * @see isObjectLike
-	 *
-	 * @param {Array} dependants Selector dependants.
-	 *
-	 * @return {Object} Cache object.
-	 */
-	function getWeakMapCache( dependants ) {
-		var caches = rootCache,
-			isUniqueByDependants = true,
-			i, dependant, map, cache;
-
-		for ( i = 0; i < dependants.length; i++ ) {
-			dependant = dependants[ i ];
-
-			// Can only compose WeakMap from object-like key.
-			if ( ! isObjectLike( dependant ) ) {
-				isUniqueByDependants = false;
-				break;
-			}
-
-			// Does current segment of cache already have a WeakMap?
-			if ( caches.has( dependant ) ) {
-				// Traverse into nested WeakMap.
-				caches = caches.get( dependant );
-			} else {
-				// Create, set, and traverse into a new one.
-				map = new WeakMap();
-				caches.set( dependant, map );
-				caches = map;
-			}
-		}
-
-		// We use an arbitrary (but consistent) object as key for the last item
-		// in the WeakMap to serve as our running cache.
-		if ( ! caches.has( LEAF_KEY ) ) {
-			cache = createCache();
-			cache.isUniqueByDependants = isUniqueByDependants;
-			caches.set( LEAF_KEY, cache );
-		}
-
-		return caches.get( LEAF_KEY );
-	}
-
-	// Assign cache handler by availability of WeakMap
-	getCache = hasWeakMap ? getWeakMapCache : getRootCache;
-
-	/**
-	 * Resets root memoization cache.
-	 */
-	function clear() {
-		rootCache = hasWeakMap ? new WeakMap() : createCache();
-	}
-
-	// eslint-disable-next-line jsdoc/check-param-names
-	/**
-	 * The augmented selector call, considering first whether dependants have
-	 * changed before passing it to underlying memoize function.
-	 *
-	 * @param {Object} source    Source object for derivation.
-	 * @param {...*}   extraArgs Additional arguments to pass to selector.
-	 *
-	 * @return {*} Selector result.
-	 */
-	function callSelector( /* source, ...extraArgs */ ) {
-		var len = arguments.length,
-			cache, node, i, args, dependants;
-
-		// Create copy of arguments (avoid leaking deoptimization).
-		args = new Array( len );
-		for ( i = 0; i < len; i++ ) {
-			args[ i ] = arguments[ i ];
-		}
-
-		dependants = getDependants.apply( null, args );
-		cache = getCache( dependants );
-
-		// If not guaranteed uniqueness by dependants (primitive type or lack
-		// of WeakMap support), shallow compare against last dependants and, if
-		// references have changed, destroy cache to recalculate result.
-		if ( ! cache.isUniqueByDependants ) {
-			if ( cache.lastDependants && ! isShallowEqual( dependants, cache.lastDependants, 0 ) ) {
-				cache.clear();
-			}
-
-			cache.lastDependants = dependants;
-		}
-
-		node = cache.head;
-		while ( node ) {
-			// Check whether node arguments match arguments
-			if ( ! isShallowEqual( node.args, args, 1 ) ) {
-				node = node.next;
-				continue;
-			}
-
-			// At this point we can assume we've found a match
-
-			// Surface matched node to head if not already
-			if ( node !== cache.head ) {
-				// Adjust siblings to point to each other.
-				node.prev.next = node.next;
-				if ( node.next ) {
-					node.next.prev = node.prev;
-				}
-
-				node.next = cache.head;
-				node.prev = null;
-				cache.head.prev = node;
-				cache.head = node;
-			}
-
-			// Return immediately
-			return node.val;
-		}
-
-		// No cached value found. Continue to insertion phase:
-
-		node = {
-			// Generate the result from original function
-			val: selector.apply( null, args ),
-		};
-
-		// Avoid including the source object in the cache.
-		args[ 0 ] = null;
-		node.args = args;
-
-		// Don't need to check whether node is already head, since it would
-		// have been returned above already if it was
-
-		// Shift existing head down list
-		if ( cache.head ) {
-			cache.head.prev = node;
-			node.next = cache.head;
-		}
-
-		cache.head = node;
-
-		return node.val;
-	}
-
-	callSelector.getDependants = getDependants;
-	callSelector.clear = clear;
-	clear();
-
-	return callSelector;
-});
-
-
-/***/ }),
-
-/***/ 37:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["deprecated"]; }());
-
-/***/ }),
-
-/***/ 38:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _arrayWithHoles; });
-function _arrayWithHoles(arr) {
-  if (Array.isArray(arr)) return arr;
-}
-
-/***/ }),
-
-/***/ 39:
+/***/ "PYwp":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -15021,189 +13244,559 @@ function _nonIterableRest() {
 
 /***/ }),
 
-/***/ 4:
-/***/ (function(module, exports) {
+/***/ "Rk8H":
+/***/ (function(module, exports, __webpack_require__) {
 
-(function() { module.exports = this["wp"]["data"]; }());
+// Load in dependencies
+var computedStyle = __webpack_require__("jTPX");
+
+/**
+ * Calculate the `line-height` of a given node
+ * @param {HTMLElement} node Element to calculate line height of. Must be in the DOM.
+ * @returns {Number} `line-height` of the element in pixels
+ */
+function lineHeight(node) {
+  // Grab the line-height via style
+  var lnHeightStr = computedStyle(node, 'line-height');
+  var lnHeight = parseFloat(lnHeightStr, 10);
+
+  // If the lineHeight did not contain a unit (i.e. it was numeric), convert it to ems (e.g. '2.3' === '2.3em')
+  if (lnHeightStr === lnHeight + '') {
+    // Save the old lineHeight style and update the em unit to the element
+    var _lnHeightStyle = node.style.lineHeight;
+    node.style.lineHeight = lnHeightStr + 'em';
+
+    // Calculate the em based height
+    lnHeightStr = computedStyle(node, 'line-height');
+    lnHeight = parseFloat(lnHeightStr, 10);
+
+    // Revert the lineHeight style
+    if (_lnHeightStyle) {
+      node.style.lineHeight = _lnHeightStyle;
+    } else {
+      delete node.style.lineHeight;
+    }
+  }
+
+  // If the lineHeight is in `pt`, convert it to pixels (4px for 3pt)
+  // DEV: `em` units are converted to `pt` in IE6
+  // Conversion ratio from https://developer.mozilla.org/en-US/docs/Web/CSS/length
+  if (lnHeightStr.indexOf('pt') !== -1) {
+    lnHeight *= 4;
+    lnHeight /= 3;
+  // Otherwise, if the lineHeight is in `mm`, convert it to pixels (96px for 25.4mm)
+  } else if (lnHeightStr.indexOf('mm') !== -1) {
+    lnHeight *= 96;
+    lnHeight /= 25.4;
+  // Otherwise, if the lineHeight is in `cm`, convert it to pixels (96px for 2.54cm)
+  } else if (lnHeightStr.indexOf('cm') !== -1) {
+    lnHeight *= 96;
+    lnHeight /= 2.54;
+  // Otherwise, if the lineHeight is in `in`, convert it to pixels (96px for 1in)
+  } else if (lnHeightStr.indexOf('in') !== -1) {
+    lnHeight *= 96;
+  // Otherwise, if the lineHeight is in `pc`, convert it to pixels (12pt for 1pc)
+  } else if (lnHeightStr.indexOf('pc') !== -1) {
+    lnHeight *= 16;
+  }
+
+  // Continue our computation
+  lnHeight = Math.round(lnHeight);
+
+  // If the line-height is "normal", calculate by font-size
+  if (lnHeightStr === 'normal') {
+    // Create a temporary node
+    var nodeName = node.nodeName;
+    var _node = document.createElement(nodeName);
+    _node.innerHTML = '&nbsp;';
+
+    // If we have a text area, reset it to only 1 row
+    // https://github.com/twolfson/line-height/issues/4
+    if (nodeName.toUpperCase() === 'TEXTAREA') {
+      _node.setAttribute('rows', '1');
+    }
+
+    // Set the font-size of the element
+    var fontSizeStr = computedStyle(node, 'font-size');
+    _node.style.fontSize = fontSizeStr;
+
+    // Remove default padding/border which can affect offset height
+    // https://github.com/twolfson/line-height/issues/4
+    // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetHeight
+    _node.style.padding = '0px';
+    _node.style.border = '0px';
+
+    // Append it to the body
+    var body = document.body;
+    body.appendChild(_node);
+
+    // Assume the line height of the element is the height
+    var height = _node.offsetHeight;
+    lnHeight = height;
+
+    // Remove our child from the DOM
+    body.removeChild(_node);
+  }
+
+  // Return the calculated height
+  return lnHeight;
+}
+
+// Export lineHeight
+module.exports = lineHeight;
+
 
 /***/ }),
 
-/***/ 41:
+/***/ "RxS6":
 /***/ (function(module, exports) {
 
-(function() { module.exports = this["wp"]["isShallowEqual"]; }());
+(function() { module.exports = this["wp"]["keycodes"]; }());
 
 /***/ }),
 
-/***/ 42:
-/***/ (function(module, exports) {
+/***/ "TSYQ":
+/***/ (function(module, exports, __webpack_require__) {
 
-(function() { module.exports = this["wp"]["viewport"]; }());
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
+  Copyright (c) 2018 Jed Watson.
+  Licensed under the MIT License (MIT), see
+  http://jedwatson.github.io/classnames
+*/
+/* global define */
+
+(function () {
+	'use strict';
+
+	var hasOwn = {}.hasOwnProperty;
+
+	function classNames() {
+		var classes = [];
+
+		for (var i = 0; i < arguments.length; i++) {
+			var arg = arguments[i];
+			if (!arg) continue;
+
+			var argType = typeof arg;
+
+			if (argType === 'string' || argType === 'number') {
+				classes.push(arg);
+			} else if (Array.isArray(arg)) {
+				if (arg.length) {
+					var inner = classNames.apply(null, arg);
+					if (inner) {
+						classes.push(inner);
+					}
+				}
+			} else if (argType === 'object') {
+				if (arg.toString === Object.prototype.toString) {
+					for (var key in arg) {
+						if (hasOwn.call(arg, key) && arg[key]) {
+							classes.push(key);
+						}
+					}
+				} else {
+					classes.push(arg.toString());
+				}
+			}
+		}
+
+		return classes.join(' ');
+	}
+
+	if ( true && module.exports) {
+		classNames.default = classNames;
+		module.exports = classNames;
+	} else if (true) {
+		// register as 'classnames', consistent with npm package name
+		!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = (function () {
+			return classNames;
+		}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	} else {}
+}());
+
 
 /***/ }),
 
-/***/ 43:
+/***/ "U8pU":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _asyncToGenerator; });
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
-  try {
-    var info = gen[key](arg);
-    var value = info.value;
-  } catch (error) {
-    reject(error);
-    return;
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _typeof; });
+function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof2 = function _typeof2(obj) { return typeof obj; }; } else { _typeof2 = function _typeof2(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof2(obj); }
+
+function _typeof(obj) {
+  if (typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol") {
+    _typeof = function _typeof(obj) {
+      return _typeof2(obj);
+    };
+  } else {
+    _typeof = function _typeof(obj) {
+      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : _typeof2(obj);
+    };
   }
 
-  if (info.done) {
-    resolve(value);
-  } else {
-    Promise.resolve(value).then(_next, _throw);
-  }
+  return _typeof(obj);
 }
 
-function _asyncToGenerator(fn) {
-  return function () {
-    var self = this,
-        args = arguments;
-    return new Promise(function (resolve, reject) {
-      var gen = fn.apply(self, args);
+/***/ }),
 
-      function _next(value) {
-        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
+/***/ "UuzZ":
+/***/ (function(module, exports) {
+
+(function() { module.exports = this["wp"]["autop"]; }());
+
+/***/ }),
+
+/***/ "WbBG":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+
+
+var ReactPropTypesSecret = 'SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED';
+
+module.exports = ReactPropTypesSecret;
+
+
+/***/ }),
+
+/***/ "WsEz":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
+var BEGIN = 'BEGIN';
+var COMMIT = 'COMMIT';
+var REVERT = 'REVERT';
+// Array({transactionID: string or null, beforeState: {object}, action: {object}}
+var INITIAL_OPTIMIST = [];
+
+module.exports = optimist;
+module.exports.BEGIN = BEGIN;
+module.exports.COMMIT = COMMIT;
+module.exports.REVERT = REVERT;
+function optimist(fn) {
+  function beginReducer(state, action) {
+    var _separateState = separateState(state);
+
+    var optimist = _separateState.optimist;
+    var innerState = _separateState.innerState;
+
+    optimist = optimist.concat([{ beforeState: innerState, action: action }]);
+    innerState = fn(innerState, action);
+    validateState(innerState, action);
+    return _extends({ optimist: optimist }, innerState);
+  }
+  function commitReducer(state, action) {
+    var _separateState2 = separateState(state);
+
+    var optimist = _separateState2.optimist;
+    var innerState = _separateState2.innerState;
+
+    var newOptimist = [],
+        started = false,
+        committed = false;
+    optimist.forEach(function (entry) {
+      if (started) {
+        if (entry.beforeState && matchesTransaction(entry.action, action.optimist.id)) {
+          committed = true;
+          newOptimist.push({ action: entry.action });
+        } else {
+          newOptimist.push(entry);
+        }
+      } else if (entry.beforeState && !matchesTransaction(entry.action, action.optimist.id)) {
+        started = true;
+        newOptimist.push(entry);
+      } else if (entry.beforeState && matchesTransaction(entry.action, action.optimist.id)) {
+        committed = true;
       }
-
-      function _throw(err) {
-        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
-      }
-
-      _next(undefined);
     });
+    if (!committed) {
+      console.error('Cannot commit transaction with id "' + action.optimist.id + '" because it does not exist');
+    }
+    optimist = newOptimist;
+    return baseReducer(optimist, innerState, action);
+  }
+  function revertReducer(state, action) {
+    var _separateState3 = separateState(state);
+
+    var optimist = _separateState3.optimist;
+    var innerState = _separateState3.innerState;
+
+    var newOptimist = [],
+        started = false,
+        gotInitialState = false,
+        currentState = innerState;
+    optimist.forEach(function (entry) {
+      if (entry.beforeState && matchesTransaction(entry.action, action.optimist.id)) {
+        currentState = entry.beforeState;
+        gotInitialState = true;
+      }
+      if (!matchesTransaction(entry.action, action.optimist.id)) {
+        if (entry.beforeState) {
+          started = true;
+        }
+        if (started) {
+          if (gotInitialState && entry.beforeState) {
+            newOptimist.push({
+              beforeState: currentState,
+              action: entry.action
+            });
+          } else {
+            newOptimist.push(entry);
+          }
+        }
+        if (gotInitialState) {
+          currentState = fn(currentState, entry.action);
+          validateState(innerState, action);
+        }
+      }
+    });
+    if (!gotInitialState) {
+      console.error('Cannot revert transaction with id "' + action.optimist.id + '" because it does not exist');
+    }
+    optimist = newOptimist;
+    return baseReducer(optimist, currentState, action);
+  }
+  function baseReducer(optimist, innerState, action) {
+    if (optimist.length) {
+      optimist = optimist.concat([{ action: action }]);
+    }
+    innerState = fn(innerState, action);
+    validateState(innerState, action);
+    return _extends({ optimist: optimist }, innerState);
+  }
+  return function (state, action) {
+    if (action.optimist) {
+      switch (action.optimist.type) {
+        case BEGIN:
+          return beginReducer(state, action);
+        case COMMIT:
+          return commitReducer(state, action);
+        case REVERT:
+          return revertReducer(state, action);
+      }
+    }
+
+    var _separateState4 = separateState(state);
+
+    var optimist = _separateState4.optimist;
+    var innerState = _separateState4.innerState;
+
+    if (state && !optimist.length) {
+      var nextState = fn(innerState, action);
+      if (nextState === innerState) {
+        return state;
+      }
+      validateState(nextState, action);
+      return _extends({ optimist: optimist }, nextState);
+    }
+    return baseReducer(optimist, innerState, action);
   };
 }
 
+function matchesTransaction(action, id) {
+  return action.optimist && action.optimist.id === id;
+}
+
+function validateState(newState, action) {
+  if (!newState || typeof newState !== 'object' || Array.isArray(newState)) {
+    throw new TypeError('Error while handling "' + action.type + '": Optimist requires that state is always a plain object.');
+  }
+}
+
+function separateState(state) {
+  if (!state) {
+    return { optimist: INITIAL_OPTIMIST, innerState: state };
+  } else {
+    var _state$optimist = state.optimist;
+
+    var _optimist = _state$optimist === undefined ? INITIAL_OPTIMIST : _state$optimist;
+
+    var innerState = _objectWithoutProperties(state, ['optimist']);
+
+    return { optimist: _optimist, innerState: innerState };
+  }
+}
+
 /***/ }),
 
-/***/ 44:
+/***/ "YLtl":
+/***/ (function(module, exports) {
+
+(function() { module.exports = this["lodash"]; }());
+
+/***/ }),
+
+/***/ "ZU7w":
+/***/ (function(module, exports) {
+
+(function() { module.exports = this["wp"]["nux"]; }());
+
+/***/ }),
+
+/***/ "axFQ":
+/***/ (function(module, exports) {
+
+(function() { module.exports = this["wp"]["blockEditor"]; }());
+
+/***/ }),
+
+/***/ "cDcd":
+/***/ (function(module, exports) {
+
+(function() { module.exports = this["React"]; }());
+
+/***/ }),
+
+/***/ "foSv":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _getPrototypeOf; });
+function _getPrototypeOf(o) {
+  _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+    return o.__proto__ || Object.getPrototypeOf(o);
+  };
+  return _getPrototypeOf(o);
+}
+
+/***/ }),
+
+/***/ "g56x":
+/***/ (function(module, exports) {
+
+(function() { module.exports = this["wp"]["hooks"]; }());
+
+/***/ }),
+
+/***/ "gQxa":
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = function memize( fn, options ) {
-	var size = 0,
-		maxSize, head, tail;
+"use strict";
 
-	if ( options && options.maxSize ) {
-		maxSize = options.maxSize;
+
+function flattenIntoMap( map, effects ) {
+	var i;
+	if ( Array.isArray( effects ) ) {
+		for ( i = 0; i < effects.length; i++ ) {
+			flattenIntoMap( map, effects[ i ] );
+		}
+	} else {
+		for ( i in effects ) {
+			map[ i ] = ( map[ i ] || [] ).concat( effects[ i ] );
+		}
 	}
+}
 
-	function memoized( /* ...args */ ) {
-		var node = head,
-			len = arguments.length,
-			args, i;
+function refx( effects ) {
+	var map = {},
+		middleware;
 
-		searchCache: while ( node ) {
-			// Perform a shallow equality test to confirm that whether the node
-			// under test is a candidate for the arguments passed. Two arrays
-			// are shallowly equal if their length matches and each entry is
-			// strictly equal between the two sets. Avoid abstracting to a
-			// function which could incur an arguments leaking deoptimization.
+	flattenIntoMap( map, effects );
 
-			// Check whether node arguments match arguments length
-			if ( node.args.length !== arguments.length ) {
-				node = node.next;
-				continue;
-			}
+	middleware = function( store ) {
+		return function( next ) {
+			return function( action ) {
+				var handlers = map[ action.type ],
+					result = next( action ),
+					i, handlerAction;
 
-			// Check whether node arguments match arguments values
-			for ( i = 0; i < len; i++ ) {
-				if ( node.args[ i ] !== arguments[ i ] ) {
-					node = node.next;
-					continue searchCache;
-				}
-			}
-
-			// At this point we can assume we've found a match
-
-			// Surface matched node to head if not already
-			if ( node !== head ) {
-				// As tail, shift to previous. Must only shift if not also
-				// head, since if both head and tail, there is no previous.
-				if ( node === tail ) {
-					tail = node.prev;
+				if ( handlers ) {
+					for ( i = 0; i < handlers.length; i++ ) {
+						handlerAction = handlers[ i ]( action, store );
+						if ( handlerAction ) {
+							store.dispatch( handlerAction );
+						}
+					}
 				}
 
-				// Adjust siblings to point to each other. If node was tail,
-				// this also handles new tail's empty `next` assignment.
-				node.prev.next = node.next;
-				if ( node.next ) {
-					node.next.prev = node.prev;
-				}
-
-				node.next = head;
-				node.prev = null;
-				head.prev = node;
-				head = node;
-			}
-
-			// Return immediately
-			return node.val;
-		}
-
-		// No cached value found. Continue to insertion phase:
-
-		// Create a copy of arguments (avoid leaking deoptimization)
-		args = new Array( len );
-		for ( i = 0; i < len; i++ ) {
-			args[ i ] = arguments[ i ];
-		}
-
-		node = {
-			args: args,
-
-			// Generate the result from original function
-			val: fn.apply( null, args )
+				return result;
+			};
 		};
-
-		// Don't need to check whether node is already head, since it would
-		// have been returned above already if it was
-
-		// Shift existing head down list
-		if ( head ) {
-			head.prev = node;
-			node.next = head;
-		} else {
-			// If no head, follows that there's no tail (at initial or reset)
-			tail = node;
-		}
-
-		// Trim tail if we're reached max size and are pending cache insertion
-		if ( size === maxSize ) {
-			tail = tail.prev;
-			tail.next = null;
-		} else {
-			size++;
-		}
-
-		head = node;
-
-		return node.val;
-	}
-
-	memoized.clear = function() {
-		head = null;
-		tail = null;
-		size = 0;
 	};
 
-	if ( false ) {}
+	middleware.effects = map;
 
-	return memoized;
-};
+	return middleware;
+}
+
+module.exports = refx;
 
 
 /***/ }),
 
-/***/ 47:
+/***/ "hx/w":
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__("WsEz");
+
+
+/***/ }),
+
+/***/ "jTPX":
+/***/ (function(module, exports) {
+
+// This code has been refactored for 140 bytes
+// You can see the original here: https://github.com/twolfson/computedStyle/blob/04cd1da2e30fa45844f95f5cb1ac898e9b9ef050/lib/computedStyle.js
+var computedStyle = function (el, prop, getComputedStyle) {
+  getComputedStyle = window.getComputedStyle;
+
+  // In one fell swoop
+  return (
+    // If we have getComputedStyle
+    getComputedStyle ?
+      // Query it
+      // TODO: From CSS-Query notes, we might need (node, null) for FF
+      getComputedStyle(el) :
+
+    // Otherwise, we are in IE and use currentStyle
+      el.currentStyle
+  )[
+    // Switch to camelCase for CSSOM
+    // DEV: Grabbed from jQuery
+    // https://github.com/jquery/jquery/blob/1.9-stable/src/css.js#L191-L194
+    // https://github.com/jquery/jquery/blob/1.9-stable/src/core.js#L593-L597
+    prop.replace(/-(\w)/gi, function (word, letter) {
+      return letter.toUpperCase();
+    })
+  ];
+};
+
+module.exports = computedStyle;
+
+
+/***/ }),
+
+/***/ "jZUy":
+/***/ (function(module, exports) {
+
+(function() { module.exports = this["wp"]["coreData"]; }());
+
+/***/ }),
+
+/***/ "l3Sj":
+/***/ (function(module, exports) {
+
+(function() { module.exports = this["wp"]["i18n"]; }());
+
+/***/ }),
+
+/***/ "ls82":
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -15936,81 +14529,378 @@ try {
 
 /***/ }),
 
-/***/ 5:
+/***/ "md7G":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _assertThisInitialized; });
-function _assertThisInitialized(self) {
-  if (self === void 0) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _possibleConstructorReturn; });
+/* harmony import */ var _helpers_esm_typeof__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("U8pU");
+/* harmony import */ var _assertThisInitialized__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__("JX7q");
+
+
+function _possibleConstructorReturn(self, call) {
+  if (call && (Object(_helpers_esm_typeof__WEBPACK_IMPORTED_MODULE_0__[/* default */ "a"])(call) === "object" || typeof call === "function")) {
+    return call;
   }
 
-  return self;
+  return Object(_assertThisInitialized__WEBPACK_IMPORTED_MODULE_1__[/* default */ "a"])(self);
 }
 
 /***/ }),
 
-/***/ 52:
+/***/ "o0o1":
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__("ls82");
+
+
+/***/ }),
+
+/***/ "onLe":
+/***/ (function(module, exports) {
+
+(function() { module.exports = this["wp"]["notices"]; }());
+
+/***/ }),
+
+/***/ "pPDe":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+
+
+var LEAF_KEY, hasWeakMap;
+
+/**
+ * Arbitrary value used as key for referencing cache object in WeakMap tree.
+ *
+ * @type {Object}
+ */
+LEAF_KEY = {};
+
+/**
+ * Whether environment supports WeakMap.
+ *
+ * @type {boolean}
+ */
+hasWeakMap = typeof WeakMap !== 'undefined';
+
+/**
+ * Returns the first argument as the sole entry in an array.
+ *
+ * @param {*} value Value to return.
+ *
+ * @return {Array} Value returned as entry in array.
+ */
+function arrayOf( value ) {
+	return [ value ];
+}
+
+/**
+ * Returns true if the value passed is object-like, or false otherwise. A value
+ * is object-like if it can support property assignment, e.g. object or array.
+ *
+ * @param {*} value Value to test.
+ *
+ * @return {boolean} Whether value is object-like.
+ */
+function isObjectLike( value ) {
+	return !! value && 'object' === typeof value;
+}
+
+/**
+ * Creates and returns a new cache object.
+ *
+ * @return {Object} Cache object.
+ */
+function createCache() {
+	var cache = {
+		clear: function() {
+			cache.head = null;
+		},
+	};
+
+	return cache;
+}
+
+/**
+ * Returns true if entries within the two arrays are strictly equal by
+ * reference from a starting index.
+ *
+ * @param {Array}  a         First array.
+ * @param {Array}  b         Second array.
+ * @param {number} fromIndex Index from which to start comparison.
+ *
+ * @return {boolean} Whether arrays are shallowly equal.
+ */
+function isShallowEqual( a, b, fromIndex ) {
+	var i;
+
+	if ( a.length !== b.length ) {
+		return false;
+	}
+
+	for ( i = fromIndex; i < a.length; i++ ) {
+		if ( a[ i ] !== b[ i ] ) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/**
+ * Returns a memoized selector function. The getDependants function argument is
+ * called before the memoized selector and is expected to return an immutable
+ * reference or array of references on which the selector depends for computing
+ * its own return value. The memoize cache is preserved only as long as those
+ * dependant references remain the same. If getDependants returns a different
+ * reference(s), the cache is cleared and the selector value regenerated.
+ *
+ * @param {Function} selector      Selector function.
+ * @param {Function} getDependants Dependant getter returning an immutable
+ *                                 reference or array of reference used in
+ *                                 cache bust consideration.
+ *
+ * @return {Function} Memoized selector.
+ */
+/* harmony default export */ __webpack_exports__["a"] = (function( selector, getDependants ) {
+	var rootCache, getCache;
+
+	// Use object source as dependant if getter not provided
+	if ( ! getDependants ) {
+		getDependants = arrayOf;
+	}
+
+	/**
+	 * Returns the root cache. If WeakMap is supported, this is assigned to the
+	 * root WeakMap cache set, otherwise it is a shared instance of the default
+	 * cache object.
+	 *
+	 * @return {(WeakMap|Object)} Root cache object.
+	 */
+	function getRootCache() {
+		return rootCache;
+	}
+
+	/**
+	 * Returns the cache for a given dependants array. When possible, a WeakMap
+	 * will be used to create a unique cache for each set of dependants. This
+	 * is feasible due to the nature of WeakMap in allowing garbage collection
+	 * to occur on entries where the key object is no longer referenced. Since
+	 * WeakMap requires the key to be an object, this is only possible when the
+	 * dependant is object-like. The root cache is created as a hierarchy where
+	 * each top-level key is the first entry in a dependants set, the value a
+	 * WeakMap where each key is the next dependant, and so on. This continues
+	 * so long as the dependants are object-like. If no dependants are object-
+	 * like, then the cache is shared across all invocations.
+	 *
+	 * @see isObjectLike
+	 *
+	 * @param {Array} dependants Selector dependants.
+	 *
+	 * @return {Object} Cache object.
+	 */
+	function getWeakMapCache( dependants ) {
+		var caches = rootCache,
+			isUniqueByDependants = true,
+			i, dependant, map, cache;
+
+		for ( i = 0; i < dependants.length; i++ ) {
+			dependant = dependants[ i ];
+
+			// Can only compose WeakMap from object-like key.
+			if ( ! isObjectLike( dependant ) ) {
+				isUniqueByDependants = false;
+				break;
+			}
+
+			// Does current segment of cache already have a WeakMap?
+			if ( caches.has( dependant ) ) {
+				// Traverse into nested WeakMap.
+				caches = caches.get( dependant );
+			} else {
+				// Create, set, and traverse into a new one.
+				map = new WeakMap();
+				caches.set( dependant, map );
+				caches = map;
+			}
+		}
+
+		// We use an arbitrary (but consistent) object as key for the last item
+		// in the WeakMap to serve as our running cache.
+		if ( ! caches.has( LEAF_KEY ) ) {
+			cache = createCache();
+			cache.isUniqueByDependants = isUniqueByDependants;
+			caches.set( LEAF_KEY, cache );
+		}
+
+		return caches.get( LEAF_KEY );
+	}
+
+	// Assign cache handler by availability of WeakMap
+	getCache = hasWeakMap ? getWeakMapCache : getRootCache;
+
+	/**
+	 * Resets root memoization cache.
+	 */
+	function clear() {
+		rootCache = hasWeakMap ? new WeakMap() : createCache();
+	}
+
+	// eslint-disable-next-line jsdoc/check-param-names
+	/**
+	 * The augmented selector call, considering first whether dependants have
+	 * changed before passing it to underlying memoize function.
+	 *
+	 * @param {Object} source    Source object for derivation.
+	 * @param {...*}   extraArgs Additional arguments to pass to selector.
+	 *
+	 * @return {*} Selector result.
+	 */
+	function callSelector( /* source, ...extraArgs */ ) {
+		var len = arguments.length,
+			cache, node, i, args, dependants;
+
+		// Create copy of arguments (avoid leaking deoptimization).
+		args = new Array( len );
+		for ( i = 0; i < len; i++ ) {
+			args[ i ] = arguments[ i ];
+		}
+
+		dependants = getDependants.apply( null, args );
+		cache = getCache( dependants );
+
+		// If not guaranteed uniqueness by dependants (primitive type or lack
+		// of WeakMap support), shallow compare against last dependants and, if
+		// references have changed, destroy cache to recalculate result.
+		if ( ! cache.isUniqueByDependants ) {
+			if ( cache.lastDependants && ! isShallowEqual( dependants, cache.lastDependants, 0 ) ) {
+				cache.clear();
+			}
+
+			cache.lastDependants = dependants;
+		}
+
+		node = cache.head;
+		while ( node ) {
+			// Check whether node arguments match arguments
+			if ( ! isShallowEqual( node.args, args, 1 ) ) {
+				node = node.next;
+				continue;
+			}
+
+			// At this point we can assume we've found a match
+
+			// Surface matched node to head if not already
+			if ( node !== cache.head ) {
+				// Adjust siblings to point to each other.
+				node.prev.next = node.next;
+				if ( node.next ) {
+					node.next.prev = node.prev;
+				}
+
+				node.next = cache.head;
+				node.prev = null;
+				cache.head.prev = node;
+				cache.head = node;
+			}
+
+			// Return immediately
+			return node.val;
+		}
+
+		// No cached value found. Continue to insertion phase:
+
+		node = {
+			// Generate the result from original function
+			val: selector.apply( null, args ),
+		};
+
+		// Avoid including the source object in the cache.
+		args[ 0 ] = null;
+		node.args = args;
+
+		// Don't need to check whether node is already head, since it would
+		// have been returned above already if it was
+
+		// Shift existing head down list
+		if ( cache.head ) {
+			cache.head.prev = node;
+			node.next = cache.head;
+		}
+
+		cache.head = node;
+
+		return node.val;
+	}
+
+	callSelector.getDependants = getDependants;
+	callSelector.clear = clear;
+	clear();
+
+	return callSelector;
+});
+
+
+/***/ }),
+
+/***/ "qRz9":
+/***/ (function(module, exports) {
+
+(function() { module.exports = this["wp"]["richText"]; }());
+
+/***/ }),
+
+/***/ "rePB":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _defineProperty; });
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+/***/ }),
+
+/***/ "rl8x":
+/***/ (function(module, exports) {
+
+(function() { module.exports = this["wp"]["isShallowEqual"]; }());
+
+/***/ }),
+
+/***/ "rmEH":
 /***/ (function(module, exports) {
 
 (function() { module.exports = this["wp"]["htmlEntities"]; }());
 
 /***/ }),
 
-/***/ 53:
+/***/ "tI+e":
 /***/ (function(module, exports) {
 
-(function() { module.exports = this["wp"]["date"]; }());
+(function() { module.exports = this["wp"]["components"]; }());
 
 /***/ }),
 
-/***/ 58:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["serverSideRender"]; }());
-
-/***/ }),
-
-/***/ 6:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["blockEditor"]; }());
-
-/***/ }),
-
-/***/ 61:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["nux"]; }());
-
-/***/ }),
-
-/***/ 62:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-exports.__esModule = true;
-var TextareaAutosize_1 = __webpack_require__(115);
-exports["default"] = TextareaAutosize_1["default"];
-
-
-/***/ }),
-
-/***/ 69:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["autop"]; }());
-
-/***/ }),
-
-/***/ 7:
+/***/ "vpQ4":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _objectSpread; });
-/* harmony import */ var _defineProperty__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(10);
+/* harmony import */ var _defineProperty__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("rePB");
 
 function _objectSpread(target) {
   for (var i = 1; i < arguments.length; i++) {
@@ -16033,194 +14923,58 @@ function _objectSpread(target) {
 
 /***/ }),
 
-/***/ 72:
-/***/ (function(module, exports, __webpack_require__) {
+/***/ "vuIU":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-
-
-function flattenIntoMap( map, effects ) {
-	var i;
-	if ( Array.isArray( effects ) ) {
-		for ( i = 0; i < effects.length; i++ ) {
-			flattenIntoMap( map, effects[ i ] );
-		}
-	} else {
-		for ( i in effects ) {
-			map[ i ] = ( map[ i ] || [] ).concat( effects[ i ] );
-		}
-	}
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _createClass; });
+function _defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
 }
 
-function refx( effects ) {
-	var map = {},
-		middleware;
-
-	flattenIntoMap( map, effects );
-
-	middleware = function( store ) {
-		return function( next ) {
-			return function( action ) {
-				var handlers = map[ action.type ],
-					result = next( action ),
-					i, handlerAction;
-
-				if ( handlers ) {
-					for ( i = 0; i < handlers.length; i++ ) {
-						handlerAction = handlers[ i ]( action, store );
-						if ( handlerAction ) {
-							store.dispatch( handlerAction );
-						}
-					}
-				}
-
-				return result;
-			};
-		};
-	};
-
-	middleware.effects = map;
-
-	return middleware;
+function _createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) _defineProperties(Constructor, staticProps);
+  return Constructor;
 }
 
-module.exports = refx;
-
-
 /***/ }),
 
-/***/ 8:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["compose"]; }());
-
-/***/ }),
-
-/***/ 83:
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(325);
-
-
-/***/ }),
-
-/***/ 87:
-/***/ (function(module, exports, __webpack_require__) {
+/***/ "wx14":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _extends; });
+function _extends() {
+  _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
 
-
-
-var ReactPropTypesSecret = __webpack_require__(88);
-
-function emptyFunction() {}
-function emptyFunctionWithReset() {}
-emptyFunctionWithReset.resetWarningCache = emptyFunction;
-
-module.exports = function() {
-  function shim(props, propName, componentName, location, propFullName, secret) {
-    if (secret === ReactPropTypesSecret) {
-      // It is still safe when called from React.
-      return;
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
     }
-    var err = new Error(
-      'Calling PropTypes validators directly is not supported by the `prop-types` package. ' +
-      'Use PropTypes.checkPropTypes() to call them. ' +
-      'Read more at http://fb.me/use-check-prop-types'
-    );
-    err.name = 'Invariant Violation';
-    throw err;
-  };
-  shim.isRequired = shim;
-  function getShim() {
-    return shim;
-  };
-  // Important!
-  // Keep this list in sync with production version in `./factoryWithTypeCheckers.js`.
-  var ReactPropTypes = {
-    array: shim,
-    bool: shim,
-    func: shim,
-    number: shim,
-    object: shim,
-    string: shim,
-    symbol: shim,
 
-    any: shim,
-    arrayOf: getShim,
-    element: shim,
-    elementType: shim,
-    instanceOf: getShim,
-    node: shim,
-    objectOf: getShim,
-    oneOf: getShim,
-    oneOfType: getShim,
-    shape: getShim,
-    exact: getShim,
-
-    checkPropTypes: emptyFunctionWithReset,
-    resetWarningCache: emptyFunction
+    return target;
   };
 
-  ReactPropTypes.PropTypes = ReactPropTypes;
-
-  return ReactPropTypes;
-};
-
+  return _extends.apply(this, arguments);
+}
 
 /***/ }),
 
-/***/ 88:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-
-
-var ReactPropTypesSecret = 'SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED';
-
-module.exports = ReactPropTypesSecret;
-
-
-/***/ }),
-
-/***/ 89:
+/***/ "ywyh":
 /***/ (function(module, exports) {
 
-(function() { module.exports = this["wp"]["coreData"]; }());
-
-/***/ }),
-
-/***/ 9:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["blocks"]; }());
-
-/***/ }),
-
-/***/ 97:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["wordcount"]; }());
-
-/***/ }),
-
-/***/ 99:
-/***/ (function(module, exports) {
-
-(function() { module.exports = this["wp"]["mediaUtils"]; }());
+(function() { module.exports = this["wp"]["apiFetch"]; }());
 
 /***/ })
 
