@@ -285,7 +285,7 @@ function uploadError(fileObj, errorCode, message, uploader) {
 			wpFileError(fileObj, pluploadL10n.upload_failed);
 			break;
 		case plupload.FILE_EXTENSION_ERROR:
-			wpFileError(fileObj, pluploadL10n.invalid_filetype);
+			wpFileExtensionError( uploader, fileObj, pluploadL10n.invalid_filetype );
 			break;
 		case plupload.FILE_SIZE_ERROR:
 			uploadSizeError(uploader, fileObj);
@@ -346,6 +346,11 @@ function uploadSizeError( up, file ) {
 
 	// Append the error.
 	jQuery('#media-items').append( errorDiv );
+	up.removeFile(file);
+}
+
+function wpFileExtensionError( up, file, message ) {
+	jQuery('#media-items').append('<div id="media-item-' + file.id + '" class="media-item error"><p>' + message + '</p></div>');
 	up.removeFile(file);
 }
 
@@ -439,19 +444,23 @@ jQuery(document).ready(function($){
 
 			if ( up.features.dragdrop && ! $(document.body).hasClass('mobile') ) {
 				uploaddiv.addClass('drag-drop');
-				$('#drag-drop-area').bind('dragover.wp-uploader', function(){ // dragenter doesn't fire right :(
+				$('#drag-drop-area').on('dragover.wp-uploader', function(){ // dragenter doesn't fire right :(
 					uploaddiv.addClass('drag-over');
-				}).bind('dragleave.wp-uploader, drop.wp-uploader', function(){
+				}).on('dragleave.wp-uploader, drop.wp-uploader', function(){
 					uploaddiv.removeClass('drag-over');
 				});
 			} else {
 				uploaddiv.removeClass('drag-drop');
-				$('#drag-drop-area').unbind('.wp-uploader');
+				$('#drag-drop-area').off('.wp-uploader');
 			}
 
 			if ( up.runtime === 'html4' ) {
 				$('.upload-flash-bypass').hide();
 			}
+		});
+
+		uploader.bind( 'postinit', function( up ) {
+			up.refresh();
 		});
 
 		uploader.init();

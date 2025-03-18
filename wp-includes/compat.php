@@ -421,7 +421,7 @@ if ( ! interface_exists( 'JsonSerializable' ) ) {
 	 *
 	 * Compatibility shim for PHP <5.4
 	 *
-	 * @link http://php.net/jsonserializable
+	 * @link https://secure.php.net/jsonserializable
 	 *
 	 * @since 4.4.0
 	 */
@@ -435,48 +435,146 @@ if ( ! function_exists( 'random_int' ) ) {
 	require ABSPATH . WPINC . '/random_compat/random.php';
 }
 
-if ( ! function_exists( 'str_starts_with' ) ) {
+if ( ! function_exists( 'array_replace_recursive' ) ) :
 	/**
-	 * Polyfill for `str_starts_with()` function added in PHP 8.0.
+	 * PHP-agnostic version of {@link array_replace_recursive()}.
 	 *
-	 * Performs a case-sensitive check indicating if
-	 * the haystack begins with needle.
+	 * The array_replace_recursive() function is a PHP 5.3 function. WordPress
+	 * currently supports down to PHP 5.2, so this method is a workaround
+	 * for PHP 5.2.
 	 *
-	 * @since 5.9.0
+	 * Note: array_replace_recursive() supports infinite arguments, but for our use-
+	 * case, we only need to support two arguments.
 	 *
-	 * @param string $haystack The string to search in.
-	 * @param string $needle   The substring to search for in the `$haystack`.
-	 * @return bool True if `$haystack` starts with `$needle`, otherwise false.
+	 * Subject to removal once WordPress makes PHP 5.3.0 the minimum requirement.
+	 *
+	 * @since 4.5.3
+	 *
+	 * @see http://php.net/manual/en/function.array-replace-recursive.php#109390
+	 *
+	 * @param  array $base         Array with keys needing to be replaced.
+	 * @param  array $replacements Array with the replaced keys.
+	 *
+	 * @return array
 	 */
-	function str_starts_with( $haystack, $needle ) {
-		if ( '' === $needle ) {
-			return true;
+	function array_replace_recursive( $base = array(), $replacements = array() ) {
+		foreach ( array_slice( func_get_args(), 1 ) as $replacements ) {
+			$bref_stack = array( &$base );
+			$head_stack = array( $replacements );
+
+			do {
+				end( $bref_stack );
+
+				$bref = &$bref_stack[ key( $bref_stack ) ];
+				$head = array_pop( $head_stack );
+
+				unset( $bref_stack[ key( $bref_stack ) ] );
+
+				foreach ( array_keys( $head ) as $key ) {
+					if ( isset( $key, $bref ) &&
+					     isset( $bref[ $key ] ) && is_array( $bref[ $key ] ) &&
+					     isset( $head[ $key ] ) && is_array( $head[ $key ] )
+					) {
+						$bref_stack[] = &$bref[ $key ];
+						$head_stack[] = $head[ $key ];
+					} else {
+						$bref[ $key ] = $head[ $key ];
+					}
+				}
+			} while ( count( $head_stack ) );
 		}
 
-		return 0 === strpos( $haystack, $needle );
+		return $base;
 	}
-}
+endif;
 
-if ( ! function_exists( 'str_ends_with' ) ) {
+// SPL can be disabled on PHP 5.2
+if ( ! function_exists( 'spl_autoload_register' ) ):
+	$_wp_spl_autoloaders = array();
+
 	/**
-	 * Polyfill for `str_ends_with()` function added in PHP 8.0.
+	 * Autoloader compatibility callback.
 	 *
-	 * Performs a case-sensitive check indicating if
-	 * the haystack ends with needle.
+	 * @since 4.6.0
 	 *
-	 * @since 5.9.0
-	 *
-	 * @param string $haystack The string to search in.
-	 * @param string $needle   The substring to search for in the `$haystack`.
-	 * @return bool True if `$haystack` ends with `$needle`, otherwise false.
+	 * @param string $classname Class to attempt autoloading.
 	 */
-	function str_ends_with( $haystack, $needle ) {
-		if ( '' === $haystack ) {
-			return '' === $needle;
+	function __autoload( $classname ) {
+		global $_wp_spl_autoloaders;
+		foreach ( $_wp_spl_autoloaders as $autoloader ) {
+			if ( ! is_callable( $autoloader ) ) {
+				// Avoid the extra warning if the autoloader isn't callable.
+				continue;
+			}
+
+			call_user_func( $autoloader, $classname );
+
+			// If it has been autoloaded, stop processing.
+			if ( class_exists( $classname, false ) ) {
+				return;
+			}
+		}
+	}
+
+	/**
+	 * Registers a function to be autoloaded.
+	 *
+	 * @since 4.6.0
+	 *
+	 * @param callable $autoload_function The function to register.
+	 * @param bool     $throw             Optional. Whether the function should throw an exception
+	 *                                    if the function isn't callable. Default true.
+	 * @param bool     $prepend           Whether the function should be prepended to the stack.
+	 *                                    Default false.
+	 */
+	function spl_autoload_register( $autoload_function, $throw = true, $prepend = false ) {
+		if ( $throw && ! is_callable( $autoload_function ) ) {
+			// String not translated to match PHP core.
+			throw new Exception( 'Function not callable' );
 		}
 
-		$len = strlen( $needle );
+		global $_wp_spl_autoloaders;
 
-		return substr( $haystack, -$len, $len ) === $needle;
+		// Don't allow multiple registration.
+		if ( in_array( $autoload_function, $_wp_spl_autoloaders ) ) {
+			return;
+		}
+
+		if ( $prepend ) {
+			array_unshift( $_wp_spl_autoloaders, $autoload_function );
+		} else {
+			$_wp_spl_autoloaders[] = $autoload_function;
+		}
 	}
-}
+
+	/**
+	 * Unregisters an autoloader function.
+	 *
+	 * @since 4.6.0
+	 *
+	 * @param callable $function The function to unregister.
+	 * @return bool True if the function was unregistered, false if it could not be.
+	 */
+	function spl_autoload_unregister( $function ) {
+		global $_wp_spl_autoloaders;
+		foreach ( $_wp_spl_autoloaders as &$autoloader ) {
+			if ( $autoloader === $function ) {
+				unset( $autoloader );
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Retrieves the registered autoloader functions.
+	 *
+	 * @since 4.6.0
+	 *
+	 * @return array List of autoloader functions.
+	 */
+	function spl_autoload_functions() {
+		return $GLOBALS['_wp_spl_autoloaders'];
+	}
+endif;
