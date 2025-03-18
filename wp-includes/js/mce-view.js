@@ -120,7 +120,7 @@
 
 						// Add the processed piece for the match.
 						pieces.push( {
-							content: '<p data-wpview-marker="' + instance.encodedText + '">' + text + '</p>',
+							content: instance.ignore ? text : '<p data-wpview-marker="' + instance.encodedText + '">' + text + '</p>',
 							processed: true
 						} );
 
@@ -738,7 +738,26 @@
  * and a view for embeddable URLs.
  */
 ( function( window, views, media, $ ) {
-	var base, gallery, av, embed;
+	var base, gallery, av, embed,
+		schema, parser, serializer;
+
+	function verifyHTML( string ) {
+		var settings = {};
+
+		if ( ! window.tinymce ) {
+			return string.replace( /<[^>]+>/g, '' );
+		}
+
+		if ( ! string || ( string.indexOf( '<' ) === -1 && string.indexOf( '>' ) === -1 ) ) {
+			return string;
+		}
+
+		schema = schema || new window.tinymce.html.Schema( settings );
+		parser = parser || new window.tinymce.html.DomParser( settings, schema );
+		serializer = serializer || new window.tinymce.html.Serializer( settings, schema );
+
+		return serializer.serialize( parser.parse( string, { forced_root_block: false } ) );
+	}
 
 	base = {
 		state: [],
@@ -789,6 +808,7 @@
 				} );
 
 				self.render( self.template( {
+					verifyHTML: verifyHTML,
 					attachments: attachments,
 					columns: attrs.columns ? parseInt( attrs.columns, 10 ) : media.galleryDefaults.columns
 				} ) );
@@ -822,6 +842,7 @@
 			} )
 			.fail( function( response ) {
 				if ( self.url ) {
+					self.ignore = true;
 					self.removeMarkers();
 				} else {
 					self.setError( response.message || response.statusText, 'admin-media' );
