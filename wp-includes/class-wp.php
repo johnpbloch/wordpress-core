@@ -23,6 +23,7 @@ class WP {
 	 * Long list of private query variables.
 	 *
 	 * @since 2.0.0
+	 * @access public
 	 * @var array
 	 */
 	public $private_query_vars = array( 'offset', 'posts_per_page', 'posts_per_archive_page', 'showposts', 'nopaging', 'post_type', 'post_status', 'category__in', 'category__not_in', 'category__and', 'tag__in', 'tag__not_in', 'tag__and', 'tag_slug__in', 'tag_slug__and', 'tag_id', 'post_mime_type', 'perm', 'comments_per_page', 'post__in', 'post__not_in', 'post_parent', 'post_parent__in', 'post_parent__not_in', 'title' );
@@ -31,6 +32,7 @@ class WP {
 	 * Extra query variables set by the user.
 	 *
 	 * @since 2.1.0
+	 * @access public
 	 * @var array
 	 */
 	public $extra_query_vars = array();
@@ -39,6 +41,7 @@ class WP {
 	 * Query variables for setting up the WordPress Query Loop.
 	 *
 	 * @since 2.0.0
+	 * @access public
 	 * @var array
 	 */
 	public $query_vars;
@@ -47,6 +50,7 @@ class WP {
 	 * String parsed to set the query variables.
 	 *
 	 * @since 2.0.0
+	 * @access public
 	 * @var string
 	 */
 	public $query_string;
@@ -55,6 +59,7 @@ class WP {
 	 * Permalink or requested URI.
 	 *
 	 * @since 2.0.0
+	 * @access public
 	 * @var string
 	 */
 	public $request;
@@ -63,6 +68,7 @@ class WP {
 	 * Rewrite rule the request matched.
 	 *
 	 * @since 2.0.0
+	 * @access public
 	 * @var string
 	 */
 	public $matched_rule;
@@ -71,6 +77,7 @@ class WP {
 	 * Rewrite query the request matched.
 	 *
 	 * @since 2.0.0
+	 * @access public
 	 * @var string
 	 */
 	public $matched_query;
@@ -79,6 +86,7 @@ class WP {
 	 * Whether already did the permalink.
 	 *
 	 * @since 2.0.0
+	 * @access public
 	 * @var bool
 	 */
 	public $did_permalink = false;
@@ -87,6 +95,7 @@ class WP {
 	 * Add name to list of public query variables.
 	 *
 	 * @since 2.1.0
+	 * @access public
 	 *
 	 * @param string $qv Query variable name.
 	 */
@@ -96,9 +105,22 @@ class WP {
 	}
 
 	/**
+	 * Removes a query variable from a list of public query variables.
+	 *
+	 * @since 4.5.0
+	 * @access public
+	 *
+	 * @param string $name Query variable name.
+	 */
+	public function remove_query_var( $name ) {
+		$this->public_query_vars = array_diff( $this->public_query_vars, array( $name ) );
+	}
+
+	/**
 	 * Set the value of a query variable.
 	 *
 	 * @since 2.3.0
+	 * @access public
 	 *
 	 * @param string $key Query variable name.
 	 * @param mixed $value Query variable value.
@@ -114,6 +136,7 @@ class WP {
 	 * filters and actions that can be used to further manipulate the result.
 	 *
 	 * @since 2.0.0
+	 * @access public
 	 *
 	 * @global WP_Rewrite $wp_rewrite
 	 *
@@ -310,12 +333,12 @@ class WP {
 			if ( $t->query_var && isset( $this->query_vars[$t->query_var] ) )
 				$this->query_vars[$t->query_var] = str_replace( ' ', '+', $this->query_vars[$t->query_var] );
 
-		// Don't allow non-public taxonomies to be queried from the front-end.
+		// Don't allow non-publicly queryable taxonomies to be queried from the front end.
 		if ( ! is_admin() ) {
-			foreach ( get_taxonomies( array( 'public' => false ), 'objects' ) as $taxonomy => $t ) {
+			foreach ( get_taxonomies( array( 'publicly_queryable' => false ), 'objects' ) as $taxonomy => $t ) {
 				/*
 				 * Disallow when set to the 'taxonomy' query var.
-				 * Non-public taxonomies cannot register custom query vars. See register_taxonomy().
+				 * Non-publicly queryable taxonomies cannot register custom query vars. See register_taxonomy().
 				 */
 				if ( isset( $this->query_vars['taxonomy'] ) && $taxonomy === $this->query_vars['taxonomy'] ) {
 					unset( $this->query_vars['taxonomy'], $this->query_vars['term'] );
@@ -372,6 +395,7 @@ class WP {
 	 *
 	 * @since 2.0.0
 	 * @since 4.4.0 `X-Pingback` header is added conditionally after posts have been queried in handle_404().
+	 * @access public
 	 */
 	public function send_headers() {
 		$headers = array();
@@ -494,6 +518,7 @@ class WP {
 	 * use the 'request' filter instead.
 	 *
 	 * @since 2.0.0
+	 * @access public
 	 */
 	public function build_query_string() {
 		$this->query_string = '';
@@ -527,6 +552,9 @@ class WP {
 	 * be taken when naming global variables that might interfere with the
 	 * WordPress environment.
 	 *
+	 * @since 2.0.0
+	 * @access public
+	 *
 	 * @global WP_Query     $wp_query
 	 * @global string       $query_string Query string for the loop.
 	 * @global array        $posts The found posts.
@@ -535,8 +563,6 @@ class WP {
 	 * @global int          $more Only set, if single page or post.
 	 * @global int          $single If single page or post. Only set, if single page or post.
 	 * @global WP_User      $authordata Only set, if author archive.
-	 *
-	 * @since 2.0.0
 	 */
 	public function register_globals() {
 		global $wp_query;
@@ -564,6 +590,7 @@ class WP {
 	 * Set up the current user.
 	 *
 	 * @since 2.0.0
+	 * @access public
 	 */
 	public function init() {
 		wp_get_current_user();
@@ -573,6 +600,7 @@ class WP {
 	 * Set up the Loop based on the query variables.
 	 *
 	 * @since 2.0.0
+	 * @access public
 	 *
 	 * @global WP_Query $wp_the_query
 	 */
@@ -596,11 +624,27 @@ class WP {
 	 * a 404 so that canonical redirection logic can kick in.
 	 *
 	 * @since 2.0.0
+     * @access public
 	 *
 	 * @global WP_Query $wp_query
  	 */
 	public function handle_404() {
 		global $wp_query;
+
+		/**
+		 * Filter whether to short-circuit default header status handling.
+		 *
+		 * Returning a non-false value from the filter will short-circuit the handling
+		 * and return early.
+		 *
+		 * @since 4.5.0
+		 *
+		 * @param bool     $preempt  Whether to short-circuit default header status handling. Default false.
+		 * @param WP_Query $wp_query WordPress Query object.
+		 */
+		if ( false !== apply_filters( 'pre_handle_404', false, $wp_query ) ) {
+			return;
+		}
 
 		// If we've already issued a 404, bail.
 		if ( is_404() )
@@ -673,6 +717,7 @@ class WP {
 	 * object.
 	 *
 	 * @since 2.0.0
+	 * @access public
 	 *
 	 * @param string|array $query_args Passed to {@link parse_request()}
 	 */

@@ -374,7 +374,7 @@ function wptexturize_primes( $haystack, $needle, $prime, $open_quote, $close_quo
  */
 function _wptexturize_pushpop_element( $text, &$stack, $disabled_elements ) {
 	// Is it an opening tag or closing tag?
-	if ( '/' !== $text[1] ) {
+	if ( isset( $text[1] ) && '/' !== $text[1] ) {
 		$opening_tag = true;
 		$name_offset = 1;
 	} elseif ( 0 == count( $stack ) ) {
@@ -1616,12 +1616,12 @@ function sanitize_title_with_dashes( $title, $raw_title = '', $context = 'displa
 	}
 
 	$title = strtolower($title);
-	$title = preg_replace('/&.+?;/', '', $title); // kill entities
-	$title = str_replace('.', '-', $title);
 
 	if ( 'save' == $context ) {
 		// Convert nbsp, ndash and mdash to hyphens
 		$title = str_replace( array( '%c2%a0', '%e2%80%93', '%e2%80%94' ), '-', $title );
+		// Convert nbsp, ndash and mdash HTML entities to hyphens
+		$title = str_replace( array( '&nbsp;', '&#160;', '&ndash;', '&#8211;', '&mdash;', '&#8212;' ), '-', $title );
 
 		// Strip these characters entirely
 		$title = str_replace( array(
@@ -1643,6 +1643,9 @@ function sanitize_title_with_dashes( $title, $raw_title = '', $context = 'displa
 		// Convert times to x
 		$title = str_replace( '%c3%97', 'x', $title );
 	}
+
+	$title = preg_replace('/&.+?;/', '', $title); // kill entities
+	$title = str_replace('.', '-', $title);
 
 	$title = preg_replace('/[^%a-z0-9 _-]/', '', $title);
 	$title = preg_replace('/\s+/', '-', $title);
@@ -2231,9 +2234,9 @@ function make_clickable( $text ) {
 	$nested_code_pre = 0; // Keep track of how many levels link is nested inside <pre> or <code>
 	foreach ( $textarr as $piece ) {
 
-		if ( preg_match( '|^<code[\s>]|i', $piece ) || preg_match( '|^<pre[\s>]|i', $piece ) )
+		if ( preg_match( '|^<code[\s>]|i', $piece ) || preg_match( '|^<pre[\s>]|i', $piece ) || preg_match( '|^<script[\s>]|i', $piece ) || preg_match( '|^<style[\s>]|i', $piece ) )
 			$nested_code_pre++;
-		elseif ( ( '</code>' === strtolower( $piece ) || '</pre>' === strtolower( $piece ) ) && $nested_code_pre )
+		elseif ( $nested_code_pre && ( '</code>' === strtolower( $piece ) || '</pre>' === strtolower( $piece ) || '</script>' === strtolower( $piece ) || '</style>' === strtolower( $piece ) ) )
 			$nested_code_pre--;
 
 		if ( $nested_code_pre || empty( $piece ) || ( $piece[0] === '<' && ! preg_match( '|^<\s*[\w]{1,20}+://|', $piece ) ) ) {
@@ -2368,7 +2371,21 @@ function wp_rel_nofollow( $text ) {
 function wp_rel_nofollow_callback( $matches ) {
 	$text = $matches[1];
 	$atts = wp_kses_hair( $matches[1], wp_allowed_protocols() );
-	$rel = 'nofollow';
+	$rel  = 'nofollow';
+
+	if ( ! empty( $atts['href'] ) ) {
+		$href_parts  = wp_parse_url( $atts['href']['value'] );
+		$href_scheme = isset( $href_parts['scheme'] ) ? $href_parts['scheme'] : '';
+		$href_host   = isset( $href_parts['host'] ) ? $href_parts['host'] : '';
+		$home_parts  = wp_parse_url( home_url() );
+		$home_host   = isset( $home_parts['host'] ) ? $home_parts['host'] : '';
+		if ( in_array( strtolower( $href_scheme ), array( 'http', 'https' ), true ) ) {
+			if ( strtolower( $href_host ) === strtolower( $home_host ) ) {
+				return "<a $text>";
+			}
+		}
+	}
+
 	if ( ! empty( $atts['rel'] ) ) {
 		$parts = array_map( 'trim', explode( ' ', $atts['rel']['value'] ) );
 		if ( false === array_search( 'nofollow', $parts ) ) {
@@ -2729,23 +2746,6 @@ function iso8601_to_datetime( $date_string, $timezone = 'user' ) {
 	} elseif ($timezone == 'user') {
 		return preg_replace('#([0-9]{4})([0-9]{2})([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(Z|[\+|\-][0-9]{2,4}){0,1}#', '$1-$2-$3 $4:$5:$6', $date_string);
 	}
-}
-
-/**
- * Adds a element attributes to open links in new windows.
- *
- * Comment text in popup windows should be filtered through this. Right now it's
- * a moderately dumb function, ideally it would detect whether a target or rel
- * attribute was already there and adjust its actions accordingly.
- *
- * @since 0.71
- *
- * @param string $text Content to replace links to open in a new window.
- * @return string Content that has filtered links.
- */
-function popuplinks( $text ) {
-	$text = preg_replace('/<a (.+?)>/i', "<a $1 target='_blank' rel='external'>", $text);
-	return $text;
 }
 
 /**
@@ -3325,7 +3325,11 @@ function ent2ncr( $text ) {
  *
  * @since 4.3.0
  *
- * @param string $text The text to be formatted.
+ * @see _WP_Editors::editor()
+ *
+ * @param string $text           The text to be formatted.
+ * @param string $default_editor The default editor for the current user.
+ *                               It is usually either 'html' or 'tinymce'.
  * @return string The formatted text after filter is applied.
  */
 function format_for_editor( $text, $default_editor = null ) {
@@ -3338,7 +3342,9 @@ function format_for_editor( $text, $default_editor = null ) {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param string $text The formatted text.
+	 * @param string $text           The formatted text.
+	 * @param string $default_editor The default editor for the current user.
+	 *                               It is usually either 'html' or 'tinymce'.
 	 */
 	return apply_filters( 'format_for_editor', $text, $default_editor );
 }
@@ -3746,7 +3752,6 @@ function sanitize_option( $option, $value ) {
 			if ( is_wp_error( $value ) ) {
 				$error = $value->get_error_message();
 			} else {
-				$value = wp_kses_post( $value );
 				$value = esc_html( $value );
 			}
 			break;
@@ -3929,7 +3934,7 @@ function sanitize_option( $option, $value ) {
  *
  * @param mixed    $value    The array, object, or scalar.
  * @param callable $callback The function to map onto $value.
- * @return The value with the callback applied to all non-arrays and non-objects inside it.
+ * @return mixed The value with the callback applied to all non-arrays and non-objects inside it.
  */
 function map_deep( $value, $callback ) {
 	if ( is_array( $value ) ) {
@@ -4349,6 +4354,9 @@ function wp_basename( $path, $suffix = '' ) {
  * @since 3.0.0
  *
  * @staticvar string|false $dblq
+ *
+ * @param string $text The text to be modified.
+ * @return string The modified text.
  */
 function capital_P_dangit( $text ) {
 	// Simple replacement for titles
@@ -4617,7 +4625,7 @@ function print_emoji_detection_script() {
 		?>
 		<script type="text/javascript">
 			window._wpemojiSettings = <?php echo wp_json_encode( $settings ); ?>;
-			!function(e,n,t){var a;function i(e){var t=n.createElement("canvas"),a=t.getContext&&t.getContext("2d"),i=String.fromCharCode;return!(!a||!a.fillText)&&(a.textBaseline="top",a.font="600 32px Arial","flag"===e?(a.fillText(i(55356,56806,55356,56826),0,0),3e3<t.toDataURL().length):"diversity"===e?(a.fillText(i(55356,57221),0,0),t=a.getImageData(16,16,1,1).data,a.fillText(i(55356,57221,55356,57343),0,0),(t=a.getImageData(16,16,1,1).data)[0],t[1],t[2],t[3],!0):("simple"===e?a.fillText(i(55357,56835),0,0):a.fillText(i(55356,57135),0,0),0!==a.getImageData(16,16,1,1).data[0]))}function o(e){var t=n.createElement("script");t.src=e,t.type="text/javascript",n.getElementsByTagName("head")[0].appendChild(t)}t.supports={simple:i("simple"),flag:i("flag"),unicode8:i("unicode8"),diversity:i("diversity")},t.DOMReady=!1,t.readyCallback=function(){t.DOMReady=!0},t.supports.simple&&t.supports.flag&&t.supports.unicode8&&t.supports.diversity||(a=function(){t.readyCallback()},n.addEventListener?(n.addEventListener("DOMContentLoaded",a,!1),e.addEventListener("load",a,!1)):(e.attachEvent("onload",a),n.attachEvent("onreadystatechange",function(){"complete"===n.readyState&&t.readyCallback()})),(a=t.source||{}).concatemoji?o(a.concatemoji):a.wpemoji&&a.twemoji&&(o(a.twemoji),o(a.wpemoji)))}(window,document,window._wpemojiSettings);
+			!function(e,o,t){var a,n,r;function i(e){var t=o.createElement("script");t.src=e,t.type="text/javascript",o.getElementsByTagName("head")[0].appendChild(t)}for(r=Array("simple","flag","unicode8","diversity"),t.supports={everything:!0,everythingExceptFlag:!0},n=0;n<r.length;n++)t.supports[r[n]]=function(e){var t,a,n=o.createElement("canvas"),r=n.getContext&&n.getContext("2d"),i=String.fromCharCode;if(!r||!r.fillText)return!1;switch(r.textBaseline="top",r.font="600 32px Arial",e){case"flag":return r.fillText(i(55356,56806,55356,56826),0,0),3e3<n.toDataURL().length;case"diversity":return r.fillText(i(55356,57221),0,0),a=(t=r.getImageData(16,16,1,1).data)[0]+","+t[1]+","+t[2]+","+t[3],r.fillText(i(55356,57221,55356,57343),0,0),a!=(t=r.getImageData(16,16,1,1).data)[0]+","+t[1]+","+t[2]+","+t[3];case"simple":return r.fillText(i(55357,56835),0,0),0!==r.getImageData(16,16,1,1).data[0];case"unicode8":return r.fillText(i(55356,57135),0,0),0!==r.getImageData(16,16,1,1).data[0]}return!1}(r[n]),t.supports.everything=t.supports.everything&&t.supports[r[n]],"flag"!==r[n]&&(t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&t.supports[r[n]]);t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&!t.supports.flag,t.DOMReady=!1,t.readyCallback=function(){t.DOMReady=!0},t.supports.everything||(a=function(){t.readyCallback()},o.addEventListener?(o.addEventListener("DOMContentLoaded",a,!1),e.addEventListener("load",a,!1)):(e.attachEvent("onload",a),o.attachEvent("onreadystatechange",function(){"complete"===o.readyState&&t.readyCallback()})),(a=t.source||{}).concatemoji?i(a.concatemoji):a.wpemoji&&a.twemoji&&(i(a.twemoji),i(a.wpemoji)))}(window,document,window._wpemojiSettings);
 		</script>
 		<?php
 	}
@@ -4820,7 +4828,7 @@ function wp_staticize_emoji_for_email( $mail ) {
 }
 
 /**
- * Shorten an URL, to be used as link text.
+ * Shorten a URL, to be used as link text.
  *
  * @since 1.2.0
  * @since 4.4.0 Moved to wp-includes/formatting.php from wp-admin/includes/misc.php and added $length param.
@@ -4838,19 +4846,3 @@ function url_shorten( $url, $length = 35 ) {
 	}
 	return $short_url;
 }
-
-/**
- * 4.4.x hotfix for hidden configure links on admin dashboard.
- *
- * @ignore
- */
-function _wp_441_dashboard_display_configure_links_css() { 
-	echo '<style type="text/css">
-		.postbox .button-link .edit-box { display: none; }
-		.wp-admin .edit-box { display: block; opacity: 0; }
-		.hndle:hover .edit-box, .edit-box:focus { opacity: 1; }
-		#dashboard-widgets h2 a { text-decoration: underline; }
-		#dashboard-widgets .hndle .postbox-title-action { float: right; line-height: 1.2; }
-	</style>';
-}
-add_action( 'admin_print_styles-index.php', '_wp_441_dashboard_display_configure_links_css' );
