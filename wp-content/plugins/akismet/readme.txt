@@ -1,0 +1,39 @@
+=== Akismet Spam Protection ===
+Contributors: matt, ryan, andy, mdawaffe, tellyworth, josephscott, lessbloat, eoigal, cfinke, automattic, jgs, procifer, stephdau
+Tags: comments, spam, antispam, anti-spam, contact form, anti spam, comment moderation, comment spam, contact form spam, spam comments
+Requires at least: 4.6
+Tested up to: 5.5
+Stable tag: 4.1.6
+License: GPLv2 or later
+
+The best anti-spam protection to block spam comments and spam in a contact form. The most trusted antispam solution for WordPress and WooCommerce.
+
+== Description ==
+
+Akismet checks your comments and contact form submissions against our global database of spam to prevent your site from publishing malicious content. You can review the comment spam it catches on your blog's "Comments" admin screen.
+
+Major features in Akismet include:
+
+* Automatically checks all comments and filters out the ones that look like spam.
+* Each comment has a status history, so you can easily see which comments were caught or cleared by Akismet and which were spammed or unspammed by a moderator.
+* URLs are shown in the comment body to reveal hidden or misleading links.
+* Moderators can see the number of approved comments for each user.
+* A discard feature that outright blocks the worst spam, saving you disk space and speeding up your site.
+
+PS: You'll be prompted to get an Akismet.com API key to use it, once activated. Keys are free for personal blogs; paid subscriptions are available for businesses and commercial sites.
+
+== Installation ==
+
+Upload the Akismet plugin to your blog, activate it, and then enter your Akismet.com API key.
+
+1, 2, 3: You're done!
+
+== Changelog ==
+
+= 4.1.6 =
+*Release Date - 4 June 2020*
+
+* Disable "Check for Spam" button until the page is loaded to avoid errors with clicking through to queue recheck endpoint directly.
+* Add filter "akismet_enable_mshots" to allow disabling screenshot popups on the edit comments admin page.
+
+For older changelog entries, please see the [additional changelog.txt file](https://plugins.svn.wordpress.org/akismet/trunk/changelog.txt) delivered with the plugin.
