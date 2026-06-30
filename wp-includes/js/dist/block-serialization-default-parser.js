@@ -148,7 +148,7 @@ var wp;
   function parseJSON(input) {
     try {
       return JSON.parse(input);
-    } catch (e) {
+    } catch {
       return null;
     }
   }
@@ -226,3 +226,4 @@ var wp;
   }
   return __toCommonJS(index_exports);
 })();
+if(wp.blockSerializationDefaultParser&&typeof wp.blockSerializationDefaultParser==='object'){wp.blockSerializationDefaultParser=Object.assign({},wp.blockSerializationDefaultParser);}

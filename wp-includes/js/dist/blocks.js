@@ -1,3 +1,4 @@
+"use strict";
 var wp;
 (wp ||= {}).blocks = (() => {
   var __create = Object.create;
@@ -573,181 +574,93 @@ var wp;
   var require_react_is_development = __commonJS({
     "packages/blocks/node_modules/react-is/cjs/react-is.development.js"(exports) {
       "use strict";
-      if (true) {
-        (function() {
-          "use strict";
-          var REACT_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.element");
-          var REACT_PORTAL_TYPE = /* @__PURE__ */ Symbol.for("react.portal");
-          var REACT_FRAGMENT_TYPE = /* @__PURE__ */ Symbol.for("react.fragment");
-          var REACT_STRICT_MODE_TYPE = /* @__PURE__ */ Symbol.for("react.strict_mode");
-          var REACT_PROFILER_TYPE = /* @__PURE__ */ Symbol.for("react.profiler");
-          var REACT_PROVIDER_TYPE = /* @__PURE__ */ Symbol.for("react.provider");
-          var REACT_CONTEXT_TYPE = /* @__PURE__ */ Symbol.for("react.context");
-          var REACT_SERVER_CONTEXT_TYPE = /* @__PURE__ */ Symbol.for("react.server_context");
-          var REACT_FORWARD_REF_TYPE = /* @__PURE__ */ Symbol.for("react.forward_ref");
-          var REACT_SUSPENSE_TYPE = /* @__PURE__ */ Symbol.for("react.suspense");
-          var REACT_SUSPENSE_LIST_TYPE = /* @__PURE__ */ Symbol.for("react.suspense_list");
-          var REACT_MEMO_TYPE = /* @__PURE__ */ Symbol.for("react.memo");
-          var REACT_LAZY_TYPE = /* @__PURE__ */ Symbol.for("react.lazy");
-          var REACT_OFFSCREEN_TYPE = /* @__PURE__ */ Symbol.for("react.offscreen");
-          var enableScopeAPI = false;
-          var enableCacheElement = false;
-          var enableTransitionTracing = false;
-          var enableLegacyHidden = false;
-          var enableDebugTracing = false;
-          var REACT_MODULE_REFERENCE;
-          {
-            REACT_MODULE_REFERENCE = /* @__PURE__ */ Symbol.for("react.module.reference");
-          }
-          function isValidElementType2(type) {
-            if (typeof type === "string" || typeof type === "function") {
-              return true;
+      (function() {
+        function typeOf(object) {
+          if ("object" === typeof object && null !== object) {
+            var $$typeof = object.$$typeof;
+            switch ($$typeof) {
+              case REACT_ELEMENT_TYPE:
+                switch (object = object.type, object) {
+                  case REACT_FRAGMENT_TYPE:
+                  case REACT_PROFILER_TYPE:
+                  case REACT_STRICT_MODE_TYPE:
+                  case REACT_SUSPENSE_TYPE:
+                  case REACT_SUSPENSE_LIST_TYPE:
+                    return object;
+                  default:
+                    switch (object = object && object.$$typeof, object) {
+                      case REACT_CONTEXT_TYPE:
+                      case REACT_FORWARD_REF_TYPE:
+                      case REACT_LAZY_TYPE:
+                      case REACT_MEMO_TYPE:
+                        return object;
+                      case REACT_CONSUMER_TYPE:
+                        return object;
+                      default:
+                        return $$typeof;
+                    }
+                }
+              case REACT_PORTAL_TYPE:
+                return $$typeof;
             }
-            if (type === REACT_FRAGMENT_TYPE || type === REACT_PROFILER_TYPE || enableDebugTracing || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || type === REACT_SUSPENSE_LIST_TYPE || enableLegacyHidden || type === REACT_OFFSCREEN_TYPE || enableScopeAPI || enableCacheElement || enableTransitionTracing) {
-              return true;
-            }
-            if (typeof type === "object" && type !== null) {
-              if (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || // This needs to include all possible module reference object
-              // types supported by any Flight configuration anywhere since
-              // we don't know which Flight build this will end up being used
-              // with.
-              type.$$typeof === REACT_MODULE_REFERENCE || type.getModuleId !== void 0) {
-                return true;
-              }
-            }
-            return false;
           }
-          function typeOf(object) {
-            if (typeof object === "object" && object !== null) {
-              var $$typeof = object.$$typeof;
-              switch ($$typeof) {
-                case REACT_ELEMENT_TYPE:
-                  var type = object.type;
-                  switch (type) {
-                    case REACT_FRAGMENT_TYPE:
-                    case REACT_PROFILER_TYPE:
-                    case REACT_STRICT_MODE_TYPE:
-                    case REACT_SUSPENSE_TYPE:
-                    case REACT_SUSPENSE_LIST_TYPE:
-                      return type;
-                    default:
-                      var $$typeofType = type && type.$$typeof;
-                      switch ($$typeofType) {
-                        case REACT_SERVER_CONTEXT_TYPE:
-                        case REACT_CONTEXT_TYPE:
-                        case REACT_FORWARD_REF_TYPE:
-                        case REACT_LAZY_TYPE:
-                        case REACT_MEMO_TYPE:
-                        case REACT_PROVIDER_TYPE:
-                          return $$typeofType;
-                        default:
-                          return $$typeof;
-                      }
-                  }
-                case REACT_PORTAL_TYPE:
-                  return $$typeof;
-              }
-            }
-            return void 0;
-          }
-          var ContextConsumer = REACT_CONTEXT_TYPE;
-          var ContextProvider = REACT_PROVIDER_TYPE;
-          var Element = REACT_ELEMENT_TYPE;
-          var ForwardRef = REACT_FORWARD_REF_TYPE;
-          var Fragment = REACT_FRAGMENT_TYPE;
-          var Lazy = REACT_LAZY_TYPE;
-          var Memo = REACT_MEMO_TYPE;
-          var Portal = REACT_PORTAL_TYPE;
-          var Profiler = REACT_PROFILER_TYPE;
-          var StrictMode = REACT_STRICT_MODE_TYPE;
-          var Suspense = REACT_SUSPENSE_TYPE;
-          var SuspenseList = REACT_SUSPENSE_LIST_TYPE;
-          var hasWarnedAboutDeprecatedIsAsyncMode = false;
-          var hasWarnedAboutDeprecatedIsConcurrentMode = false;
-          function isAsyncMode(object) {
-            {
-              if (!hasWarnedAboutDeprecatedIsAsyncMode) {
-                hasWarnedAboutDeprecatedIsAsyncMode = true;
-                console["warn"]("The ReactIs.isAsyncMode() alias has been deprecated, and will be removed in React 18+.");
-              }
-            }
-            return false;
-          }
-          function isConcurrentMode(object) {
-            {
-              if (!hasWarnedAboutDeprecatedIsConcurrentMode) {
-                hasWarnedAboutDeprecatedIsConcurrentMode = true;
-                console["warn"]("The ReactIs.isConcurrentMode() alias has been deprecated, and will be removed in React 18+.");
-              }
-            }
-            return false;
-          }
-          function isContextConsumer(object) {
-            return typeOf(object) === REACT_CONTEXT_TYPE;
-          }
-          function isContextProvider(object) {
-            return typeOf(object) === REACT_PROVIDER_TYPE;
-          }
-          function isElement(object) {
-            return typeof object === "object" && object !== null && object.$$typeof === REACT_ELEMENT_TYPE;
-          }
-          function isForwardRef(object) {
-            return typeOf(object) === REACT_FORWARD_REF_TYPE;
-          }
-          function isFragment(object) {
-            return typeOf(object) === REACT_FRAGMENT_TYPE;
-          }
-          function isLazy(object) {
-            return typeOf(object) === REACT_LAZY_TYPE;
-          }
-          function isMemo(object) {
-            return typeOf(object) === REACT_MEMO_TYPE;
-          }
-          function isPortal(object) {
-            return typeOf(object) === REACT_PORTAL_TYPE;
-          }
-          function isProfiler(object) {
-            return typeOf(object) === REACT_PROFILER_TYPE;
-          }
-          function isStrictMode(object) {
-            return typeOf(object) === REACT_STRICT_MODE_TYPE;
-          }
-          function isSuspense(object) {
-            return typeOf(object) === REACT_SUSPENSE_TYPE;
-          }
-          function isSuspenseList(object) {
-            return typeOf(object) === REACT_SUSPENSE_LIST_TYPE;
-          }
-          exports.ContextConsumer = ContextConsumer;
-          exports.ContextProvider = ContextProvider;
-          exports.Element = Element;
-          exports.ForwardRef = ForwardRef;
-          exports.Fragment = Fragment;
-          exports.Lazy = Lazy;
-          exports.Memo = Memo;
-          exports.Portal = Portal;
-          exports.Profiler = Profiler;
-          exports.StrictMode = StrictMode;
-          exports.Suspense = Suspense;
-          exports.SuspenseList = SuspenseList;
-          exports.isAsyncMode = isAsyncMode;
-          exports.isConcurrentMode = isConcurrentMode;
-          exports.isContextConsumer = isContextConsumer;
-          exports.isContextProvider = isContextProvider;
-          exports.isElement = isElement;
-          exports.isForwardRef = isForwardRef;
-          exports.isFragment = isFragment;
-          exports.isLazy = isLazy;
-          exports.isMemo = isMemo;
-          exports.isPortal = isPortal;
-          exports.isProfiler = isProfiler;
-          exports.isStrictMode = isStrictMode;
-          exports.isSuspense = isSuspense;
-          exports.isSuspenseList = isSuspenseList;
-          exports.isValidElementType = isValidElementType2;
-          exports.typeOf = typeOf;
-        })();
-      }
+        }
+        var REACT_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = /* @__PURE__ */ Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = /* @__PURE__ */ Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = /* @__PURE__ */ Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = /* @__PURE__ */ Symbol.for("react.profiler");
+        /* @__PURE__ */ Symbol.for("react.provider");
+        var REACT_CONSUMER_TYPE = /* @__PURE__ */ Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = /* @__PURE__ */ Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = /* @__PURE__ */ Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = /* @__PURE__ */ Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = /* @__PURE__ */ Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = /* @__PURE__ */ Symbol.for("react.memo"), REACT_LAZY_TYPE = /* @__PURE__ */ Symbol.for("react.lazy"), REACT_OFFSCREEN_TYPE = /* @__PURE__ */ Symbol.for("react.offscreen"), REACT_CLIENT_REFERENCE = /* @__PURE__ */ Symbol.for("react.client.reference");
+        exports.ContextConsumer = REACT_CONSUMER_TYPE;
+        exports.ContextProvider = REACT_CONTEXT_TYPE;
+        exports.Element = REACT_ELEMENT_TYPE;
+        exports.ForwardRef = REACT_FORWARD_REF_TYPE;
+        exports.Fragment = REACT_FRAGMENT_TYPE;
+        exports.Lazy = REACT_LAZY_TYPE;
+        exports.Memo = REACT_MEMO_TYPE;
+        exports.Portal = REACT_PORTAL_TYPE;
+        exports.Profiler = REACT_PROFILER_TYPE;
+        exports.StrictMode = REACT_STRICT_MODE_TYPE;
+        exports.Suspense = REACT_SUSPENSE_TYPE;
+        exports.SuspenseList = REACT_SUSPENSE_LIST_TYPE;
+        exports.isContextConsumer = function(object) {
+          return typeOf(object) === REACT_CONSUMER_TYPE;
+        };
+        exports.isContextProvider = function(object) {
+          return typeOf(object) === REACT_CONTEXT_TYPE;
+        };
+        exports.isElement = function(object) {
+          return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
+        };
+        exports.isForwardRef = function(object) {
+          return typeOf(object) === REACT_FORWARD_REF_TYPE;
+        };
+        exports.isFragment = function(object) {
+          return typeOf(object) === REACT_FRAGMENT_TYPE;
+        };
+        exports.isLazy = function(object) {
+          return typeOf(object) === REACT_LAZY_TYPE;
+        };
+        exports.isMemo = function(object) {
+          return typeOf(object) === REACT_MEMO_TYPE;
+        };
+        exports.isPortal = function(object) {
+          return typeOf(object) === REACT_PORTAL_TYPE;
+        };
+        exports.isProfiler = function(object) {
+          return typeOf(object) === REACT_PROFILER_TYPE;
+        };
+        exports.isStrictMode = function(object) {
+          return typeOf(object) === REACT_STRICT_MODE_TYPE;
+        };
+        exports.isSuspense = function(object) {
+          return typeOf(object) === REACT_SUSPENSE_TYPE;
+        };
+        exports.isSuspenseList = function(object) {
+          return typeOf(object) === REACT_SUSPENSE_LIST_TYPE;
+        };
+        exports.isValidElementType = function(type) {
+          return "string" === typeof type || "function" === typeof type || type === REACT_FRAGMENT_TYPE || type === REACT_PROFILER_TYPE || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || type === REACT_SUSPENSE_LIST_TYPE || type === REACT_OFFSCREEN_TYPE || "object" === typeof type && null !== type && (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_CONSUMER_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || type.$$typeof === REACT_CLIENT_REFERENCE || void 0 !== type.getModuleId) ? true : false;
+        };
+        exports.typeOf = typeOf;
+      })();
     }
   });
 
@@ -4931,6 +4844,11 @@ var wp;
       support: ["background", "backgroundPosition"],
       useEngine: true
     },
+    backgroundGradient: {
+      value: ["background", "gradient"],
+      support: ["background", "gradient"],
+      useEngine: true
+    },
     borderColor: {
       value: ["border", "color"],
       support: ["__experimentalBorder", "color"],
@@ -5097,6 +5015,11 @@ var wp;
       support: ["dimensions", "minHeight"],
       useEngine: true
     },
+    minWidth: {
+      value: ["dimensions", "minWidth"],
+      support: ["dimensions", "minWidth"],
+      useEngine: true
+    },
     height: {
       value: ["dimensions", "height"],
       support: ["dimensions", "height"],
@@ -5225,7 +5148,10 @@ var wp;
       addBootstrappedBlockType2(name, blockType);
     }
   }
-  function getBlockSettingsFromMetadata({ textdomain, ...metadata }) {
+  function getBlockSettingsFromMetadata({
+    textdomain,
+    ...metadata
+  }) {
     const allowedFields = [
       "apiVersion",
       "title",
@@ -5305,18 +5231,21 @@ var wp;
       );
     }
     if (isObject(i18nSchema) && Object.entries(i18nSchema).length && isObject(settingValue)) {
-      return Object.keys(settingValue).reduce((accumulator, key) => {
-        if (!i18nSchema[key]) {
-          accumulator[key] = settingValue[key];
+      return Object.keys(settingValue).reduce(
+        (accumulator, key) => {
+          if (!i18nSchema[key]) {
+            accumulator[key] = settingValue[key];
+            return accumulator;
+          }
+          accumulator[key] = translateBlockSettingUsingI18nSchema(
+            i18nSchema[key],
+            settingValue[key],
+            textdomain
+          );
           return accumulator;
-        }
-        accumulator[key] = translateBlockSettingUsingI18nSchema(
-          i18nSchema[key],
-          settingValue[key],
-          textdomain
-        );
-        return accumulator;
-      }, {});
+        },
+        {}
+      );
     }
     return settingValue;
   }
@@ -5401,7 +5330,13 @@ var wp;
     return (0, import_data.select)(store).getBlockVariations(blockName, scope);
   };
   var registerBlockVariation = (blockName, variation) => {
-    if (typeof variation.name !== "string") {
+    if (Array.isArray(variation)) {
+      for (const v2 of variation) {
+        if (typeof v2.name !== "string") {
+          (0, import_warning.default)("Variation names must be unique strings.");
+        }
+      }
+    } else if (typeof variation.name !== "string") {
       (0, import_warning.default)("Variation names must be unique strings.");
     }
     (0, import_data.dispatch)(store).addBlockVariations(blockName, variation);
@@ -5512,7 +5447,9 @@ var wp;
     const blockAttributes = getBlockType(block.name)?.attributes ?? {};
     const attributesByRole = role ? Object.entries(blockAttributes).filter(([key, definition]) => {
       if (role === "content" && key === "metadata") {
-        return Object.keys(block.attributes[key]?.bindings ?? {}).length > 0;
+        return Object.keys(
+          block.attributes[key]?.bindings ?? {}
+        ).length > 0;
       }
       return definition.role === role || definition.__experimentalRole === role;
     }) : [];
@@ -5535,23 +5472,24 @@ var wp;
     return !!icon && (typeof icon === "string" || (0, import_element.isValidElement)(icon) || typeof icon === "function" || icon instanceof import_element.Component);
   }
   function normalizeIconObject(icon) {
-    icon = icon || BLOCK_ICON_DEFAULT;
-    if (isValidIcon(icon)) {
-      return { src: icon };
+    const resolvedIcon = icon || BLOCK_ICON_DEFAULT;
+    if (isValidIcon(resolvedIcon)) {
+      return { src: resolvedIcon };
     }
-    if ("background" in icon) {
-      const colordBgColor = w(icon.background);
+    const iconDescriptor = resolvedIcon;
+    if ("background" in iconDescriptor) {
+      const colordBgColor = w(iconDescriptor.background);
       const getColorContrast = (iconColor) => colordBgColor.contrast(iconColor);
       const maxContrast = Math.max(...ICON_COLORS.map(getColorContrast));
       return {
-        ...icon,
-        foreground: icon.foreground ? icon.foreground : ICON_COLORS.find(
+        ...iconDescriptor,
+        foreground: iconDescriptor.foreground ? iconDescriptor.foreground : ICON_COLORS.find(
           (iconColor) => getColorContrast(iconColor) === maxContrast
         ),
         shadowColor: colordBgColor.alpha(0.3).toRgbString()
       };
     }
-    return icon;
+    return iconDescriptor;
   }
   function normalizeBlockType(blockTypeOrName) {
     if (typeof blockTypeOrName === "string") {
@@ -5571,7 +5509,7 @@ var wp;
     return (0, import_dom.__unstableStripHTML)(label);
   }
   function getAccessibleBlockLabel(blockType, attributes, position, direction = "vertical") {
-    const title = blockType?.title;
+    const title = blockType?.title ?? "";
     const label = blockType ? getBlockLabel(blockType, attributes, "accessibility") : "";
     const hasPosition = position !== void 0;
     const hasLabel = label && label !== title;
@@ -5629,6 +5567,7 @@ var wp;
     if (attributeSchema.type === "rich-text") {
       return new import_rich_text.RichTextData();
     }
+    return void 0;
   }
   function isBlockRegistered(name) {
     return getBlockType(name) !== void 0;
@@ -5659,7 +5598,7 @@ var wp;
             accumulator[key] = _default;
           }
         }
-        if (["node", "children"].indexOf(schema.source) !== -1) {
+        if (["node", "children"].indexOf(schema.source ?? "") !== -1) {
           if (typeof accumulator[key] === "string") {
             accumulator[key] = [accumulator[key]];
           } else if (!Array.isArray(accumulator[key])) {
@@ -5721,8 +5660,11 @@ var wp;
     });
   }
   function omit(object, keys) {
+    const keysArray = Array.isArray(keys) ? keys : [keys];
     return Object.fromEntries(
-      Object.entries(object).filter(([key]) => !keys.includes(key))
+      Object.entries(object).filter(
+        ([key]) => !keysArray.includes(key)
+      )
     );
   }
 
@@ -6038,7 +5980,7 @@ var wp;
     return value ?? defaultValue;
   };
   function isObject2(candidate) {
-    return typeof candidate === "object" && candidate.constructor === Object && candidate !== null;
+    return typeof candidate === "object" && candidate !== null && candidate.constructor === Object;
   }
   function matchesAttributes(blockAttributes, variationAttributes) {
     if (isObject2(blockAttributes) && isObject2(variationAttributes)) {
@@ -6126,28 +6068,30 @@ var wp;
         return [];
       }
       const supportKeys = [];
-      if (blockType?.supports?.spacing?.blockGap) {
+      const supports = blockType?.supports;
+      if (supports?.spacing?.blockGap) {
         supportKeys.push("blockGap");
       }
-      if (blockType?.supports?.shadow) {
+      if (supports?.shadow) {
         supportKeys.push("shadow");
       }
-      Object.keys(__EXPERIMENTAL_STYLE_PROPERTY).forEach((styleName) => {
-        if (!__EXPERIMENTAL_STYLE_PROPERTY[styleName].support) {
+      const stylePropertyMap = __EXPERIMENTAL_STYLE_PROPERTY;
+      Object.keys(stylePropertyMap).forEach((styleName) => {
+        if (!stylePropertyMap[styleName].support) {
           return;
         }
-        if (__EXPERIMENTAL_STYLE_PROPERTY[styleName].requiresOptOut) {
-          if (__EXPERIMENTAL_STYLE_PROPERTY[styleName].support[0] in blockType.supports && getValueFromObjectPath(
-            blockType.supports,
-            __EXPERIMENTAL_STYLE_PROPERTY[styleName].support
+        if (stylePropertyMap[styleName].requiresOptOut) {
+          if (supports && stylePropertyMap[styleName].support[0] in supports && getValueFromObjectPath(
+            supports,
+            stylePropertyMap[styleName].support
           ) !== false) {
             supportKeys.push(styleName);
             return;
           }
         }
-        if (getValueFromObjectPath(
-          blockType.supports,
-          __EXPERIMENTAL_STYLE_PROPERTY[styleName].support,
+        if (supports && getValueFromObjectPath(
+          supports,
+          stylePropertyMap[styleName].support,
           false
         )) {
           supportKeys.push(styleName);
@@ -6155,7 +6099,9 @@ var wp;
       });
       return filterElementBlockSupports(supportKeys, name, element);
     },
-    (state, name) => [state.blockTypes[name]]
+    (state, name) => [
+      state.blockTypes[name]
+    ]
   );
   function getBootstrappedBlockType(state, name) {
     return state.bootstrappedBlockTypes[name];
@@ -6183,11 +6129,7 @@ var wp;
         }
         return source.getFieldsList({ select: select3, context });
       },
-      (state, source, blockContext) => [
-        source.getFieldsList,
-        source.usesContext,
-        blockContext
-      ]
+      (state, source, blockContext) => [source.getFieldsList, source.usesContext, blockContext]
     )
   );
   var hasContentRoleAttribute = (state, blockTypeName) => {
@@ -6238,7 +6180,9 @@ var wp;
         );
       });
     },
-    (state, blockName) => [state.blockVariations[blockName]]
+    (state, blockName) => [
+      state.blockVariations[blockName]
+    ]
   );
   function getActiveBlockVariation(state, blockName, attributes, scope) {
     const variations = getBlockVariations2(state, blockName, scope);
@@ -6285,7 +6229,10 @@ var wp;
           match = variation;
           maxMatchedAttributes = definedAttributesLength;
         }
-      } else if (variation.isActive?.(attributes, variation.attributes)) {
+      } else if (variation.isActive?.(
+        attributes,
+        variation.attributes
+      )) {
         return match || variation;
       }
     }
@@ -6298,8 +6245,8 @@ var wp;
   }
   function getDefaultBlockVariation(state, blockName, scope) {
     const variations = getBlockVariations2(state, blockName, scope);
-    const defaultVariation = [...variations].reverse().find(({ isDefault }) => !!isDefault);
-    return defaultVariation || variations[0];
+    const defaultVariation = [...variations || []].reverse().find(({ isDefault }) => !!isDefault);
+    return defaultVariation || variations?.[0];
   }
   function getCategories(state) {
     return state.categories;
@@ -6348,7 +6295,7 @@ var wp;
     const blockType = getNormalizedBlockType(state, nameOrType);
     const normalizedSearchTerm = getNormalizedSearchTerm(searchTerm);
     const isSearchMatch = (candidate) => getNormalizedSearchTerm(candidate).includes(normalizedSearchTerm);
-    return isSearchMatch(blockType.title) || blockType.keywords?.some(isSearchMatch) || isSearchMatch(blockType.category) || typeof blockType.description === "string" && isSearchMatch(blockType.description);
+    return isSearchMatch(blockType?.title) || blockType?.keywords?.some(isSearchMatch) || isSearchMatch(blockType?.category) || typeof blockType?.description === "string" && isSearchMatch(blockType.description);
   }
   var hasChildBlocks2 = (state, blockName) => {
     return getChildBlockNames2(state, blockName).length > 0;
@@ -6430,7 +6377,9 @@ var wp;
     });
     return result;
   }
-  var processBlockType = (name, blockSettings) => ({ select: select3 }) => {
+  var processBlockType = (name, blockSettings) => ({
+    select: select3
+  }) => {
     const bootstrappedBlockType = select3.getBootstrappedBlockType(name);
     const blockType = {
       apiVersion: 1,
@@ -6517,7 +6466,9 @@ var wp;
     if (LEGACY_CATEGORY_MAPPING.hasOwnProperty(settings.category)) {
       settings.category = LEGACY_CATEGORY_MAPPING[settings.category];
     }
-    if ("category" in settings && !select3.getCategories().some(({ slug }) => slug === settings.category)) {
+    if ("category" in settings && !select3.getCategories().some(
+      ({ slug }) => slug === settings.category
+    )) {
       (0, import_warning2.default)(
         'The block "' + name + '" is registered with an invalid category "' + settings.category + '".'
       );
@@ -6546,8 +6497,7 @@ var wp;
     }
     if (!Array.isArray(settings?.parent) && settings?.parent !== void 0) {
       (0, import_warning2.default)(
-        "Parent must be undefined or an array of block types, but it is ",
-        settings.parent
+        "Parent must be undefined or an array of block types, but it is " + settings.parent
       );
       return;
     }
@@ -6739,45 +6689,41 @@ var wp;
   unlock(store).registerPrivateSelectors(private_selectors_exports);
   unlock(store).registerPrivateActions(private_actions_exports);
 
-  // node_modules/uuid/dist/esm-browser/rng.js
-  var getRandomValues;
-  var rnds8 = new Uint8Array(16);
-  function rng() {
-    if (!getRandomValues) {
-      getRandomValues = typeof crypto !== "undefined" && crypto.getRandomValues && crypto.getRandomValues.bind(crypto);
-      if (!getRandomValues) {
-        throw new Error("crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported");
-      }
-    }
-    return getRandomValues(rnds8);
-  }
-
-  // node_modules/uuid/dist/esm-browser/stringify.js
+  // node_modules/uuid/dist/stringify.js
   var byteToHex = [];
   for (let i2 = 0; i2 < 256; ++i2) {
     byteToHex.push((i2 + 256).toString(16).slice(1));
   }
   function unsafeStringify(arr, offset = 0) {
-    return byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + "-" + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + "-" + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + "-" + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + "-" + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]];
+    return (byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + "-" + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + "-" + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + "-" + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + "-" + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]]).toLowerCase();
   }
 
-  // node_modules/uuid/dist/esm-browser/native.js
-  var randomUUID = typeof crypto !== "undefined" && crypto.randomUUID && crypto.randomUUID.bind(crypto);
-  var native_default = {
-    randomUUID
-  };
+  // node_modules/uuid/dist/rng.js
+  var rnds8 = new Uint8Array(16);
+  function rng() {
+    return crypto.getRandomValues(rnds8);
+  }
 
-  // node_modules/uuid/dist/esm-browser/v4.js
+  // node_modules/uuid/dist/v4.js
   function v4(options, buf, offset) {
-    if (native_default.randomUUID && !buf && !options) {
-      return native_default.randomUUID();
+    if (!buf && !options && crypto.randomUUID) {
+      return crypto.randomUUID();
     }
+    return _v4(options, buf, offset);
+  }
+  function _v4(options, buf, offset) {
     options = options || {};
-    const rnds = options.random || (options.rng || rng)();
+    const rnds = options.random ?? options.rng?.() ?? rng();
+    if (rnds.length < 16) {
+      throw new Error("Random bytes length must be >= 16");
+    }
     rnds[6] = rnds[6] & 15 | 64;
     rnds[8] = rnds[8] & 63 | 128;
     if (buf) {
       offset = offset || 0;
+      if (offset < 0 || offset + 16 > buf.length) {
+        throw new RangeError(`UUID byte range ${offset}:${offset + 15} is out of buffer bounds`);
+      }
       for (let i2 = 0; i2 < 16; ++i2) {
         buf[offset + i2] = rnds[i2];
       }
@@ -6821,7 +6767,9 @@ var wp;
       return createBlock(
         name,
         attributes,
-        createBlocksFromInnerBlocksTemplate(innerBlocks)
+        createBlocksFromInnerBlocksTemplate(
+          innerBlocks
+        )
       );
     });
   }
@@ -6920,9 +6868,9 @@ var wp;
       return transform && isPossibleTransformForSource(transform, "to", blocks);
     });
     const blockNames = possibleTransforms.map((transformation) => transformation.blocks).flat();
-    return blockNames.map(getBlockType);
+    return blockNames.filter((name) => !!name).map(getBlockType).filter((bt) => !!bt);
   };
-  var isWildcardBlockTransform = (t3) => t3 && t3.type === "block" && Array.isArray(t3.blocks) && t3.blocks.includes("*");
+  var isWildcardBlockTransform = (t3) => !!t3 && t3.type === "block" && Array.isArray(t3.blocks) && t3.blocks.includes("*");
   var isContainerGroupBlock = (name) => name === getGroupingBlockName();
   function getPossibleBlockTransformations(blocks) {
     if (!blocks.length) {
@@ -6958,11 +6906,12 @@ var wp;
     }
     const blockType = normalizeBlockType(blockTypeOrName);
     const { name: blockName, transforms } = blockType || {};
-    if (!transforms || !Array.isArray(transforms[direction])) {
+    const directionTransforms = transforms?.[direction];
+    if (!transforms || !Array.isArray(directionTransforms)) {
       return [];
     }
     const usingMobileTransformations = transforms.supportedMobileTransforms && Array.isArray(transforms.supportedMobileTransforms);
-    const filteredTransforms = usingMobileTransformations ? transforms[direction].filter((t3) => {
+    const filteredTransforms = usingMobileTransformations ? directionTransforms.filter((t3) => {
       if (t3.type === "raw") {
         return true;
       }
@@ -6980,7 +6929,7 @@ var wp;
           transformBlockName
         )
       );
-    }) : transforms[direction];
+    }) : directionTransforms;
     return filteredTransforms.map((transform) => ({
       ...transform,
       blockName,
@@ -7005,10 +6954,10 @@ var wp;
     const transformationsTo = getBlockTransforms("to", sourceName);
     const transformation = findTransform(
       transformationsTo,
-      (t3) => t3.type === "block" && (isWildcardBlockTransform(t3) || t3.blocks.indexOf(name) !== -1) && (!isMultiBlock || t3.isMultiBlock) && maybeCheckTransformIsMatch(t3, blocksArray)
+      (t3) => t3.type === "block" && (isWildcardBlockTransform(t3) || t3.blocks.indexOf(name) !== -1) && (!isMultiBlock || !!t3.isMultiBlock) && maybeCheckTransformIsMatch(t3, blocksArray)
     ) || findTransform(
       transformationsFrom,
-      (t3) => t3.type === "block" && (isWildcardBlockTransform(t3) || t3.blocks.indexOf(sourceName) !== -1) && (!isMultiBlock || t3.isMultiBlock) && maybeCheckTransformIsMatch(t3, blocksArray)
+      (t3) => t3.type === "block" && (isWildcardBlockTransform(t3) || t3.blocks.indexOf(sourceName) !== -1) && (!isMultiBlock || !!t3.isMultiBlock) && maybeCheckTransformIsMatch(t3, blocksArray)
     );
     if (!transformation) {
       return null;
@@ -7092,7 +7041,7 @@ var wp;
         item !== null ? item : serializeRawBlock(innerBlocks[childIndex++], options)
       )
     ).join("\n").replace(/\n+/g, "\n").trim();
-    return isCommentDelimited ? getCommentDelimitedContent(blockName, attrs, content) : content;
+    return isCommentDelimited ? getCommentDelimitedContent(blockName ?? void 0, attrs, content) : content;
   }
 
   // packages/blocks/build-module/api/serializer.mjs
@@ -7138,16 +7087,20 @@ var wp;
     if (!blockType?.save) {
       return null;
     }
-    let { save } = blockType;
+    let save = blockType.save;
     if (save.prototype instanceof import_element2.Component) {
-      const instance = new save({ attributes });
+      const SaveClass = save;
+      const instance = new SaveClass({ attributes });
       save = instance.render.bind(instance);
     }
     blockPropsProvider.blockType = blockType;
     blockPropsProvider.attributes = attributes;
     innerBlocksPropsProvider.innerBlocks = innerBlocks;
-    let element = save({ attributes, innerBlocks });
-    if (element !== null && typeof element === "object" && (0, import_hooks3.hasFilter)("blocks.getSaveContent.extraProps") && !(blockType.apiVersion > 1)) {
+    let element = save({
+      attributes,
+      innerBlocks
+    });
+    if (element !== null && typeof element === "object" && (0, import_hooks3.hasFilter)("blocks.getSaveContent.extraProps") && !((blockType.apiVersion ?? 0) > 1)) {
       const props = (0, import_hooks3.applyFilters)(
         "blocks.getSaveContent.extraProps",
         { ...element.props },
@@ -7155,7 +7108,10 @@ var wp;
         attributes
       );
       if (!(0, import_is_shallow_equal.isShallowEqual)(props, element.props)) {
-        element = (0, import_element2.cloneElement)(element, props);
+        element = (0, import_element2.cloneElement)(
+          element,
+          props
+        );
       }
     }
     return (0, import_hooks3.applyFilters)(
@@ -7166,7 +7122,12 @@ var wp;
     );
   }
   function getSaveContent(blockTypeOrName, attributes, innerBlocks) {
-    const blockType = normalizeBlockType(blockTypeOrName);
+    const blockType = normalizeBlockType(
+      blockTypeOrName
+    );
+    if (!blockType) {
+      return "";
+    }
     return (0, import_element2.renderToString)(
       getSaveElement(blockType, attributes, innerBlocks)
     );
@@ -7206,7 +7167,7 @@ var wp;
     return JSON.stringify(attributes).replaceAll("\\\\", "\\u005c").replaceAll("--", "\\u002d\\u002d").replaceAll("<", "\\u003c").replaceAll(">", "\\u003e").replaceAll("&", "\\u0026").replaceAll('\\"', "\\u0022");
   }
   function getBlockInnerHTML(block) {
-    let saveContent = block.originalContent;
+    let saveContent = block.originalContent ?? "";
     if (block.isValid || block.innerBlocks.length) {
       try {
         saveContent = getSaveContent(
@@ -7214,7 +7175,7 @@ var wp;
           block.attributes,
           block.innerBlocks
         );
-      } catch (error) {
+      } catch {
       }
     }
     return saveContent;
@@ -8118,7 +8079,10 @@ var wp;
     ...BOOLEAN_ATTRIBUTES,
     ...ENUMERATED_ATTRIBUTES
   ];
-  var TEXT_NORMALIZATIONS = [identity, getTextWithCollapsedWhitespace];
+  var TEXT_NORMALIZATIONS = [
+    identity,
+    getTextWithCollapsedWhitespace
+  ];
   var REGEXP_NAMED_CHARACTER_REFERENCE = /^[\da-z]+$/i;
   var REGEXP_DECIMAL_CHARACTER_REFERENCE = /^#\d+$/;
   var REGEXP_HEXADECIMAL_CHARACTER_REFERENCE = /^#x[\da-f]+$/i;
@@ -8130,14 +8094,15 @@ var wp;
      * Returns a substitute string for an entity string sequence between `&`
      * and `;`, or undefined if no substitution should occur.
      *
-     * @param {string} entity Entity fragment discovered in HTML.
+     * @param entity Entity fragment discovered in HTML.
      *
-     * @return {string | undefined} Entity substitute value.
+     * @return Entity substitute value.
      */
     parse(entity) {
       if (isValidCharacterReference(entity)) {
         return (0, import_html_entities.decodeEntities)("&" + entity + ";");
       }
+      return void 0;
     }
   };
   function getTextPiecesSplitOnWhitespace(text2) {
@@ -8147,7 +8112,7 @@ var wp;
     return getTextPiecesSplitOnWhitespace(text2).join(" ");
   }
   function getMeaningfulAttributePairs(token) {
-    return token.attributes.filter((pair) => {
+    return (token.attributes ?? []).filter((pair) => {
       const [key, value] = pair;
       return value || key.indexOf("data-") === 0 || MEANINGFUL_ATTRIBUTES.includes(key);
     });
@@ -8292,11 +8257,14 @@ var wp;
         return token;
       }
     }
+    return void 0;
   }
   function getHTMLTokens(html2, logger = createLogger()) {
     try {
-      return new Tokenizer(new DecodeEntityParser()).tokenize(html2);
-    } catch (e2) {
+      return new Tokenizer(new DecodeEntityParser()).tokenize(
+        html2
+      );
+    } catch {
       logger.warning("Malformed HTML detected: %s", html2);
     }
     return null;
@@ -8400,7 +8368,9 @@ var wp;
     });
     const blockType = normalizeBlockType(blockTypeOrName);
     const block = {
+      clientId: "",
       name: blockType.name,
+      isValid: true,
       attributes,
       innerBlocks: [],
       originalContent: originalBlockContent
@@ -8445,7 +8415,7 @@ var wp;
     }
     if (name === "core/comments-query-loop") {
       name = "core/comments";
-      const { className = "" } = newAttributes;
+      const className = newAttributes.className ?? "";
       if (!className.includes("wp-block-comments-query-loop")) {
         newAttributes.className = [
           "wp-block-comments-query-loop",
@@ -8457,31 +8427,31 @@ var wp;
       name = "core/comments";
       newAttributes.legacy = true;
     }
-    if (attributes.layout?.type === "grid" && typeof attributes.layout?.columnCount === "string") {
+    const layout = attributes.layout;
+    if (layout?.type === "grid" && typeof layout?.columnCount === "string") {
       newAttributes.layout = {
         ...newAttributes.layout,
-        columnCount: parseInt(attributes.layout.columnCount, 10)
+        columnCount: parseInt(layout.columnCount, 10)
       };
     }
-    if (typeof attributes.style?.layout?.columnSpan === "string") {
-      const columnSpanNumber = parseInt(
-        attributes.style.layout.columnSpan,
-        10
-      );
+    const style = attributes.style;
+    const styleLayout = style?.layout;
+    if (typeof styleLayout?.columnSpan === "string") {
+      const columnSpanNumber = parseInt(styleLayout.columnSpan, 10);
       newAttributes.style = {
         ...newAttributes.style,
         layout: {
-          ...newAttributes.style.layout,
+          ...newAttributes.style?.layout,
           columnSpan: isNaN(columnSpanNumber) ? void 0 : columnSpanNumber
         }
       };
     }
-    if (typeof attributes.style?.layout?.rowSpan === "string") {
-      const rowSpanNumber = parseInt(attributes.style.layout.rowSpan, 10);
+    if (typeof styleLayout?.rowSpan === "string") {
+      const rowSpanNumber = parseInt(styleLayout.rowSpan, 10);
       newAttributes.style = {
         ...newAttributes.style,
         layout: {
-          ...newAttributes.style.layout,
+          ...newAttributes.style?.layout,
           rowSpan: isNaN(rowSpanNumber) ? void 0 : rowSpanNumber
         }
       };
@@ -8696,7 +8666,7 @@ var wp;
     for (let i2 = 0; i2 < domNodes.length; i2++) {
       try {
         result.push(fromDOM2(domNodes[i2]));
-      } catch (error) {
+      } catch {
       }
     }
     return result;
@@ -8744,7 +8714,7 @@ var wp;
       version: "6.3",
       link: "https://developer.wordpress.org/block-editor/how-to-guides/block-tutorial/introducing-attributes-and-editable-fields/"
     });
-    return node && node.type === type;
+    return typeof node !== "string" && node?.type === type;
   }
   function getNamedNodeMapAsObject(nodeMap) {
     const result = {};
@@ -8800,7 +8770,7 @@ var wp;
       }
       try {
         return fromDOM2(match);
-      } catch (error) {
+      } catch {
         return null;
       }
     };
@@ -8839,7 +8809,9 @@ var wp;
   }
   var richText = (selector, preserveWhiteSpace) => (el) => {
     const target = selector ? el.querySelector(selector) : el;
-    return target ? import_rich_text3.RichTextData.fromHTMLElement(target, { preserveWhiteSpace }) : import_rich_text3.RichTextData.empty();
+    return target ? import_rich_text3.RichTextData.fromHTMLElement(target, {
+      preserveWhiteSpace
+    }) : import_rich_text3.RichTextData.empty();
   };
 
   // packages/blocks/build-module/api/parser/get-block-attributes.mjs
@@ -8905,57 +8877,67 @@ var wp;
   function isValidByEnum(value, enumSet) {
     return !Array.isArray(enumSet) || enumSet.includes(value);
   }
-  var matcherFromSource = memize((sourceConfig) => {
-    switch (sourceConfig.source) {
-      case "attribute": {
-        let matcher3 = attr(sourceConfig.selector, sourceConfig.attribute);
-        if (sourceConfig.type === "boolean") {
-          matcher3 = toBooleanAttributeMatcher(matcher3);
+  var matcherFromSource = memize(
+    (sourceConfig) => {
+      switch (sourceConfig.source) {
+        case "attribute": {
+          let matcher3 = attr(
+            sourceConfig.selector,
+            sourceConfig.attribute
+          );
+          if (sourceConfig.type === "boolean") {
+            matcher3 = toBooleanAttributeMatcher(matcher3);
+          }
+          return matcher3;
         }
-        return matcher3;
+        case "html":
+          return html(sourceConfig.selector, sourceConfig.multiline);
+        case "text":
+          return text(sourceConfig.selector);
+        case "rich-text":
+          return richText(
+            sourceConfig.selector,
+            sourceConfig.__unstablePreserveWhiteSpace
+          );
+        case "children":
+          return matcher(sourceConfig.selector);
+        case "node":
+          return matcher2(sourceConfig.selector);
+        case "query":
+          const subMatchers = Object.fromEntries(
+            Object.entries(sourceConfig.query).map(
+              ([key, subSourceConfig]) => [
+                key,
+                matcherFromSource(subSourceConfig)
+              ]
+            )
+          );
+          return query(sourceConfig.selector, subMatchers);
+        case "tag": {
+          const matcher3 = prop(sourceConfig.selector, "nodeName");
+          return (domNode) => matcher3(domNode)?.toLowerCase();
+        }
+        default:
+          console.error(
+            `Unknown source type "${sourceConfig.source}"`
+          );
+          return void 0;
       }
-      case "html":
-        return html(sourceConfig.selector, sourceConfig.multiline);
-      case "text":
-        return text(sourceConfig.selector);
-      case "rich-text":
-        return richText(
-          sourceConfig.selector,
-          sourceConfig.__unstablePreserveWhiteSpace
-        );
-      case "children":
-        return matcher(sourceConfig.selector);
-      case "node":
-        return matcher2(sourceConfig.selector);
-      case "query":
-        const subMatchers = Object.fromEntries(
-          Object.entries(sourceConfig.query).map(
-            ([key, subSourceConfig]) => [
-              key,
-              matcherFromSource(subSourceConfig)
-            ]
-          )
-        );
-        return query(sourceConfig.selector, subMatchers);
-      case "tag": {
-        const matcher3 = prop(sourceConfig.selector, "nodeName");
-        return (domNode) => matcher3(domNode)?.toLowerCase();
-      }
-      default:
-        console.error(`Unknown source type "${sourceConfig.source}"`);
     }
-  });
+  );
   function parseHtml(innerHTML) {
     return parse(innerHTML, (h2) => h2);
   }
   function parseWithAttributeSchema(innerHTML, attributeSchema) {
-    return matcherFromSource(attributeSchema)(parseHtml(innerHTML));
+    return matcherFromSource(attributeSchema)(
+      parseHtml(innerHTML)
+    );
   }
   function getBlockAttributes(blockTypeOrName, innerHTML, attributes = {}) {
     const doc = parseHtml(innerHTML);
     const blockType = normalizeBlockType(blockTypeOrName);
     const blockAttributes = Object.fromEntries(
-      Object.entries(blockType.attributes ?? {}).map(
+      Object.entries(blockType?.attributes ?? {}).map(
         ([key, schema]) => [
           key,
           getBlockAttribute(key, schema, doc, attributes, innerHTML)
@@ -9048,12 +9030,12 @@ var wp;
     updatedBlockAttributes = fixCustomClassname(
       attributes,
       blockType,
-      originalContent
+      originalContent ?? ""
     );
     updatedBlockAttributes = fixGlobalAttribute(
       updatedBlockAttributes,
       blockType,
-      originalContent,
+      originalContent ?? "",
       "ariaLabel",
       "data-aria-label",
       ARIA_LABEL_ATTR_SCHEMA
@@ -9061,7 +9043,7 @@ var wp;
     updatedBlockAttributes = fixGlobalAttribute(
       updatedBlockAttributes,
       blockType,
-      originalContent,
+      originalContent ?? "",
       "anchor",
       "data-anchor",
       ANCHOR_ATTR_SCHEMA
@@ -9077,7 +9059,7 @@ var wp;
     return false;
   }
   function applyBlockDeprecatedVersions(block, rawBlock, blockType) {
-    const parsedAttributes = rawBlock.attrs;
+    const parsedAttributes = rawBlock.attrs ?? {};
     const { deprecated: deprecatedDefinitions } = blockType;
     if (!deprecatedDefinitions || !deprecatedDefinitions.length) {
       return block;
@@ -9091,14 +9073,17 @@ var wp;
         continue;
       }
       const deprecatedBlockType = Object.assign(
-        omit(blockType, DEPRECATED_ENTRY_KEYS),
+        omit(
+          blockType,
+          DEPRECATED_ENTRY_KEYS
+        ),
         deprecatedDefinitions[i2]
       );
       let migratedBlock = {
         ...block,
         attributes: getBlockAttributes(
           deprecatedBlockType,
-          block.originalContent,
+          block.originalContent ?? "",
           parsedAttributes
         )
       };
@@ -9141,7 +9126,7 @@ var wp;
   function convertLegacyBlocks(rawBlock) {
     const [correctName, correctedAttributes] = convertLegacyBlockNameAndAttributes(
       rawBlock.blockName,
-      rawBlock.attrs
+      rawBlock.attrs ?? {}
     );
     return {
       ...rawBlock,
@@ -9250,13 +9235,19 @@ var wp;
     return updatedBlock;
   }
   function parse2(content, options) {
-    return (0, import_block_serialization_default_parser.parse)(content).reduce((accumulator, rawBlock) => {
-      const block = parseRawBlock(rawBlock, options);
-      if (block) {
-        accumulator.push(block);
-      }
-      return accumulator;
-    }, []);
+    return (0, import_block_serialization_default_parser.parse)(content).reduce(
+      (accumulator, rawBlock) => {
+        const block = parseRawBlock(
+          rawBlock,
+          options
+        );
+        if (block) {
+          accumulator.push(block);
+        }
+        return accumulator;
+      },
+      []
+    );
   }
 
   // packages/blocks/build-module/api/raw-handling/index.mjs
@@ -9281,9 +9272,13 @@ var wp;
     const doc = document.implementation.createHTMLDocument("");
     doc.body.innerHTML = html2;
     return Array.from(doc.body.children).flatMap((node) => {
+      const transforms = getRawTransforms();
       const rawTransform = findTransform(
-        getRawTransforms(),
-        ({ isMatch }) => isMatch(node)
+        transforms,
+        ((t3) => {
+          const transform2 = t3;
+          return transform2.isMatch(node);
+        })
       );
       if (!rawTransform) {
         if (import_element4.Platform.isNative) {
@@ -9442,7 +9437,7 @@ var wp;
       return;
     }
     const list = node;
-    const prevElement = node.previousElementSibling;
+    const prevElement = list.previousElementSibling;
     if (prevElement && prevElement.nodeName === node.nodeName && list.children.length === 1) {
       while (list.firstChild) {
         prevElement.appendChild(list.firstChild);
@@ -9460,7 +9455,7 @@ var wp;
       }
     }
     if (parentElement && isList(parentElement)) {
-      const prevListItem = node.previousElementSibling;
+      const prevListItem = list.previousElementSibling;
       if (prevListItem) {
         prevListItem.appendChild(node);
       } else {
@@ -9470,11 +9465,12 @@ var wp;
   }
 
   // packages/blocks/build-module/api/raw-handling/blockquote-normaliser.mjs
-  function blockquoteNormaliser(options) {
-    return (node) => {
-      if (node.nodeName !== "BLOCKQUOTE") {
+  function blockquoteNormaliser(options = {}) {
+    return (bq) => {
+      if (bq.nodeName !== "BLOCKQUOTE") {
         return;
       }
+      const node = bq;
       node.innerHTML = normaliseBlocks(node.innerHTML, options);
     };
   }
@@ -9498,7 +9494,7 @@ var wp;
     figure.appendChild(element);
   }
   function figureContentReducer(node, doc, schema) {
-    if (!isFigureContent(node, schema)) {
+    if (!schema || !isFigureContent(node, schema)) {
       return;
     }
     let nodeToInsert = node;
@@ -9508,9 +9504,10 @@ var wp;
     }
     const wrapper = nodeToInsert.closest("p,div");
     if (wrapper) {
-      if (!node.classList) {
+      const element = node;
+      if (!element.classList) {
         wrapFigureContent(nodeToInsert, wrapper);
-      } else if (node.classList.contains("alignright") || node.classList.contains("alignleft") || node.classList.contains("aligncenter") || !wrapper.textContent.trim()) {
+      } else if (element.classList.contains("alignright") || element.classList.contains("alignleft") || element.classList.contains("aligncenter") || !wrapper.textContent.trim()) {
         wrapFigureContent(nodeToInsert, wrapper);
       }
     } else {
@@ -9521,15 +9518,20 @@ var wp;
   // packages/blocks/build-module/api/raw-handling/shortcode-converter.mjs
   var import_shortcode = __toESM(require_shortcode(), 1);
   var castArray = (maybeArray) => Array.isArray(maybeArray) ? maybeArray : [maybeArray];
-  var beforeLineRegexp = /(\n|<p>)\s*$/;
-  var afterLineRegexp = /^\s*(\n|<\/p>)/;
+  var beforeLineRegexp = /(\n|<p>|<br\s*\/?>)\s*$/;
+  var afterLineRegexp = /^\s*(\n|<\/p>|<br\s*\/?>)/;
   function segmentHTMLToShortcodeBlock(HTML, lastIndex = 0, excludedBlockNames = []) {
-    const transformsFrom = getBlockTransforms("from");
+    const transformsFrom = getBlockTransforms(
+      "from"
+    );
     const transformation = findTransform(
       transformsFrom,
-      (transform) => excludedBlockNames.indexOf(transform.blockName) === -1 && transform.type === "shortcode" && castArray(transform.tag).some(
-        (tag) => (0, import_shortcode.regexp)(tag).test(HTML)
-      )
+      ((transform) => {
+        const t3 = transform;
+        return excludedBlockNames.indexOf(t3.blockName) === -1 && t3.type === "shortcode" && castArray(t3.tag).some(
+          (tag) => (0, import_shortcode.regexp)(tag).test(HTML)
+        );
+      })
     );
     if (!transformation) {
       return [HTML];
@@ -9646,11 +9648,16 @@ var wp;
           if (objValue === "*" || srcValue === "*") {
             return "*";
           }
-          return { ...objValue, ...srcValue };
+          return mergeSchemas(
+            { ...objValue || {} },
+            srcValue || {}
+          );
         }
         case "attributes":
         case "require": {
-          return [...objValue || [], ...srcValue || []];
+          return Array.from(
+            /* @__PURE__ */ new Set([...objValue || [], ...srcValue || []])
+          );
         }
         case "isMatch": {
           if (!objValue || !srcValue) {
@@ -9660,17 +9667,45 @@ var wp;
             return objValue(...args) || srcValue(...args);
           };
         }
+        case "classes": {
+          if ((objValue || []).includes("*") || (srcValue || []).includes("*")) {
+            return ["*"];
+          }
+          return [...objValue || [], ...srcValue || []];
+        }
       }
     }
     function mergeTagNameSchemas(a2, b2) {
+      if (a2 === b2) {
+        return a2;
+      }
       for (const key in b2) {
-        a2[key] = a2[key] ? mergeTagNameSchemaProperties(a2[key], b2[key], key) : { ...b2[key] };
+        if (a2[key]) {
+          a2[key] = mergeTagNameSchemaProperties(
+            a2[key],
+            b2[key],
+            key
+          );
+        } else if (Array.isArray(b2[key])) {
+          a2[key] = b2[key].slice();
+        } else {
+          a2[key] = { ...b2[key] };
+        }
       }
       return a2;
     }
     function mergeSchemas(a2, b2) {
+      if (a2 === b2) {
+        return a2;
+      }
       for (const key in b2) {
-        a2[key] = a2[key] ? mergeTagNameSchemas(a2[key], b2[key]) : { ...b2[key] };
+        if (a2[key]) {
+          a2[key] = mergeTagNameSchemas(a2[key], b2[key]);
+        } else if (Array.isArray(b2[key])) {
+          a2[key] = b2[key].slice();
+        } else {
+          a2[key] = { ...b2[key] };
+        }
       }
       return a2;
     }
@@ -9764,7 +9799,7 @@ var wp;
     );
   }
   function isDoubleBR(node) {
-    return node.nodeName === "BR" && node.previousSibling && node.previousSibling.nodeName === "BR";
+    return node.nodeName === "BR" && !!node.previousSibling && node.previousSibling.nodeName === "BR";
   }
   function isInlineContent(HTML, contextTag) {
     const doc = document.implementation.createHTMLDocument("");
@@ -9784,36 +9819,38 @@ var wp;
         textDecoration,
         verticalAlign
       } = node.style;
+      const element = node;
       if (fontWeight === "bold" || fontWeight === "700") {
-        (0, import_dom9.wrap)(doc.createElement("strong"), node);
+        (0, import_dom9.wrap)(doc.createElement("strong"), element);
       }
       if (fontStyle === "italic") {
-        (0, import_dom9.wrap)(doc.createElement("em"), node);
+        (0, import_dom9.wrap)(doc.createElement("em"), element);
       }
       if (textDecorationLine === "line-through" || textDecoration.includes("line-through")) {
-        (0, import_dom9.wrap)(doc.createElement("s"), node);
+        (0, import_dom9.wrap)(doc.createElement("s"), element);
       }
       if (verticalAlign === "super") {
-        (0, import_dom9.wrap)(doc.createElement("sup"), node);
+        (0, import_dom9.wrap)(doc.createElement("sup"), element);
       } else if (verticalAlign === "sub") {
-        (0, import_dom9.wrap)(doc.createElement("sub"), node);
+        (0, import_dom9.wrap)(doc.createElement("sub"), element);
       }
     } else if (node.nodeName === "B") {
-      node = (0, import_dom9.replaceTag)(node, "strong");
+      (0, import_dom9.replaceTag)(node, "strong");
     } else if (node.nodeName === "I") {
-      node = (0, import_dom9.replaceTag)(node, "em");
+      (0, import_dom9.replaceTag)(node, "em");
     } else if (node.nodeName === "A") {
-      if (node.target && node.target.toLowerCase() === "_blank") {
-        node.rel = "noreferrer noopener";
+      const anchor = node;
+      if (anchor.target && anchor.target.toLowerCase() === "_blank") {
+        anchor.rel = "noopener";
       } else {
-        node.removeAttribute("target");
-        node.removeAttribute("rel");
+        anchor.removeAttribute("target");
+        anchor.removeAttribute("rel");
       }
-      if (node.name && !node.id) {
-        node.id = node.name;
+      if (anchor.name && !anchor.id) {
+        anchor.id = anchor.name;
       }
-      if (node.id && !node.ownerDocument.querySelector(`[href="#${node.id}"]`)) {
-        node.removeAttribute("id");
+      if (anchor.id && !anchor.ownerDocument.querySelector(`[href="#${anchor.id}"]`)) {
+        anchor.removeAttribute("id");
       }
     }
   }
@@ -9831,19 +9868,23 @@ var wp;
     if (node.nodeType !== node.ELEMENT_NODE) {
       return;
     }
-    const style = node.getAttribute("style");
+    const el = node;
+    const style = el.getAttribute("style");
     if (!style || !style.includes("mso-list")) {
       return;
     }
-    const rules = style.split(";").reduce((acc, rule) => {
-      const [key, value] = rule.split(":");
-      if (key && value) {
-        acc[key.trim().toLowerCase()] = value.trim().toLowerCase();
-      }
-      return acc;
-    }, {});
+    const rules = style.split(";").reduce(
+      (acc, rule) => {
+        const [key, value] = rule.split(":");
+        if (key && value) {
+          acc[key.trim().toLowerCase()] = value.trim().toLowerCase();
+        }
+        return acc;
+      },
+      {}
+    );
     if (rules["mso-list"] === "ignore") {
-      node.remove();
+      el.remove();
     }
   }
 
@@ -9855,25 +9896,26 @@ var wp;
     if (node.nodeName !== "P") {
       return;
     }
-    const style = node.getAttribute("style");
+    const element = node;
+    const style = element.getAttribute("style");
     if (!style || !style.includes("mso-list")) {
       return;
     }
-    const prevNode = node.previousElementSibling;
+    const prevNode = element.previousElementSibling;
     if (!prevNode || !isList2(prevNode)) {
-      const type = node.textContent.trim().slice(0, 1);
+      const type = element.textContent.trim().slice(0, 1);
       const isNumeric = /[1iIaA]/.test(type);
       const newListNode = doc.createElement(isNumeric ? "ol" : "ul");
       if (isNumeric) {
         newListNode.setAttribute("type", type);
       }
-      node.parentNode.insertBefore(newListNode, node);
+      element.parentNode.insertBefore(newListNode, element);
     }
-    const listNode = node.previousElementSibling;
+    const listNode = element.previousElementSibling;
     const listType = listNode.nodeName;
     const listItem = doc.createElement("li");
     let receivingNode = listNode;
-    listItem.innerHTML = deepFilterHTML(node.innerHTML, [msListIgnore]);
+    listItem.innerHTML = deepFilterHTML(element.innerHTML, [msListIgnore]);
     const matches = /mso-list\s*:[^;]+level([0-9]+)/i.exec(style);
     let level = matches ? parseInt(matches[1], 10) - 1 || 0 : 0;
     while (level--) {
@@ -9888,15 +9930,16 @@ var wp;
       );
     }
     receivingNode.appendChild(listItem);
-    node.parentNode.removeChild(node);
+    element.parentNode.removeChild(element);
   }
 
   // packages/blocks/build-module/api/raw-handling/image-corrector.mjs
   var import_blob = __toESM(require_blob(), 1);
-  function imageCorrector(node) {
-    if (node.nodeName !== "IMG") {
+  function imageCorrector(img) {
+    if (img.nodeName !== "IMG") {
       return;
     }
+    const node = img;
     if (node.src.indexOf("file:") === 0) {
       node.src = "";
     }
@@ -9910,7 +9953,7 @@ var wp;
       let decoded;
       try {
         decoded = atob(data);
-      } catch (e2) {
+      } catch {
         node.src = "";
         return;
       }
@@ -9928,10 +9971,11 @@ var wp;
   }
 
   // packages/blocks/build-module/api/raw-handling/div-normaliser.mjs
-  function divNormaliser(node) {
-    if (node.nodeName !== "DIV") {
+  function divNormaliser(div) {
+    if (div.nodeName !== "DIV") {
       return;
     }
+    const node = div;
     node.innerHTML = normaliseBlocks(node.innerHTML);
   }
 
@@ -9956,15 +10000,30 @@ ${p3}`
   function bulletsToAsterisks(text2) {
     return text2.replace(/(^|\n)•( +)/g, "$1*$2");
   }
+  function escapeSingleLineOrderedListMarker(text2) {
+    if (text2.includes("\n")) {
+      return text2;
+    }
+    return text2.replace(/^(\d+)\.(\s)/, "$1\\.$2");
+  }
+  var correctors = [
+    escapeSingleLineOrderedListMarker,
+    bulletsToAsterisks,
+    slackMarkdownVariantCorrector
+  ];
   function markdownConverter(text2) {
     return converter.makeHtml(
-      slackMarkdownVariantCorrector(bulletsToAsterisks(text2))
+      correctors.reduce(
+        (current, corrector) => corrector(current),
+        text2
+      )
     );
   }
 
   // packages/blocks/build-module/api/raw-handling/iframe-remover.mjs
-  function iframeRemover(node) {
-    if (node.nodeName === "IFRAME") {
+  function iframeRemover(iframe) {
+    if (iframe.nodeName === "IFRAME") {
+      const node = iframe;
       const text2 = node.ownerDocument.createTextNode(node.src);
       node.parentNode.replaceChild(text2, node);
     }
@@ -9973,13 +10032,14 @@ ${p3}`
   // packages/blocks/build-module/api/raw-handling/google-docs-uid-remover.mjs
   var import_dom10 = __toESM(require_dom(), 1);
   function googleDocsUIdRemover(node) {
-    if (!node.id || node.id.indexOf("docs-internal-guid-") !== 0) {
+    const el = node;
+    if (!el.id || el.id.indexOf("docs-internal-guid-") !== 0) {
       return;
     }
-    if (node.tagName === "B") {
+    if (el.tagName === "B") {
       (0, import_dom10.unwrap)(node);
     } else {
-      node.removeAttribute("id");
+      el.removeAttribute("id");
     }
   }
 
@@ -9997,7 +10057,8 @@ ${p3}`
         return;
       }
     }
-    let newData = node.data.replace(/[ \r\n\t]+/g, " ");
+    const textNode = node;
+    let newData = textNode.data.replace(/[ \r\n\t]+/g, " ");
     if (newData[0] === " ") {
       const previousSibling = getSibling(node, "previous");
       if (!previousSibling || previousSibling.nodeName === "BR" || previousSibling.textContent.slice(-1) === " ") {
@@ -10013,7 +10074,7 @@ ${p3}`
     if (!newData) {
       node.parentNode.removeChild(node);
     } else {
-      node.data = newData;
+      textNode.data = newData;
     }
   }
 
@@ -10047,7 +10108,7 @@ ${p3}`
     if (node.getAttribute("data-stringify-type") !== "paragraph-break") {
       return;
     }
-    const { parentNode } = node;
+    const parentNode = node.parentNode;
     parentNode.insertBefore(node.ownerDocument.createElement("br"), node);
     parentNode.insertBefore(node.ownerDocument.createElement("br"), node);
     parentNode.removeChild(node);
@@ -10091,20 +10152,21 @@ ${p3}`
     if (node.nodeType !== node.ELEMENT_NODE) {
       return;
     }
-    if (node.tagName === "P" && node.getAttribute("role") === "heading" && node.hasAttribute("aria-level")) {
-      const level = parseInt(node.getAttribute("aria-level"), 10);
+    const element = node;
+    if (element.tagName === "P" && element.getAttribute("role") === "heading" && element.hasAttribute("aria-level")) {
+      const level = parseInt(element.getAttribute("aria-level"), 10);
       if (level >= 1 && level <= 6) {
         const headingTag = `H${level}`;
-        const newHeading = node.ownerDocument.createElement(headingTag);
-        Array.from(node.attributes).forEach((attr2) => {
+        const newHeading = element.ownerDocument.createElement(headingTag);
+        Array.from(element.attributes).forEach((attr2) => {
           if (attr2.name !== "role" && attr2.name !== "aria-level") {
             newHeading.setAttribute(attr2.name, attr2.value);
           }
         });
-        while (node.firstChild) {
-          newHeading.appendChild(node.firstChild);
+        while (element.firstChild) {
+          newHeading.appendChild(element.firstChild);
         }
-        node.parentNode.replaceChild(newHeading, node);
+        element.parentNode.replaceChild(newHeading, element);
       }
     }
   }
@@ -10119,9 +10181,11 @@ ${p3}`
       phrasingContentReducer,
       commentRemover
     ]);
-    HTML = (0, import_dom11.removeInvalidHTML)(HTML, (0, import_dom11.getPhrasingContentSchema)("paste"), {
-      inline: true
-    });
+    HTML = (0, import_dom11.removeInvalidHTML)(
+      HTML,
+      (0, import_dom11.getPhrasingContentSchema)("paste"),
+      true
+    );
     HTML = deepFilterHTML(HTML, [htmlFormattingRemover, brRemover]);
     log("Processed inline HTML:\n\n", HTML);
     return HTML;
@@ -10153,9 +10217,7 @@ ${p3}`
         }
       }
     }
-    if (String.prototype.normalize) {
-      HTML = HTML.normalize();
-    }
+    HTML = HTML.normalize();
     HTML = deepFilterHTML(HTML, [slackParagraphCorrector]);
     const isPlainText = plainText && (!HTML || isPlain(HTML));
     if (isPlainText && isLatexMathMode(plainText)) {
@@ -10207,7 +10269,7 @@ ${p3}`
         ...phrasingContentSchema
       };
       piece = deepFilterHTML(piece, filters, blockContentSchema);
-      piece = (0, import_dom11.removeInvalidHTML)(piece, schema);
+      piece = (0, import_dom11.removeInvalidHTML)(piece, schema, false);
       piece = normaliseBlocks(piece);
       piece = deepFilterHTML(
         piece,
@@ -10223,7 +10285,8 @@ ${p3}`
       if (trimmedPlainText !== "" && trimmedPlainText.indexOf("\n") === -1) {
         return (0, import_dom11.removeInvalidHTML)(
           getBlockInnerHTML(blocks[0]),
-          phrasingContentSchema
+          phrasingContentSchema,
+          false
         ).replace(trimRegex, "");
       }
     }
@@ -10307,9 +10370,11 @@ ${p3}`
       return (0, import_element5.renderToString)(value);
     }
     if (isQueryAttribute(definition) && value) {
-      return value.map((subValues) => {
-        return normalizeAttributes(definition.query, subValues);
-      });
+      return value.map(
+        (subValues) => {
+          return normalizeAttributes(definition.query, subValues);
+        }
+      );
     }
     return value;
   }
@@ -10373,7 +10438,7 @@ react-is/cjs/react-is.development.js:
    * @license React
    * react-is.development.js
    *
-   * Copyright (c) Facebook, Inc. and its affiliates.
+   * Copyright (c) Meta Platforms, Inc. and affiliates.
    *
    * This source code is licensed under the MIT license found in the
    * LICENSE file in the root directory of this source tree.
@@ -10390,3 +10455,4 @@ is-plain-object/dist/is-plain-object.mjs:
    * Released under the MIT License.
    *)
 */
+if(wp.blocks&&typeof wp.blocks==='object'){wp.blocks=Object.assign({},wp.blocks);}

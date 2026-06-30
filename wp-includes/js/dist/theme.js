@@ -72,7 +72,8 @@ var wp;
   var import_element = __toESM(require_element(), 1);
   var ThemeContext = (0, import_element.createContext)({
     resolvedSettings: {
-      color: {}
+      color: {},
+      cursor: void 0
     }
   });
 
@@ -2518,33 +2519,13 @@ var wp;
     return ret;
   }
 
-  // packages/theme/node_modules/colorjs.io/src/spaces/p3-linear.js
-  var toXYZ_M = [
-    [0.4865709486482162, 0.26566769316909306, 0.1982172852343625],
-    [0.2289745640697488, 0.6917385218365064, 0.079286914093745],
-    [0, 0.04511338185890264, 1.043944368900976]
-  ];
-  var fromXYZ_M = [
-    [2.493496911941425, -0.9313836179191239, -0.40271078445071684],
-    [-0.8294889695615747, 1.7626640603183463, 0.023624685841943577],
-    [0.03584583024378447, -0.07617238926804182, 0.9568845240076872]
-  ];
-  var p3_linear_default = new RGBColorSpace({
-    id: "p3-linear",
-    cssId: "display-p3-linear",
-    name: "Linear P3",
-    white: "D65",
-    toXYZ_M,
-    fromXYZ_M
-  });
-
   // packages/theme/node_modules/colorjs.io/src/spaces/srgb-linear.js
-  var toXYZ_M2 = [
+  var toXYZ_M = [
     [0.41239079926595934, 0.357584339383878, 0.1804807884018343],
     [0.21263900587151027, 0.715168678767756, 0.07219231536073371],
     [0.01933081871559182, 0.11919477979462598, 0.9505321522496607]
   ];
-  var fromXYZ_M2 = [
+  var fromXYZ_M = [
     [3.2409699419045226, -1.537383177570094, -0.4986107602930034],
     [-0.9692436362808796, 1.8759675015077202, 0.04155505740717559],
     [0.05563007969699366, -0.20397695888897652, 1.0569715142428786]
@@ -2553,8 +2534,8 @@ var wp;
     id: "srgb-linear",
     name: "Linear sRGB",
     white: "D65",
-    toXYZ_M: toXYZ_M2,
-    fromXYZ_M: fromXYZ_M2
+    toXYZ_M,
+    fromXYZ_M
   });
 
   // packages/theme/node_modules/colorjs.io/src/keywords.js
@@ -2823,17 +2804,6 @@ var wp;
     }
   });
 
-  // packages/theme/node_modules/colorjs.io/src/spaces/p3.js
-  var p3_default = new RGBColorSpace({
-    id: "p3",
-    cssId: "display-p3",
-    name: "P3",
-    base: p3_linear_default,
-    // Gamma encoding/decoding is the same as sRGB
-    fromBase: srgb_default.fromBase,
-    toBase: srgb_default.toBase
-  });
-
   // packages/theme/node_modules/colorjs.io/src/luminance.js
   function getLuminance(color) {
     return get(color, [xyz_d65_default, "y"]);
@@ -3030,12 +3000,6 @@ var wp;
   // packages/theme/build-module/use-theme-provider-styles.mjs
   var import_element2 = __toESM(require_element(), 1);
 
-  // packages/theme/build-module/color-ramps/lib/register-color-spaces.mjs
-  ColorSpace.register(srgb_default);
-  ColorSpace.register(oklch_default);
-  ColorSpace.register(p3_default);
-  ColorSpace.register(hsl_default);
-
   // packages/theme/build-module/prebuilt/ts/color-tokens.mjs
   var color_tokens_default = {
     "primary-bgFill1": ["bg-interactive-brand-strong"],
@@ -3154,19 +3118,31 @@ var wp;
 
   // packages/theme/build-module/color-ramps/lib/color-utils.mjs
   function getColorString(color) {
+    ColorSpace.register(srgb_default);
     const rgbRounded = serialize(to(color, srgb_default));
     return serialize(rgbRounded, { format: "hex" });
   }
   function getContrast(colorA, colorB) {
+    ColorSpace.register(srgb_default);
     return contrastWCAG21(colorA, colorB);
   }
   function clampToGamut(c) {
+    ColorSpace.register(srgb_default);
+    ColorSpace.register(oklch_default);
     return to(toGamut(c, { space: srgb_default, method: "css" }), oklch_default);
   }
 
   // packages/theme/build-module/color-ramps/lib/constants.mjs
-  var WHITE = to("white", oklch_default);
-  var BLACK = to("black", oklch_default);
+  var WHITE = {
+    space: oklch_default,
+    coords: [1, 0, 0],
+    alpha: 1
+  };
+  var BLACK = {
+    space: oklch_default,
+    coords: [0, 0, 0],
+    alpha: 1
+  };
   var UNIVERSAL_CONTRAST_TOPUP = 0.02;
   var WHITE_TEXT_CONTRAST_MARGIN = 3.1;
   var ACCENT_SCALE_BASE_LIGHTNESS_THRESHOLDS = {
@@ -3176,7 +3152,7 @@ var wp;
   var CONTRAST_EPSILON = 4e-3;
   var MAX_BISECTION_ITERATIONS = 10;
   var DEFAULT_SEED_COLORS = {
-    bg: "#f8f8f8",
+    bg: "#fcfcfc",
     primary: "#3858e9",
     info: "#0090ff",
     success: "#4ab866",
@@ -3313,6 +3289,7 @@ var wp;
 
   // packages/theme/build-module/color-ramps/lib/taper-chroma.mjs
   function taperChroma(seed, lTarget, options = {}) {
+    ColorSpace.register(oklch_default);
     const gamut = options.gamut ?? srgb_default;
     const alpha = options.alpha ?? 0.65;
     const carry = options.carry ?? 0.5;
@@ -3451,8 +3428,9 @@ var wp;
         }
       }
       return clampToGamut({
-        spaceId: "oklch",
-        coords: [newL, newC, get(seed, [oklch_default, "h"])]
+        space: oklch_default,
+        coords: [newL, newC, get(seed, [oklch_default, "h"])],
+        alpha: seed.alpha
       });
     }
     const mostContrastingL = direction === "lighter" ? 1 : 0;
@@ -4030,7 +4008,7 @@ var wp;
     ],
     [
       "--wp-components-color-background",
-      "var(--wpds-color-bg-surface-neutral-strong, #ffffff)"
+      "var(--wpds-color-bg-surface-neutral-strong, #fff)"
     ],
     [
       "--wp-components-color-foreground",
@@ -4038,31 +4016,31 @@ var wp;
     ],
     [
       "--wp-components-color-foreground-inverted",
-      "var(--wpds-color-bg-surface-neutral, #f8f8f8)"
+      "var(--wpds-color-bg-surface-neutral, #fcfcfc)"
     ],
     [
       "--wp-components-color-gray-100",
-      "var(--wpds-color-bg-surface-neutral, #f8f8f8)"
+      "var(--wpds-color-bg-surface-neutral, #fcfcfc)"
     ],
     [
       "--wp-components-color-gray-200",
-      "var(--wpds-color-stroke-surface-neutral, #d8d8d8)"
+      "var(--wpds-color-stroke-surface-neutral, #dbdbdb)"
     ],
     [
       "--wp-components-color-gray-300",
-      "var(--wpds-color-stroke-surface-neutral, #d8d8d8)"
+      "var(--wpds-color-stroke-surface-neutral, #dbdbdb)"
     ],
     [
       "--wp-components-color-gray-400",
-      "var(--wpds-color-stroke-interactive-neutral, #8a8a8a)"
+      "var(--wpds-color-stroke-interactive-neutral, #8d8d8d)"
     ],
     [
       "--wp-components-color-gray-600",
-      "var(--wpds-color-stroke-interactive-neutral, #8a8a8a)"
+      "var(--wpds-color-stroke-interactive-neutral, #8d8d8d)"
     ],
     [
       "--wp-components-color-gray-700",
-      "var(--wpds-color-fg-content-neutral-weak, #6d6d6d)"
+      "var(--wpds-color-fg-content-neutral-weak, #707070)"
     ],
     [
       "--wp-components-color-gray-800",
@@ -4074,6 +4052,7 @@ var wp;
     return rgb.coords.map((n2) => Math.round((n2 ?? 0) * 255)).join(", ");
   }
   function legacyWpAdminThemeOverridesCSS(accent) {
+    ColorSpace.register(srgb_default);
     const parsedAccent = to(accent, hsl_default);
     const parsedL = parsedAccent.coords[2] ?? 0;
     const darker10 = set(
@@ -4131,21 +4110,24 @@ var wp;
     );
   }
   function useThemeProviderStyles({
-    color = {}
+    color = {},
+    cursor
   } = {}) {
     const { resolvedSettings: inheritedSettings } = (0, import_element2.useContext)(ThemeContext);
     const primary = color.primary ?? inheritedSettings.color?.primary ?? DEFAULT_SEED_COLORS.primary;
     const bg = color.bg ?? inheritedSettings.color?.bg ?? DEFAULT_SEED_COLORS.bg;
+    const cursorControl = cursor?.control ?? inheritedSettings.cursor?.control;
     const resolvedSettings = (0, import_element2.useMemo)(
       () => ({
         color: {
           primary,
           bg
-        }
+        },
+        cursor: cursorControl ? { control: cursorControl } : void 0
       }),
-      [primary, bg]
+      [primary, bg, cursorControl]
     );
-    const themeProviderStyles = (0, import_element2.useMemo)(() => {
+    const colorStyles = (0, import_element2.useMemo)(() => {
       const seeds = {
         ...DEFAULT_SEED_COLORS,
         bg,
@@ -4168,6 +4150,15 @@ var wp;
         computedColorRamps
       });
     }, [primary, bg]);
+    const themeProviderStyles = (0, import_element2.useMemo)(
+      () => ({
+        ...colorStyles,
+        ...cursorControl && {
+          "--wpds-cursor-control": cursorControl
+        }
+      }),
+      [colorStyles, cursorControl]
+    );
     return {
       resolvedSettings,
       themeProviderStyles
@@ -4176,11 +4167,88 @@ var wp;
 
   // packages/theme/build-module/theme-provider.mjs
   var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
-  if (typeof document !== "undefined" && !document.head.querySelector("style[data-wp-hash='662a5161a8']")) {
-    const style = document.createElement("style");
-    style.setAttribute("data-wp-hash", "662a5161a8");
-    style.appendChild(document.createTextNode(".dba930ea7a9438fd__root{display:contents}"));
-    document.head.appendChild(style);
+  var STYLE_HASH_ATTRIBUTE = "data-wp-hash";
+  function getRuntime() {
+    const globalScope = globalThis;
+    if (globalScope.__wpStyleRuntime) {
+      return globalScope.__wpStyleRuntime;
+    }
+    globalScope.__wpStyleRuntime = {
+      documents: /* @__PURE__ */ new Map(),
+      styles: /* @__PURE__ */ new Map(),
+      injectedStyles: /* @__PURE__ */ new WeakMap()
+    };
+    if (typeof document !== "undefined") {
+      registerDocument(document);
+    }
+    return globalScope.__wpStyleRuntime;
+  }
+  function documentContainsStyleHash(targetDocument, hash) {
+    if (!targetDocument.head) {
+      return false;
+    }
+    for (const style of targetDocument.head.querySelectorAll(
+      `style[${STYLE_HASH_ATTRIBUTE}]`
+    )) {
+      if (style.getAttribute(STYLE_HASH_ATTRIBUTE) === hash) {
+        return true;
+      }
+    }
+    return false;
+  }
+  function injectStyle(targetDocument, hash, css) {
+    if (!targetDocument.head) {
+      return;
+    }
+    const runtime = getRuntime();
+    let injectedStyles = runtime.injectedStyles.get(targetDocument);
+    if (!injectedStyles) {
+      injectedStyles = /* @__PURE__ */ new Set();
+      runtime.injectedStyles.set(targetDocument, injectedStyles);
+    }
+    if (injectedStyles.has(hash)) {
+      return;
+    }
+    if (documentContainsStyleHash(targetDocument, hash)) {
+      injectedStyles.add(hash);
+      return;
+    }
+    const style = targetDocument.createElement("style");
+    style.setAttribute(STYLE_HASH_ATTRIBUTE, hash);
+    style.appendChild(targetDocument.createTextNode(css));
+    targetDocument.head.appendChild(style);
+    injectedStyles.add(hash);
+  }
+  function registerDocument(targetDocument) {
+    const runtime = getRuntime();
+    runtime.documents.set(
+      targetDocument,
+      (runtime.documents.get(targetDocument) ?? 0) + 1
+    );
+    for (const [hash, css] of runtime.styles) {
+      injectStyle(targetDocument, hash, css);
+    }
+    return () => {
+      const count = runtime.documents.get(targetDocument);
+      if (count === void 0) {
+        return;
+      }
+      if (count <= 1) {
+        runtime.documents.delete(targetDocument);
+        return;
+      }
+      runtime.documents.set(targetDocument, count - 1);
+    };
+  }
+  function registerStyle(hash, css) {
+    const runtime = getRuntime();
+    runtime.styles.set(hash, css);
+    for (const targetDocument of runtime.documents.keys()) {
+      injectStyle(targetDocument, hash, css);
+    }
+  }
+  if (typeof process === "undefined" || true) {
+    registerStyle("f4e6e06c6a", ".dba930ea7a9438fd__root{display:contents}");
   }
   var style_default = { "root": "dba930ea7a9438fd__root" };
   function cssObjectToText(values) {
@@ -4204,12 +4272,14 @@ var wp;
   var ThemeProvider = ({
     children,
     color = {},
+    cursor,
     isRoot = false,
     density
   }) => {
     const instanceId = (0, import_element3.useId)();
     const { themeProviderStyles, resolvedSettings } = useThemeProviderStyles({
-      color
+      color,
+      cursor
     });
     const contextValue = (0, import_element3.useMemo)(
       () => ({
@@ -4243,3 +4313,4 @@ var wp;
   });
   return __toCommonJS(index_exports);
 })();
+if(wp.theme&&typeof wp.theme==='object'){wp.theme=Object.assign({},wp.theme);}

@@ -46,34 +46,10 @@ var wp;
     }
   });
 
-  // node_modules/react-dom/client.js
+  // vendor-external:react-dom/client
   var require_client = __commonJS({
-    "node_modules/react-dom/client.js"(exports) {
-      "use strict";
-      var m = require_react_dom();
-      if (false) {
-        exports.createRoot = m.createRoot;
-        exports.hydrateRoot = m.hydrateRoot;
-      } else {
-        i = m.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
-        exports.createRoot = function(c, o) {
-          i.usingClientEntryPoint = true;
-          try {
-            return m.createRoot(c, o);
-          } finally {
-            i.usingClientEntryPoint = false;
-          }
-        };
-        exports.hydrateRoot = function(c, h, o) {
-          i.usingClientEntryPoint = true;
-          try {
-            return m.hydrateRoot(c, h, o);
-          } finally {
-            i.usingClientEntryPoint = false;
-          }
-        };
-      }
-      var i;
+    "vendor-external:react-dom/client"(exports, module) {
+      module.exports = window.ReactDOM;
     }
   });
 
@@ -84,9 +60,17 @@ var wp;
     }
   });
 
+  // package-external:@wordpress/deprecated
+  var require_deprecated = __commonJS({
+    "package-external:@wordpress/deprecated"(exports, module) {
+      module.exports = window.wp.deprecated;
+    }
+  });
+
   // packages/element/build-module/index.mjs
   var index_exports = {};
   __export(index_exports, {
+    Activity: () => import_react.Activity,
     Children: () => import_react.Children,
     Component: () => import_react.Component,
     Fragment: () => import_react.Fragment,
@@ -103,30 +87,38 @@ var wp;
     createPortal: () => import_react_dom.createPortal,
     createRef: () => import_react.createRef,
     createRoot: () => import_client.createRoot,
-    findDOMNode: () => import_react_dom.findDOMNode,
+    findDOMNode: () => findDOMNode,
     flushSync: () => import_react_dom.flushSync,
     forwardRef: () => import_react.forwardRef,
-    hydrate: () => import_react_dom.hydrate,
     hydrateRoot: () => import_client.hydrateRoot,
     isEmptyElement: () => isEmptyElement,
     isValidElement: () => import_react.isValidElement,
     lazy: () => import_react.lazy,
     memo: () => import_react.memo,
-    render: () => import_react_dom.render,
+    preconnect: () => import_react_dom.preconnect,
+    prefetchDNS: () => import_react_dom.prefetchDNS,
+    preinit: () => import_react_dom.preinit,
+    preinitModule: () => import_react_dom.preinitModule,
+    preload: () => import_react_dom.preload,
+    preloadModule: () => import_react_dom.preloadModule,
     renderToString: () => serialize_default,
     startTransition: () => import_react.startTransition,
     switchChildrenNodeName: () => switchChildrenNodeName,
-    unmountComponentAtNode: () => import_react_dom.unmountComponentAtNode,
+    use: () => import_react.use,
+    useActionState: () => import_react.useActionState,
     useCallback: () => import_react.useCallback,
     useContext: () => import_react.useContext,
     useDebugValue: () => import_react.useDebugValue,
     useDeferredValue: () => import_react.useDeferredValue,
     useEffect: () => import_react.useEffect,
+    useEffectEvent: () => import_react.useEffectEvent,
+    useFormStatus: () => import_react_dom.useFormStatus,
     useId: () => import_react.useId,
     useImperativeHandle: () => import_react.useImperativeHandle,
     useInsertionEffect: () => import_react.useInsertionEffect,
     useLayoutEffect: () => import_react.useLayoutEffect,
     useMemo: () => import_react.useMemo,
+    useOptimistic: () => import_react.useOptimistic,
     useReducer: () => import_react.useReducer,
     useRef: () => import_react.useRef,
     useState: () => import_react.useState,
@@ -185,7 +177,7 @@ var wp;
       children: []
     };
   }
-  var createInterpolateElement = (interpolatedString, conversionMap) => {
+  function createInterpolateElement(interpolatedString, conversionMap) {
     indoc = interpolatedString;
     offset = 0;
     output = [];
@@ -199,7 +191,7 @@ var wp;
     do {
     } while (proceed(conversionMap));
     return (0, import_react.createElement)(import_react.Fragment, null, ...output);
-  };
+  }
   var isValidConversionMap = (conversionMap) => {
     const isObject2 = typeof conversionMap === "object" && conversionMap !== null;
     const values = isObject2 && Object.values(conversionMap);
@@ -846,7 +838,9 @@ var wp;
         return renderChildren(props.children, props.value, legacyContext);
       case Consumer.$$typeof:
         return renderElement(
-          props.children(context || type._currentValue),
+          props.children(
+            context || type._currentValue || type._context._currentValue
+          ),
           context,
           legacyContext
         );
@@ -952,6 +946,71 @@ var wp;
     return result;
   }
   var serialize_default = renderElement;
+
+  // packages/element/build-module/find-dom-node.mjs
+  var import_deprecated = __toESM(require_deprecated(), 1);
+  var internalsKey = "_reactInternals";
+  var HostComponent = 5;
+  var HostText = 6;
+  function findCurrentFiber(fiber) {
+    if (!fiber.alternate) {
+      return fiber;
+    }
+    let node = fiber;
+    while (node.return) {
+      node = node.return;
+    }
+    if (node.stateNode.current === node) {
+      return fiber;
+    }
+    return fiber.alternate;
+  }
+  function findHostFiber(fiber) {
+    const current = findCurrentFiber(fiber);
+    if (!current) {
+      return null;
+    }
+    return findHostFiberImpl(current);
+  }
+  function findHostFiberImpl(fiber) {
+    if (fiber.tag === HostComponent || fiber.tag === HostText) {
+      return fiber;
+    }
+    let child = fiber.child;
+    while (child) {
+      const hostFiber = findHostFiberImpl(child);
+      if (hostFiber) {
+        return hostFiber;
+      }
+      child = child.sibling;
+    }
+    return null;
+  }
+  function findDOMNode(instance) {
+    (0, import_deprecated.default)("wp.element.findDOMNode", {
+      since: "7.1",
+      alternative: "DOM refs",
+      link: "https://react.dev/reference/react-dom/findDOMNode"
+    });
+    if (instance === null || instance === void 0) {
+      return null;
+    }
+    if (instance.nodeType !== void 0) {
+      return instance;
+    }
+    const fiber = instance[internalsKey];
+    if (fiber === void 0) {
+      if (typeof instance.render === "function") {
+        throw new Error("Unable to find node on an unmounted component.");
+      }
+      const keys = Object.keys(instance).join(",");
+      throw new Error(
+        `Argument appears to not be a ReactComponent. Keys: ${keys}`
+      );
+    }
+    const hostFiber = findHostFiber(fiber);
+    return hostFiber?.stateNode ?? null;
+  }
   return __toCommonJS(index_exports);
 })();
 /*! Bundled license information:
@@ -964,3 +1023,4 @@ is-plain-object/dist/is-plain-object.mjs:
    * Released under the MIT License.
    *)
 */
+if(wp.element&&typeof wp.element==='object'){wp.element=Object.assign({},wp.element);}

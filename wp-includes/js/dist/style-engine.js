@@ -178,7 +178,7 @@ var wp;
   function safeDecodeURI(uri) {
     try {
       return decodeURI(uri);
-    } catch (uriError) {
+    } catch {
       return uri;
     }
   }
@@ -312,6 +312,17 @@ var wp;
       );
     }
   };
+  var minWidth = {
+    name: "minWidth",
+    generate: (style, options) => {
+      return generateRule(
+        style,
+        options,
+        ["dimensions", "minWidth"],
+        "minWidth"
+      );
+    }
+  };
   var aspectRatio = {
     name: "aspectRatio",
     generate: (style, options) => {
@@ -334,31 +345,28 @@ var wp;
       );
     }
   };
-  var dimensions_default = [height, minHeight, aspectRatio, width2];
+  var dimensions_default = [height, minHeight, minWidth, aspectRatio, width2];
 
   // packages/style-engine/build-module/styles/background/index.mjs
   var backgroundImage = {
     name: "backgroundImage",
     generate: (style, options) => {
       const _backgroundImage = style?.background?.backgroundImage;
-      if (typeof _backgroundImage === "object" && _backgroundImage?.url) {
-        return [
-          {
-            selector: options.selector,
-            key: "backgroundImage",
-            // Passed `url` may already be encoded. To prevent double encoding, decodeURI is executed to revert to the original string.
-            value: `url( '${encodeURI(
-              safeDecodeURI(_backgroundImage.url)
-            )}' )`
-          }
-        ];
+      const gradient2 = getCSSValueFromRawStyle(style?.background?.gradient) || "";
+      if (!_backgroundImage && !gradient2) {
+        return [];
       }
-      return generateRule(
-        style,
-        options,
-        ["background", "backgroundImage"],
-        "backgroundImage"
-      );
+      const backgroundImageValue = typeof _backgroundImage === "object" && _backgroundImage?.url ? `url( '${encodeURI(
+        safeDecodeURI(_backgroundImage.url)
+      )}' )` : getCSSValueFromRawStyle(_backgroundImage);
+      const cssValue = [gradient2, backgroundImageValue].filter(Boolean).join(", ");
+      return !!cssValue ? [
+        {
+          selector: options.selector,
+          key: "backgroundImage",
+          value: cssValue
+        }
+      ] : [];
     }
   };
   var backgroundPosition = {
@@ -672,3 +680,4 @@ var wp;
   }
   return __toCommonJS(index_exports);
 })();
+if(wp.styleEngine&&typeof wp.styleEngine==='object'){wp.styleEngine=Object.assign({},wp.styleEngine);}
