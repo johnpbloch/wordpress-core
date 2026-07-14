@@ -66,9 +66,11 @@ var wp;
     "@wordpress/media-editor",
     "@wordpress/media-utils",
     "@wordpress/upload-media",
+    "@wordpress/global-styles-engine",
     "@wordpress/global-styles-ui",
     "@wordpress/ui",
-    "@wordpress/views"
+    "@wordpress/views",
+    "@wordpress/widget-dashboard"
   ];
   var requiredConsent = "I acknowledge private features are not for use in themes or plugins and doing so will break in the next version of WordPress.";
   var __dangerousOptInToUnstableAPIsOnlyForCoreModules = (consent, moduleName) => {
