@@ -20,7 +20,7 @@ var Selection = wp.media.model.Selection,
  * @augments wp.media.controller.State
  * @augments Backbone.Model
  *
- * @param {object}                     [attributes]                         The attributes hash passed to the state.
+ * @param {Object}                     [attributes]                         The attributes hash passed to the state.
  * @param {string}                     [attributes.id=library]              Unique identifier.
  * @param {string}                     attributes.title                     Title for the state. Displays in the frame's title region.
  * @param {boolean|string}             [attributes.multiple=add]            Whether multi-select is enabled. Accepts 'add' or true.
@@ -39,7 +39,7 @@ var Selection = wp.media.model.Selection,
  * @param {boolean}                    [attributes.sortable=true]           Whether the Attachments should be sortable. Depends on the orderby property being set to menuOrder on the attachments collection.
  * @param {boolean}                    [attributes.autoSelect=true]         Whether an uploaded attachment should be automatically added to the selection.
  * @param {boolean}                    [attributes.contentUserSetting=true] Whether the content region's mode should be set and persisted per user.
- * @param {int}                        [attributes.priority=100]            The priority for the state link in the media menu.
+ * @param {number}                     [attributes.priority=100]            The priority for the state link in the media menu.
  * @param {boolean}                    [attributes.syncSelection=false]     Whether the Attachments selection should be persisted from the last state.
  *                                                                          Defaults to false because for this state, because the library of the Edit Gallery state is the selection.
  * @param {string}                     attributes.type                      The collection's media type. (e.g. 'video').
@@ -134,7 +134,7 @@ var Library = wp.media.controller.Library,
  * @augments wp.media.controller.State
  * @augments Backbone.Model
  *
- * @param {object}                     [attributes]                      The attributes hash passed to the state.
+ * @param {Object}                     [attributes]                      The attributes hash passed to the state.
  * @param {string}                     attributes.title                  Title for the state. Displays in the media menu and the frame's title region.
  * @param {wp.media.model.Attachments} [attributes.library]              The attachments collection to edit.
  *                                                                       If one is not supplied, an empty media.model.Selection collection is created.
@@ -147,9 +147,9 @@ var Library = wp.media.controller.Library,
  * @param {boolean}                    [attributes.describe=true]        Whether to offer UI to describe the attachments - e.g. captioning images in a gallery.
  * @param {boolean}                    [attributes.dragInfo=true]        Whether to show instructional text about the attachments being sortable.
  * @param {boolean}                    [attributes.dragInfoText]         Instructional text about the attachments being sortable.
- * @param {int}                        [attributes.idealColumnWidth=170] The ideal column width in pixels for attachments.
+ * @param {number}                     [attributes.idealColumnWidth=170] The ideal column width in pixels for attachments.
  * @param {boolean}                    [attributes.editing=false]        Whether the gallery is being created, or editing an existing instance.
- * @param {int}                        [attributes.priority=60]          The priority for the state link in the media menu.
+ * @param {number}                     [attributes.priority=60]          The priority for the state link in the media menu.
  * @param {boolean}                    [attributes.syncSelection=false]  Whether the Attachments selection should be persisted from the last state.
  *                                                                       Defaults to false for this state, because the library passed in  *is* the selection.
  * @param {view}                       [attributes.SettingsView]         The view to edit the collection instance settings (e.g. Playlist settings with "Show tracklist" checkbox).
@@ -235,7 +235,7 @@ CollectionEdit = Library.extend(/** @lends wp.media.controller.CollectionEdit.pr
 	 *
 	 * @since 3.9.0
 	 *
-	 * @param {wp.media.view.attachmentsBrowser} The attachments browser view.
+	 * @param {wp.media.view.attachmentsBrowser} attachmentsBrowserView The attachments browser view.
 	 */
 	renderSettings: function( attachmentsBrowserView ) {
 		var library = this.get('library'),
@@ -457,6 +457,7 @@ Cropper = wp.media.controller.State.extend(/** @lends wp.media.controller.Croppe
 	 *
 	 * @since 4.2.0
 	 *
+	 * @param {wp.media.model.Attachment} attachment The image attachment.
 	 * @return {$.promise} A jQuery promise with the custom header crop details.
 	 */
 	doCrop: function( attachment ) {
@@ -554,7 +555,7 @@ var l10n = wp.media.view.l10n,
  * @augments wp.media.controller.State
  * @augments Backbone.Model
  *
- * @param {object}                    attributes                      The attributes hash passed to the state.
+ * @param {Object}                    attributes                      The attributes hash passed to the state.
  * @param {wp.media.model.Attachment} attributes.model                The attachment.
  * @param {string}                    [attributes.id=edit-image]      Unique identifier.
  * @param {string}                    [attributes.title=Edit Image]   Title for the state. Displays in the media menu and the frame's title region.
@@ -654,17 +655,17 @@ var l10n = wp.media.view.l10n,
  * @augments wp.media.controller.State
  * @augments Backbone.Model
  *
- * @param {object} attributes                         The attributes hash passed to the state.
+ * @param {Object} attributes                         The attributes hash passed to the state.
  * @param {string} [attributes.id=embed]              Unique identifier.
  * @param {string} [attributes.title=Insert From URL] Title for the state. Displays in the media menu and the frame's title region.
  * @param {string} [attributes.content=embed]         Initial mode for the content region.
  * @param {string} [attributes.menu=default]          Initial mode for the menu region.
  * @param {string} [attributes.toolbar=main-embed]    Initial mode for the toolbar region.
  * @param {string} [attributes.menu=false]            Initial mode for the menu region.
- * @param {int}    [attributes.priority=120]          The priority for the state link in the media menu.
+ * @param {number} [attributes.priority=120]          The priority for the state link in the media menu.
  * @param {string} [attributes.type=link]             The type of embed. Currently only link is supported.
  * @param {string} [attributes.url]                   The embed URL.
- * @param {object} [attributes.metadata={}]           Properties of the embed, which will override attributes.url if set.
+ * @param {Object} [attributes.metadata={}]           Properties of the embed, which will override attributes.url if set.
  */
 Embed = wp.media.controller.State.extend(/** @lends wp.media.controller.Embed.prototype */{
 	defaults: {
@@ -801,7 +802,7 @@ var Attachment = wp.media.model.Attachment,
  * @augments wp.media.controller.State
  * @augments Backbone.Model
  *
- * @param {object}                     [attributes]                          The attributes hash passed to the state.
+ * @param {Object}                     [attributes]                          The attributes hash passed to the state.
  * @param {string}                     [attributes.id=featured-image]        Unique identifier.
  * @param {string}                     [attributes.title=Set Featured Image] Title for the state. Displays in the media menu and the frame's title region.
  * @param {wp.media.model.Attachments} [attributes.library]                  The attachments collection to browse.
@@ -812,7 +813,7 @@ var Attachment = wp.media.model.Attachment,
  * @param {string}                     [attributes.menu=default]             Initial mode for the menu region.
  * @param {string}                     [attributes.router=browse]            Initial mode for the router region.
  * @param {string}                     [attributes.toolbar=featured-image]   Initial mode for the toolbar region.
- * @param {int}                        [attributes.priority=60]              The priority for the state link in the media menu.
+ * @param {number}                     [attributes.priority=60]              The priority for the state link in the media menu.
  * @param {boolean}                    [attributes.searchable=true]          Whether the library is searchable.
  * @param {boolean|string}             [attributes.filterable=false]         Whether the library is filterable, and if so what filters should be shown.
  *                                                                           Accepts 'all', 'uploaded', or 'unattached'.
@@ -1221,7 +1222,7 @@ var State = wp.media.controller.State,
  * @augments wp.media.controller.State
  * @augments Backbone.Model
  *
- * @param {object}                    [attributes]                       The attributes hash passed to the state.
+ * @param {Object}                    [attributes]                       The attributes hash passed to the state.
  * @param {string}                    [attributes.id=image-details]      Unique identifier.
  * @param {string}                    [attributes.title=Image Details]   Title for the state. Displays in the frame's title region.
  * @param {wp.media.model.Attachment} attributes.image                   The image's model.
@@ -1230,7 +1231,7 @@ var State = wp.media.controller.State,
  * @param {string|false}              [attributes.router=false]          Initial mode for the router region.
  * @param {string|false}              [attributes.toolbar=image-details] Initial mode for the toolbar region.
  * @param {boolean}                   [attributes.editing=false]         Unused.
- * @param {int}                       [attributes.priority=60]           Unused.
+ * @param {number}                    [attributes.priority=60]           Unused.
  *
  * @todo This state inherits some defaults from media.controller.Library.prototype.defaults,
  *       however this may not do anything.
@@ -1250,7 +1251,7 @@ ImageDetails = State.extend(/** @lends wp.media.controller.ImageDetails.prototyp
 	/**
 	 * @since 3.9.0
 	 *
-	 * @param options Attributes
+	 * @param {Object} options Attributes.
 	 */
 	initialize: function( options ) {
 		this.image = options.image;
@@ -1290,7 +1291,7 @@ var l10n = wp.media.view.l10n,
  * @augments Backbone.Model
  * @mixes media.selectionSync
  *
- * @param {object}                          [attributes]                         The attributes hash passed to the state.
+ * @param {Object}                          [attributes]                         The attributes hash passed to the state.
  * @param {string}                          [attributes.id=library]              Unique identifier.
  * @param {string}                          [attributes.title=Media library]     Title for the state. Displays in the media menu and the frame's title region.
  * @param {wp.media.model.Attachments}      [attributes.library]                 The attachments collection to browse.
@@ -1428,7 +1429,7 @@ Library = wp.media.controller.State.extend(/** @lends wp.media.controller.Librar
 	 * @since 3.5.0
 	 *
 	 * @param {wp.media.model.Attachment} attachment
-	 * @return {Backbone.Model}
+	 * @return {Backbone.Model} A model representing the display settings for the attachment.
 	 */
 	display: function( attachment ) {
 		var displays = this._displays;
@@ -1445,7 +1446,7 @@ Library = wp.media.controller.State.extend(/** @lends wp.media.controller.Librar
 	 * @since 3.6.0
 	 *
 	 * @param {wp.media.model.Attachment} attachment
-	 * @return {Object}
+	 * @return {Object} The default display settings for the attachment.
 	 */
 	defaultDisplaySettings: function( attachment ) {
 		var settings = _.clone( this._defaultDisplaySettings );
@@ -1466,7 +1467,7 @@ Library = wp.media.controller.State.extend(/** @lends wp.media.controller.Librar
 	 * @since 4.4.1
 	 *
 	 * @param {wp.media.model.Attachment} attachment
-	 * @return {boolean}
+	 * @return {boolean} True if the attachment is an image, false otherwise.
 	 */
 	isImageAttachment: function( attachment ) {
 		// If uploading, we know the filename but not the mime type.
@@ -1483,7 +1484,7 @@ Library = wp.media.controller.State.extend(/** @lends wp.media.controller.Librar
 	 * @since 3.6.0
 	 *
 	 * @param {wp.media.model.Attachment} attachment
-	 * @return {boolean}
+	 * @return {boolean} True if the attachment can be embedded, false otherwise.
 	 */
 	canEmbed: function( attachment ) {
 		// If uploading, we know the filename but not the mime type.
@@ -1601,7 +1602,7 @@ MediaLibrary = Library.extend(/** @lends wp.media.controller.MediaLibrary.protot
 	/**
 	 * @since 3.9.0
 	 *
-	 * @param options
+	 * @param {Object} options Attributes.
 	 */
 	initialize: function( options ) {
 		this.media = options.media;
@@ -1728,8 +1729,8 @@ _.extend( Region.prototype,/** @lends wp.media.controller.Region.prototype */{
 		 * Region view creation takes place in an event callback on the frame.
 		 *
 		 * @event wp.media.controller.Region#create
-		 * @type {object}
-		 * @property {object} view
+		 * @type {Object}
+		 * @property {Object} view
 		 */
 		this.trigger( 'create', set );
 		view = set.view;
@@ -1740,7 +1741,7 @@ _.extend( Region.prototype,/** @lends wp.media.controller.Region.prototype */{
 		 * Region view creation takes place in an event callback on the frame.
 		 *
 		 * @event wp.media.controller.Region#render
-		 * @type {object}
+		 * @type {Object}
 		 */
 		this.trigger( 'render', view );
 		if ( view ) {
@@ -1754,7 +1755,7 @@ _.extend( Region.prototype,/** @lends wp.media.controller.Region.prototype */{
 	 *
 	 * @since 3.5.0
 	 *
-	 * @return {wp.media.View}
+	 * @return {wp.media.View} Returns the region's view.
 	 */
 	get: function() {
 		return this.view.views.first( this.selector );
@@ -1829,7 +1830,7 @@ var Library = wp.media.controller.Library,
  * @augments wp.media.controller.State
  * @augments Backbone.Model
  *
- * @param {object}                     [attributes]                         The attributes hash passed to the state.
+ * @param {Object}                     [attributes]                         The attributes hash passed to the state.
  * @param {string}                     [attributes.id=replace-image]        Unique identifier.
  * @param {string}                     [attributes.title=Replace Image]     Title for the state. Displays in the media menu and the frame's title region.
  * @param {wp.media.model.Attachments} [attributes.library]                 The attachments collection to browse.
@@ -1840,7 +1841,7 @@ var Library = wp.media.controller.Library,
  * @param {string}                     [attributes.menu=default]            Initial mode for the menu region.
  * @param {string}                     [attributes.router=browse]           Initial mode for the router region.
  * @param {string}                     [attributes.toolbar=replace]         Initial mode for the toolbar region.
- * @param {int}                        [attributes.priority=60]             The priority for the state link in the media menu.
+ * @param {number}                     [attributes.priority=60]             The priority for the state link in the media menu.
  * @param {boolean}                    [attributes.searchable=true]         Whether the library is searchable.
  * @param {boolean|string}             [attributes.filterable=uploaded]     Whether the library is filterable, and if so what filters should be shown.
  *                                                                          Accepts 'all', 'uploaded', or 'unattached'.
@@ -1865,7 +1866,7 @@ ReplaceImage = Library.extend(/** @lends wp.media.controller.ReplaceImage.protot
 	/**
 	 * @since 3.9.0
 	 *
-	 * @param options
+	 * @param {Object} options Attributes.
 	 */
 	initialize: function( options ) {
 		var library, comparator;
@@ -2089,8 +2090,8 @@ _.extend( StateMachine.prototype, Backbone.Events,/** @lends wp.media.controller
 	 *
 	 * @since 3.5.0
 	 *
-	 * @return {wp.media.controller.State} Returns a State model from
-	 *                                     the StateMachine collection.
+	 * @return {void|wp.media.controller.State} Returns a State model from
+	 *                                          the StateMachine collection.
 	 */
 	lastState: function() {
 		if ( this._lastState ) {
@@ -2268,6 +2269,7 @@ var State = Backbone.Model.extend(/** @lends wp.media.controller.State.prototype
 	},
 
 	/**
+	 * @param {media.view.Title} view The title view.
 	 * @since 3.5.0
 	 * @access private
 	 */
@@ -2511,7 +2513,7 @@ AttachmentCompat = View.extend(/** @lends wp.media.view.AttachmentCompat.prototy
 		return View.prototype.dispose.apply( this, arguments );
 	},
 	/**
-	 * @return {wp.media.view.AttachmentCompat} Returns itself to allow chaining.
+	 * @return {void|wp.media.view.AttachmentCompat} Returns itself to allow chaining.
 	 */
 	render: function() {
 		var compat = this.model.get('compat');
@@ -2974,6 +2976,8 @@ Attachment = View.extend(/** @lends wp.media.view.Attachment.prototype */{
 		this.listenTo( this.controller.states, 'attachment:compat:waiting attachment:compat:ready', this.updateSave );
 	},
 	/**
+	 * Update the view after the model has been saved.
+	 *
 	 * @return {wp.media.view.Attachment} Returns itself to allow chaining.
 	 */
 	dispose: function() {
@@ -2992,6 +2996,8 @@ Attachment = View.extend(/** @lends wp.media.view.Attachment.prototype */{
 		return this;
 	},
 	/**
+	 * Renders the attachment view.
+	 *
 	 * @return {wp.media.view.Attachment} Returns itself to allow chaining.
 	 */
 	render: function() {
@@ -3062,6 +3068,8 @@ Attachment = View.extend(/** @lends wp.media.view.Attachment.prototype */{
 	},
 
 	/**
+	 * Toggles the selection state of the attachment.
+	 *
 	 * @param {Object} event
 	 */
 	toggleSelectionHandler: function( event ) {
@@ -3116,6 +3124,8 @@ Attachment = View.extend(/** @lends wp.media.view.Attachment.prototype */{
 		this.controller.trigger( 'selection:toggle' );
 	},
 	/**
+	 * Toggles the selection state of the attachment.
+	 *
 	 * @param {Object} options
 	 */
 	toggleSelection: function( options ) {
@@ -3196,7 +3206,9 @@ Attachment = View.extend(/** @lends wp.media.view.Attachment.prototype */{
 		this[ this.selected() ? 'select' : 'deselect' ]();
 	},
 	/**
-	 * @return {unresolved|boolean}
+	 * Checks if the model is selected in the selection.
+	 *
+	 * @return {void|boolean} True if the model is selected in the selection, false otherwise.
 	 */
 	selected: function() {
 		var selection = this.options.selection;
@@ -3205,6 +3217,8 @@ Attachment = View.extend(/** @lends wp.media.view.Attachment.prototype */{
 		}
 	},
 	/**
+	 * Selects the model in the selection.
+	 *
 	 * @param {Backbone.Model} model
 	 * @param {Backbone.Collection} collection
 	 */
@@ -3234,6 +3248,8 @@ Attachment = View.extend(/** @lends wp.media.view.Attachment.prototype */{
 		}
 	},
 	/**
+	 * Deselects the model in the selection.
+	 *
 	 * @param {Backbone.Model} model
 	 * @param {Backbone.Collection} collection
 	 */
@@ -3252,6 +3268,8 @@ Attachment = View.extend(/** @lends wp.media.view.Attachment.prototype */{
 			.find( '.check' ).attr( 'tabindex', '-1' );
 	},
 	/**
+	 * Updates the view to reflect whether the model is the single model in the selection.
+	 *
 	 * @param {Backbone.Model} model
 	 * @param {Backbone.Collection} collection
 	 */
@@ -3267,8 +3285,10 @@ Attachment = View.extend(/** @lends wp.media.view.Attachment.prototype */{
 		this.$el.toggleClass( 'details', details === this.model );
 	},
 	/**
+	 * Gets the image size object for the specified size.
+	 *
 	 * @param {string} size
-	 * @return {Object}
+	 * @return {Object} Returns an object containing the image size information.
 	 */
 	imageSize: function( size ) {
 		var sizes = this.model.get('sizes'), matched = false;
@@ -3300,6 +3320,8 @@ Attachment = View.extend(/** @lends wp.media.view.Attachment.prototype */{
 		};
 	},
 	/**
+	 * Update the model's setting with the value from the input.
+	 *
 	 * @param {Object} event
 	 */
 	updateSetting: function( event ) {
@@ -3351,6 +3373,8 @@ Attachment = View.extend(/** @lends wp.media.view.Attachment.prototype */{
 		});
 	},
 	/**
+	 * Updates the view's save status.
+	 *
 	 * @param {string} status
 	 * @return {wp.media.view.Attachment} Returns itself to allow chaining.
 	 */
@@ -3393,6 +3417,8 @@ Attachment = View.extend(/** @lends wp.media.view.Attachment.prototype */{
 		}
 	},
 	/**
+	 * Removes the model from the collection.
+	 *
 	 * @param {Object} event
 	 */
 	removeFromLibrary: function( event ) {
@@ -3408,11 +3434,11 @@ Attachment = View.extend(/** @lends wp.media.view.Attachment.prototype */{
 	},
 
 	/**
-	 * Add the model if it isn't in the selection, if it is in the selection,
-	 * remove it.
+	 * Adds the model if it isn't in the selection, if it is in the selection,
+	 * removes it.
 	 *
-	 * @param {[type]} event [description]
-	 * @return {[type]} [description]
+	 * @param {Object} event
+	 * @return {void}
 	 */
 	checkClickHandler: function ( event ) {
 		var selection = this.options.selection;
@@ -3539,8 +3565,6 @@ Details = Attachment.extend(/** @lends wp.media.view.Attachment.Details.prototyp
 	 * Copies the attachment URL to the clipboard.
 	 *
 	 * @since 5.5.0
-	 *
-	 * @param {MouseEvent} event A click event.
 	 *
 	 * @return {void}
 	 */
@@ -4384,7 +4408,7 @@ var View = wp.media.View,
  * @augments wp.Backbone.View
  * @augments Backbone.View
  *
- * @param {object}         [options]               The options hash passed to the view.
+ * @param {Object}         [options]               The options hash passed to the view.
  * @param {boolean|string} [options.filters=false] Which filters to show in the browser's toolbar.
  *                                                 Accepts 'uploaded' and 'all'.
  * @param {boolean}        [options.search=true]   Whether to show the search interface in the
@@ -5185,7 +5209,9 @@ ButtonGroup = wp.media.View.extend(/** @lends wp.media.view.ButtonGroup.prototyp
 	},
 
 	/**
-	 * @return {wp.media.view.ButtonGroup}
+	 * Renders the button group.
+	 *
+	 * @return {wp.media.view.ButtonGroup} The button group.
 	 */
 	render: function() {
 		this.$el.html( $( _.pluck( this.buttons, 'el' ) ).detach() );
@@ -5710,7 +5736,9 @@ EmbedUrl = View.extend(/** @lends wp.media.view.EmbedUrl.prototype */{
 		}
 	},
 	/**
-	 * @return {wp.media.view.EmbedUrl} Returns itself to allow chaining.
+	 * Renders the view.
+	 *
+	 * @return {void|wp.media.view.EmbedUrl} Returns itself to allow chaining.
 	 */
 	render: function() {
 		var $input = this.$input;
@@ -5966,8 +5994,6 @@ var FocusManager = wp.media.View.extend(/** @lends wp.media.view.FocusManager.pr
 	 *
 	 * @since 5.3.0
 	 *
-	 * @param {Object} event jQuery event object.
-	 *
 	 * @return {void}
 	 */
 	setupAriaTabs: function() {
@@ -6204,6 +6230,10 @@ var Frame = wp.media.View.extend(/** @lends wp.media.view.Frame.prototype */{
 	},
 	/**
 	 * Map activeMode collection events to the frame.
+	 *
+	 * @param {Backbone.Model}      model
+	 * @param {Backbone.Collection} collection
+	 * @param {Object}              options
 	 */
 	triggerModeEvents: function( model, collection, options ) {
 		var collectionEvent,
@@ -6229,8 +6259,8 @@ var Frame = wp.media.View.extend(/** @lends wp.media.view.Frame.prototype */{
 	/**
 	 * Activate a mode on the frame.
 	 *
-	 * @param string mode Mode ID.
-	 * @return {this} Returns itself to allow chaining.
+	 * @param {string} mode Mode ID.
+	 * @return {void|this} Returns itself to allow chaining.
 	 */
 	activateMode: function( mode ) {
 		// Bail if the mode is already active.
@@ -6246,7 +6276,7 @@ var Frame = wp.media.View.extend(/** @lends wp.media.view.Frame.prototype */{
 	/**
 	 * Deactivate a mode on the frame.
 	 *
-	 * @param string mode Mode ID.
+	 * @param {string} mode Mode ID.
 	 * @return {this} Returns itself to allow chaining.
 	 */
 	deactivateMode: function( mode ) {
@@ -6268,8 +6298,8 @@ var Frame = wp.media.View.extend(/** @lends wp.media.view.Frame.prototype */{
 	/**
 	 * Check if a mode is enabled on the frame.
 	 *
-	 * @param string mode Mode ID.
-	 * @return bool
+	 * @param {string} mode Mode ID.
+	 * @return {boolean} True if the mode is active, false otherwise.
 	 */
 	isModeActive: function( mode ) {
 		return Boolean( this.activeModes.where( { id: mode } ).length );
@@ -8183,7 +8213,7 @@ Menu = PriorityList.extend(/** @lends wp.media.view.Menu.prototype */{
 	/**
 	 * @param {Object} options
 	 * @param {string} id
-	 * @return {wp.media.View}
+	 * @return {wp.media.View} The view instance.
 	 */
 	toView: function( options, id ) {
 		options = options || {};
@@ -8320,7 +8350,9 @@ Modal = wp.media.View.extend(/** @lends wp.media.view.Modal.prototype */{
 		});
 	},
 	/**
-	 * @return {Object}
+	 * Prepares the data for the modal template.
+	 *
+	 * @return {Object} The prepared data.
 	 */
 	prepare: function() {
 		return {
@@ -8330,6 +8362,8 @@ Modal = wp.media.View.extend(/** @lends wp.media.view.Modal.prototype */{
 	},
 
 	/**
+	 * Attaches the modal to the DOM and triggers the ready event.
+	 *
 	 * @return {wp.media.view.Modal} Returns itself to allow chaining.
 	 */
 	attach: function() {
@@ -8351,6 +8385,8 @@ Modal = wp.media.View.extend(/** @lends wp.media.view.Modal.prototype */{
 	},
 
 	/**
+	 * Detaches the modal from the DOM and triggers the detach event.
+	 *
 	 * @return {wp.media.view.Modal} Returns itself to allow chaining.
 	 */
 	detach: function() {
@@ -8364,6 +8400,8 @@ Modal = wp.media.View.extend(/** @lends wp.media.view.Modal.prototype */{
 	},
 
 	/**
+	 * Opens the modal and triggers the open event.
+	 *
 	 * @return {wp.media.view.Modal} Returns itself to allow chaining.
 	 */
 	open: function() {
@@ -8407,6 +8445,8 @@ Modal = wp.media.View.extend(/** @lends wp.media.view.Modal.prototype */{
 	},
 
 	/**
+	 * Closes the modal and triggers the close event.
+	 *
 	 * @param {Object} options
 	 * @return {wp.media.view.Modal} Returns itself to allow chaining.
 	 */
@@ -8450,12 +8490,16 @@ Modal = wp.media.View.extend(/** @lends wp.media.view.Modal.prototype */{
 		return this;
 	},
 	/**
+	 * Closes the modal and triggers the escape event.
+	 *
 	 * @return {wp.media.view.Modal} Returns itself to allow chaining.
 	 */
 	escape: function() {
 		return this.close({ escape: true });
 	},
 	/**
+	 * Handles the escape key press event to close the modal.
+	 *
 	 * @param {Object} event
 	 */
 	escapeHandler: function( event ) {
@@ -8487,6 +8531,8 @@ Modal = wp.media.View.extend(/** @lends wp.media.view.Modal.prototype */{
 	},
 
 	/**
+	 * Sets the content of the modal by registering views to the '.media-modal-content' selector.
+	 *
 	 * @param {Array|Object} content Views to register to '.media-modal-content'
 	 * @return {wp.media.view.Modal} Returns itself to allow chaining.
 	 */
@@ -8512,6 +8558,8 @@ Modal = wp.media.View.extend(/** @lends wp.media.view.Modal.prototype */{
 		return this;
 	},
 	/**
+	 * Handles keydown events within the modal.
+	 *
 	 * @param {Object} event
 	 */
 	keydown: function( event ) {
@@ -8562,6 +8610,8 @@ var PriorityList = wp.media.View.extend(/** @lends wp.media.view.PriorityList.pr
 		}
 	},
 	/**
+	 * Adds a view to the list, sorted by its priority.
+	 *
 	 * @param {string} id
 	 * @param {wp.media.View|Object} view
 	 * @param {Object} options
@@ -8605,15 +8655,19 @@ var PriorityList = wp.media.View.extend(/** @lends wp.media.view.PriorityList.pr
 		return this;
 	},
 	/**
+	 * Retrieves a view by its ID.
+	 *
 	 * @param {string} id
-	 * @return {wp.media.View}
+	 * @return {wp.media.View} Returns the view if found, otherwise undefined.
 	 */
 	get: function( id ) {
 		return this._views[ id ];
 	},
 	/**
+	 * Removes a view by its ID.
+	 *
 	 * @param {string} id
-	 * @return {wp.media.view.PriorityList}
+	 * @return {wp.media.view.PriorityList} Returns itself to allow chaining.
 	 */
 	unset: function( id ) {
 		var view = this.get( id );
@@ -8626,8 +8680,10 @@ var PriorityList = wp.media.View.extend(/** @lends wp.media.view.PriorityList.pr
 		return this;
 	},
 	/**
+	 * Creates a view from an object of options.
+	 *
 	 * @param {Object} options
-	 * @return {wp.media.View}
+	 * @return {wp.media.View} Returns the created view.
 	 */
 	toView: function( options ) {
 		return new wp.media.View( options );
@@ -9455,8 +9511,10 @@ Toolbar = View.extend(/** @lends wp.media.view.Toolbar.prototype */{
 		return this;
 	},
 	/**
+	 * Retrieves a view by its ID.
+	 *
 	 * @param {string} id
-	 * @return {wp.media.view.Button}
+	 * @return {wp.media.view.Button} The view associated with the given ID, or undefined if no view is found.
 	 */
 	get: function( id ) {
 		return this._views[ id ];
@@ -9671,6 +9729,8 @@ EditorUploader = View.extend(/** @lends wp.media.view.EditorUploader.prototype *
 
 	/**
 	 * Bind drag'n'drop events to callbacks.
+	 *
+	 * @return {wp.media.view.EditorUploader} Chainable.
 	 */
 	initialize: function() {
 		this.initialized = false;
@@ -9707,7 +9767,7 @@ EditorUploader = View.extend(/** @lends wp.media.view.EditorUploader.prototype *
 	/**
 	 * Check browser support for drag'n'drop.
 	 *
-	 * @return {boolean}
+	 * @return {boolean} True if the browser supports drag'n'drop, false otherwise.
 	 */
 	browserSupport: function() {
 		var supports = false, div = document.createElement('div');
@@ -9773,6 +9833,7 @@ EditorUploader = View.extend(/** @lends wp.media.view.EditorUploader.prototype *
 	 * and upload the file immediately.
 	 *
 	 * @param {jQuery.Event} event The 'drop' event.
+	 * @return {void|boolean} False to prevent default behavior.
 	 */
 	drop: function( event ) {
 		var $wrap, uploadView;
@@ -9817,6 +9878,8 @@ EditorUploader = View.extend(/** @lends wp.media.view.EditorUploader.prototype *
 
 	/**
 	 * Add the files to the uploader.
+	 *
+	 * @return {wp.media.view.EditorUploader} Chainable.
 	 */
 	addFiles: function() {
 		if ( this.files.length ) {
@@ -9935,11 +9998,13 @@ UploaderInline = View.extend(/** @lends wp.media.view.UploaderInline.prototype *
 		return data;
 	},
 	/**
+	 * Disposes of the inline uploader and its associated views.
+	 *
 	 * @return {wp.media.view.UploaderInline} Returns itself to allow chaining.
 	 */
 	dispose: function() {
 		if ( this.disposing ) {
-			/**
+			/*
 			 * call 'dispose' directly on the parent class
 			 */
 			return View.prototype.dispose.apply( this, arguments );
@@ -9954,10 +10019,12 @@ UploaderInline = View.extend(/** @lends wp.media.view.UploaderInline.prototype *
 		return this.remove();
 	},
 	/**
+	 * Disposes of the inline uploader and its associated views.
+	 *
 	 * @return {wp.media.view.UploaderInline} Returns itself to allow chaining.
 	 */
 	remove: function() {
-		/**
+		/*
 		 * call 'remove' directly on the parent class
 		 */
 		var result = View.prototype.remove.apply( this, arguments );
@@ -9974,7 +10041,9 @@ UploaderInline = View.extend(/** @lends wp.media.view.UploaderInline.prototype *
 		}
 	},
 	/**
-	 * @return {wp.media.view.UploaderInline}
+	 * Replaces the placeholder with the uploader browser and refreshes the uploader.
+	 *
+	 * @return {void|wp.media.view.UploaderInline} Returns itself to allow chaining.
 	 */
 	ready: function() {
 		var $browser = this.options.$browser,
@@ -10081,11 +10150,13 @@ UploaderStatus = View.extend(/** @lends wp.media.view.UploaderStatus.prototype *
 		this.errors.on( 'add', this.error, this );
 	},
 	/**
-	 * @return {wp.media.view.UploaderStatus}
+	 * Disposes of the uploader status and its associated views.
+	 *
+	 * @return {wp.media.view.UploaderStatus} Returns the instance of the UploaderStatus view.
 	 */
 	dispose: function() {
 		wp.Uploader.queue.off( null, null, this );
-		/**
+		/*
 		 * call 'dispose' directly on the parent class
 		 */
 		View.prototype.dispose.apply( this, arguments );
@@ -10151,14 +10222,19 @@ UploaderStatus = View.extend(/** @lends wp.media.view.UploaderStatus.prototype *
 		}
 	},
 	/**
+	 * Escapes the filename to prevent XSS attacks.
+	 *
 	 * @param {string} filename
-	 * @return {string}
+	 * @return {string} Escaped filename.
 	 */
 	filename: function( filename ) {
 		return _.escape( filename );
 	},
 	/**
+	 * Handles an error event from the uploader queue.
+	 *
 	 * @param {Backbone.Model} error
+	 * @return {void}
 	 */
 	error: function( error ) {
 		var statusError = new wp.media.view.UploaderStatusError( {
@@ -10179,6 +10255,9 @@ UploaderStatus = View.extend(/** @lends wp.media.view.UploaderStatus.prototype *
 		}, 1500 );
 	},
 
+	/**
+	 * Dismisses the error messages and resets the uploader errors.
+	 */
 	dismiss: function() {
 		var errors = this.views.get('.upload-errors');
 
@@ -10217,11 +10296,11 @@ var $ = jQuery,
  * @augments wp.Backbone.View
  * @augments Backbone.View
  *
- * @param {object} [options]                   Options hash passed to the view.
- * @param {object} [options.uploader]          Uploader properties.
+ * @param {Object} [options]                   Options hash passed to the view.
+ * @param {Object} [options.uploader]          Uploader properties.
  * @param {jQuery} [options.uploader.browser]
  * @param {jQuery} [options.uploader.dropzone] jQuery collection of the dropzone.
- * @param {object} [options.uploader.params]
+ * @param {Object} [options.uploader.params]
  */
 UploaderWindow = wp.media.View.extend(/** @lends wp.media.view.UploaderWindow.prototype */{
 	tagName:   'div',
@@ -10470,7 +10549,7 @@ media.events = _.extend( {}, Backbone.Events );
  *
  * @param {string} selector
  * @param {number} sensitivity
- * @return {Promise}
+ * @return {Promise} A promise that resolves when the transition has completed.
  */
 media.transition = function( selector, sensitivity ) {
 	var deferred = $.Deferred();
