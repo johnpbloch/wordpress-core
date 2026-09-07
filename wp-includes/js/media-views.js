@@ -57,6 +57,8 @@ CollectionAdd = Library.extend(/** @lends wp.media.controller.CollectionAdd.prot
 	}, Library.prototype.defaults ),
 
 	/**
+	 * Initializes the CollectionAdd controller.
+	 *
 	 * @since 3.9.0
 	 */
 	initialize: function() {
@@ -78,6 +80,8 @@ CollectionAdd = Library.extend(/** @lends wp.media.controller.CollectionAdd.prot
 	},
 
 	/**
+	 * Activates the CollectionAdd controller.
+	 *
 	 * @since 3.9.0
 	 */
 	activate: function() {
@@ -175,6 +179,8 @@ CollectionEdit = Library.extend(/** @lends wp.media.controller.CollectionEdit.pr
 	},
 
 	/**
+	 * Initializes the CollectionEdit controller.
+	 *
 	 * @since 3.9.0
 	 */
 	initialize: function() {
@@ -199,6 +205,8 @@ CollectionEdit = Library.extend(/** @lends wp.media.controller.CollectionEdit.pr
 	},
 
 	/**
+	 * Activates the CollectionEdit controller.
+	 *
 	 * @since 3.9.0
 	 */
 	activate: function() {
@@ -216,6 +224,8 @@ CollectionEdit = Library.extend(/** @lends wp.media.controller.CollectionEdit.pr
 	},
 
 	/**
+	 * Deactivates the CollectionEdit controller.
+	 *
 	 * @since 3.9.0
 	 */
 	deactivate: function() {
@@ -835,6 +845,8 @@ FeaturedImage = Library.extend(/** @lends wp.media.controller.FeaturedImage.prot
 	}, Library.prototype.defaults ),
 
 	/**
+	 * Initializes the FeaturedImage controller.
+	 *
 	 * @since 3.5.0
 	 */
 	initialize: function() {
@@ -871,6 +883,8 @@ FeaturedImage = Library.extend(/** @lends wp.media.controller.FeaturedImage.prot
 	},
 
 	/**
+	 * Activates the FeaturedImage controller.
+	 *
 	 * @since 3.5.0
 	 */
 	activate: function() {
@@ -880,6 +894,8 @@ FeaturedImage = Library.extend(/** @lends wp.media.controller.FeaturedImage.prot
 	},
 
 	/**
+	 * Deactivates the FeaturedImage controller.
+	 *
 	 * @since 3.5.0
 	 */
 	deactivate: function() {
@@ -889,6 +905,8 @@ FeaturedImage = Library.extend(/** @lends wp.media.controller.FeaturedImage.prot
 	},
 
 	/**
+	 * Updates the selection to match the current featured image.
+	 *
 	 * @since 3.5.0
 	 */
 	updateSelection: function() {
@@ -1249,6 +1267,8 @@ ImageDetails = State.extend(/** @lends wp.media.controller.ImageDetails.prototyp
 	}, Library.prototype.defaults ),
 
 	/**
+	 * Initializes the ImageDetails controller.
+	 *
 	 * @since 3.9.0
 	 *
 	 * @param {Object} options Attributes.
@@ -1259,6 +1279,8 @@ ImageDetails = State.extend(/** @lends wp.media.controller.ImageDetails.prototyp
 	},
 
 	/**
+	 * Activates the ImageDetails controller.
+	 *
 	 * @since 3.9.0
 	 */
 	activate: function() {
@@ -1334,6 +1356,8 @@ Library = wp.media.controller.State.extend(/** @lends wp.media.controller.Librar
 	},
 
 	/**
+	 * Initializes the Library controller.
+	 *
 	 * If a library isn't provided, query all media items.
 	 * If a selection instance isn't provided, create one.
 	 *
@@ -1365,6 +1389,8 @@ Library = wp.media.controller.State.extend(/** @lends wp.media.controller.Librar
 	},
 
 	/**
+	 * Activates the Library controller.
+	 *
 	 * @since 3.5.0
 	 */
 	activate: function() {
@@ -1381,6 +1407,8 @@ Library = wp.media.controller.State.extend(/** @lends wp.media.controller.Librar
 	},
 
 	/**
+	 * Deactivates the Library controller.
+	 *
 	 * @since 3.5.0
 	 */
 	deactivate: function() {
@@ -1396,7 +1424,7 @@ Library = wp.media.controller.State.extend(/** @lends wp.media.controller.Librar
 	},
 
 	/**
-	 * Reset the library to its initial state.
+	 * Resets the library to its initial state.
 	 *
 	 * @since 3.5.0
 	 */
@@ -1407,7 +1435,7 @@ Library = wp.media.controller.State.extend(/** @lends wp.media.controller.Librar
 	},
 
 	/**
-	 * Reset the attachment display settings defaults to the site options.
+	 * Resets the attachment display settings defaults to the site options.
 	 *
 	 * If site options don't define them, fall back to a persistent user setting.
 	 *
@@ -1424,7 +1452,7 @@ Library = wp.media.controller.State.extend(/** @lends wp.media.controller.Librar
 	},
 
 	/**
-	 * Create a model to represent display settings (alignment, etc.) for an attachment.
+	 * Creates a model to represent display settings (alignment, etc.) for an attachment.
 	 *
 	 * @since 3.5.0
 	 *
@@ -1441,7 +1469,7 @@ Library = wp.media.controller.State.extend(/** @lends wp.media.controller.Librar
 	},
 
 	/**
-	 * Given an attachment, create attachment display settings properties.
+	 * Given an attachment, creates attachment display settings properties.
 	 *
 	 * @since 3.6.0
 	 *
@@ -1462,7 +1490,7 @@ Library = wp.media.controller.State.extend(/** @lends wp.media.controller.Librar
 	},
 
 	/**
-	 * Whether an attachment is image.
+	 * Determines whether an attachment is an image.
 	 *
 	 * @since 4.4.1
 	 *
@@ -1479,7 +1507,7 @@ Library = wp.media.controller.State.extend(/** @lends wp.media.controller.Librar
 	},
 
 	/**
-	 * Whether an attachment can be embedded (audio or video).
+	 * Determines whether an attachment can be embedded (audio or video).
 	 *
 	 * @since 3.6.0
 	 *
@@ -1500,6 +1528,8 @@ Library = wp.media.controller.State.extend(/** @lends wp.media.controller.Librar
 
 
 	/**
+	 * Resets the content mode to the default.
+	 *
 	 * If the state is active, no items are selected, and the current
 	 * content mode is not an option in the state's router (provided
 	 * the state has a router), reset the content mode to the default.
@@ -1546,7 +1576,7 @@ Library = wp.media.controller.State.extend(/** @lends wp.media.controller.Librar
 	},
 
 	/**
-	 * Persist the mode of the content region as a user setting.
+	 * Persists the mode of the content region as a user setting.
 	 *
 	 * @since 3.5.0
 	 */
@@ -1600,6 +1630,8 @@ MediaLibrary = Library.extend(/** @lends wp.media.controller.MediaLibrary.protot
 	}, Library.prototype.defaults ),
 
 	/**
+	 * Initializes the MediaLibrary controller.
+	 *
 	 * @since 3.9.0
 	 *
 	 * @param {Object} options Attributes.
@@ -1613,6 +1645,8 @@ MediaLibrary = Library.extend(/** @lends wp.media.controller.MediaLibrary.protot
 	},
 
 	/**
+	 * Activates the MediaLibrary controller.
+	 *
 	 * @since 3.9.0
 	 */
 	activate: function() {
@@ -1864,6 +1898,8 @@ ReplaceImage = Library.extend(/** @lends wp.media.controller.ReplaceImage.protot
 	}, Library.prototype.defaults ),
 
 	/**
+	 * Initializes the ReplaceImage controller.
+	 *
 	 * @since 3.9.0
 	 *
 	 * @param {Object} options Attributes.
@@ -1903,6 +1939,8 @@ ReplaceImage = Library.extend(/** @lends wp.media.controller.ReplaceImage.protot
 	},
 
 	/**
+	 * Activates the ReplaceImage controller.
+	 *
 	 * @since 3.9.0
 	 */
 	activate: function() {
@@ -1912,6 +1950,8 @@ ReplaceImage = Library.extend(/** @lends wp.media.controller.ReplaceImage.protot
 	},
 
 	/**
+	 * Deactivates the ReplaceImage controller.
+	 *
 	 * @since 5.9.0
 	 */
 	deactivate: function() {
@@ -1921,6 +1961,8 @@ ReplaceImage = Library.extend(/** @lends wp.media.controller.ReplaceImage.protot
 	},
 
 	/**
+	 * Updates the selection to match the current image.
+	 *
 	 * @since 3.9.0
 	 */
 	updateSelection: function() {
@@ -2103,18 +2145,24 @@ _.extend( StateMachine.prototype, Backbone.Events,/** @lends wp.media.controller
 // Map all event binding and triggering on a StateMachine to its `states` collection.
 _.each([ 'on', 'off', 'trigger' ], function( method ) {
 	/**
+	 * Binds an event listener to events in the StateMachine's states collection.
+	 *
 	 * @function on
 	 * @memberOf wp.media.controller.StateMachine
 	 * @instance
 	 * @return {wp.media.controller.StateMachine} Returns itself to allow chaining.
 	 */
 	/**
+	 * Unbinds an event listener from the StateMachine's states collection.
+	 *
 	 * @function off
 	 * @memberOf wp.media.controller.StateMachine
 	 * @instance
 	 * @return {wp.media.controller.StateMachine} Returns itself to allow chaining.
 	 */
 	/**
+	 * Triggers an event on the StateMachine's states collection.
+	 *
 	 * @function trigger
 	 * @memberOf wp.media.controller.StateMachine
 	 * @instance
@@ -2211,6 +2259,8 @@ var State = Backbone.Model.extend(/** @lends wp.media.controller.State.prototype
 	reset: function() {},
 
 	/**
+	 * Ready event callback.
+	 *
 	 * @since 3.5.0
 	 * @access private
 	 */
@@ -2219,6 +2269,8 @@ var State = Backbone.Model.extend(/** @lends wp.media.controller.State.prototype
 	},
 
 	/**
+	 * Pre-activate event callback.
+	 *
 	 * @since 3.5.0
 	 * @access private
 	*/
@@ -2227,6 +2279,8 @@ var State = Backbone.Model.extend(/** @lends wp.media.controller.State.prototype
 	},
 
 	/**
+	 * Post-activate event callback.
+	 *
 	 * @since 3.5.0
 	 * @access private
 	 */
@@ -2246,6 +2300,8 @@ var State = Backbone.Model.extend(/** @lends wp.media.controller.State.prototype
 	},
 
 	/**
+	 * Deactivate event callback.
+	 *
 	 * @since 3.5.0
 	 * @access private
 	 */
@@ -2261,6 +2317,9 @@ var State = Backbone.Model.extend(/** @lends wp.media.controller.State.prototype
 	},
 
 	/**
+	 * Renders the frame's title using the titleMode property.
+	 *
+	 *
 	 * @since 3.5.0
 	 * @access private
 	 */
@@ -2269,6 +2328,8 @@ var State = Backbone.Model.extend(/** @lends wp.media.controller.State.prototype
 	},
 
 	/**
+	 * Renders the title in the media frame.
+	 *
 	 * @param {media.view.Title} view The title view.
 	 * @since 3.5.0
 	 * @access private
@@ -2278,6 +2339,8 @@ var State = Backbone.Model.extend(/** @lends wp.media.controller.State.prototype
 	},
 
 	/**
+	 * Renders and manages the router region.
+	 *
 	 * @since 3.5.0
 	 * @access private
 	 */
@@ -2300,6 +2363,8 @@ var State = Backbone.Model.extend(/** @lends wp.media.controller.State.prototype
 	},
 
 	/**
+	 * Renders and manages the menu region.
+	 *
 	 * @since 3.5.0
 	 * @access private
 	 */
@@ -2329,6 +2394,8 @@ var State = Backbone.Model.extend(/** @lends wp.media.controller.State.prototype
 	},
 
 	/**
+	 * Updates the menu.
+	 *
 	 * @since 3.5.0
 	 * @access private
 	 */
@@ -2346,7 +2413,7 @@ var State = Backbone.Model.extend(/** @lends wp.media.controller.State.prototype
 	},
 
 	/**
-	 * Create a view in the media menu for the state.
+	 * Creates a view in the media menu for the state.
 	 *
 	 * @since 3.5.0
 	 * @access private
@@ -2374,8 +2441,13 @@ var State = Backbone.Model.extend(/** @lends wp.media.controller.State.prototype
 	}
 });
 
+/**
+ * Creates render methods for frame regions.
+ */
 _.each(['toolbar','content'], function( region ) {
 	/**
+	 * Renders the region in the media frame.
+	 *
 	 * @access private
 	 */
 	State.prototype[ '_' + region ] = function() {
@@ -2408,6 +2480,8 @@ module.exports = State;
  */
 var selectionSync = {
 	/**
+	 * Syncs the selection in this state with the master selection.
+	 *
 	 * @since 3.5.0
 	 */
 	syncSelection: function() {
@@ -2501,6 +2575,8 @@ AttachmentCompat = View.extend(/** @lends wp.media.view.AttachmentCompat.prototy
 	},
 
 	/**
+	 * Disposes of the view and its children.
+	 *
 	 * @return {wp.media.view.AttachmentCompat} Returns itself to allow chaining.
 	 */
 	dispose: function() {
@@ -2513,6 +2589,8 @@ AttachmentCompat = View.extend(/** @lends wp.media.view.AttachmentCompat.prototy
 		return View.prototype.dispose.apply( this, arguments );
 	},
 	/**
+	 * Renders the view.
+	 *
 	 * @return {void|wp.media.view.AttachmentCompat} Returns itself to allow chaining.
 	 */
 	render: function() {
@@ -2527,12 +2605,16 @@ AttachmentCompat = View.extend(/** @lends wp.media.view.AttachmentCompat.prototy
 		return this;
 	},
 	/**
+	 * Prevents the default action of the event.
+	 *
 	 * @param {Object} event
 	 */
 	preventDefault: function( event ) {
 		event.preventDefault();
 	},
 	/**
+	 * Saves the attachment compat data.
+	 *
 	 * @param {Object} event
 	 */
 	save: function( event ) {
@@ -2550,6 +2632,9 @@ AttachmentCompat = View.extend(/** @lends wp.media.view.AttachmentCompat.prototy
 		this.model.saveCompat( data ).always( _.bind( this.postSave, this ) );
 	},
 
+	/**
+	 * Triggers the `attachment:compat:ready` event on the controller after saving the compat data.
+	 */
 	postSave: function() {
 		this.controller.trigger( 'attachment:compat:ready', ['ready'] );
 	}
@@ -2604,6 +2689,8 @@ AttachmentFilters = wp.media.View.extend(/** @lends wp.media.view.AttachmentFilt
 	},
 
 	/**
+	 * Creates the filters for the view.
+	 *
 	 * @abstract
 	 */
 	createFilters: function() {
@@ -2611,7 +2698,7 @@ AttachmentFilters = wp.media.View.extend(/** @lends wp.media.view.AttachmentFilt
 	},
 
 	/**
-	 * When the selected filter changes, update the Attachment Query properties to match.
+	 * Updates the Attachment Query properties to match when the selected filter changes.
 	 */
 	change: function() {
 		var filter = this.filters[ this.el.value ];
@@ -2620,6 +2707,9 @@ AttachmentFilters = wp.media.View.extend(/** @lends wp.media.view.AttachmentFilt
 		}
 	},
 
+	/**
+	 * Selects the filter based on the Attachment Query properties.
+	 */
 	select: function() {
 		var model = this.model,
 			value = 'all',
@@ -3467,6 +3557,8 @@ _.each({
 	album:   '_syncAlbum'
 }, function( method, setting ) {
 	/**
+	 * Updates the DOM when the model's caption changes.
+	 *
 	 * @function _syncCaption
 	 * @memberOf wp.media.view.Attachment
 	 * @instance
@@ -3476,6 +3568,8 @@ _.each({
 	 * @return {wp.media.view.Attachment} Returns itself to allow chaining.
 	 */
 	/**
+	 * Updates the DOM when the model's title changes.
+	 *
 	 * @function _syncTitle
 	 * @memberOf wp.media.view.Attachment
 	 * @instance
@@ -3485,6 +3579,8 @@ _.each({
 	 * @return {wp.media.view.Attachment} Returns itself to allow chaining.
 	 */
 	/**
+	 * Updates the DOM when the model's artist changes.
+	 *
 	 * @function _syncArtist
 	 * @memberOf wp.media.view.Attachment
 	 * @instance
@@ -3494,6 +3590,8 @@ _.each({
 	 * @return {wp.media.view.Attachment} Returns itself to allow chaining.
 	 */
 	/**
+	 * Updates the DOM when the model's album changes.
+	 *
 	 * @function _syncAlbum
 	 * @memberOf wp.media.view.Attachment
 	 * @instance
@@ -4424,6 +4522,9 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 	tagName:   'div',
 	className: 'attachments-browser',
 
+	/**
+	 * Initializes the AttachmentsBrowser view.
+	 */
 	initialize: function() {
 		_.defaults( this.options, {
 			filters: false,
@@ -4538,12 +4639,19 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 		}
 	}, 200 ),
 
+	/**
+	 * Edits the selection in the modal. This is used when the user clicks the "Edit" button in the modal.
+	 *
+	 * @param {wp.media.view.Modal} modal The modal view.
+	 */
 	editSelection: function( modal ) {
 		// When editing a selection, move focus to the "Go to library" button.
 		modal.$( '.media-button-backToLibrary' ).focus();
 	},
 
 	/**
+	 * Disposes of the view and its children.
+	 *
 	 * @return {wp.media.view.AttachmentsBrowser} Returns itself to allow chaining.
 	 */
 	dispose: function() {
@@ -4552,6 +4660,9 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 		return this;
 	},
 
+	/**
+	 * Creates the toolbar view.
+	 */
 	createToolbar: function() {
 		var LibraryViewSwitcher, Filters, toolbarOptions,
 			showFilterByType = -1 !== $.inArray( this.options.filters, [ 'uploaded', 'all' ] );
@@ -4801,6 +4912,9 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 		}
 	},
 
+	/**
+	 * Updates the content of the attachments browser.
+	 */
 	updateContent: function() {
 		var view = this,
 			noItemsView;
@@ -4832,6 +4946,9 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 		}
 	},
 
+	/**
+	 * Creates the uploader view.
+	 */
 	createUploader: function() {
 		this.uploader = new wp.media.view.UploaderInline({
 			controller: this.controller,
@@ -4844,6 +4961,9 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 		this.views.add( this.uploader );
 	},
 
+	/**
+	 * Toggles the uploader view.
+	 */
 	toggleUploader: function() {
 		if ( this.uploader.$el.hasClass( 'hidden' ) ) {
 			this.uploader.show();
@@ -4869,6 +4989,9 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 		this.createAttachments();
 	},
 
+	/**
+	 * Creates the attachments view.
+	 */
 	createAttachments: function() {
 		this.attachments = new wp.media.view.Attachments({
 			controller:           this.controller,
@@ -5052,6 +5175,9 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 		this.firstAddedMediaItem.focus();
 	},
 
+	/**
+	 * Creates the attachments heading view.
+	 */
 	createAttachmentsHeading: function() {
 		this.attachmentsHeading = new wp.media.view.Heading( {
 			text: l10n.attachmentsList,
@@ -5061,6 +5187,9 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 		this.views.add( this.attachmentsHeading );
 	},
 
+	/**
+	 * Creates the sidebar view.
+	 */
 	createSidebar: function() {
 		var options = this.options,
 			selection = options.selection,
@@ -5085,6 +5214,9 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 		}
 	},
 
+	/**
+	 * Creates the single attachment view.
+	 */
 	createSingle: function() {
 		var sidebar = this.sidebar,
 			single = this.options.selection.single();
@@ -5117,6 +5249,9 @@ AttachmentsBrowser = View.extend(/** @lends wp.media.view.AttachmentsBrowser.pro
 		}
 	},
 
+	/**
+	 * Disposes of the single attachment view.
+	 */
 	disposeSingle: function() {
 		var sidebar = this.sidebar;
 		sidebar.unset('details');
@@ -5276,6 +5411,8 @@ var Button = wp.media.View.extend(/** @lends wp.media.view.Button.prototype */{
 		this.listenTo( this.model, 'change', this.render );
 	},
 	/**
+	 * Renders the button.
+	 *
 	 * @return {wp.media.view.Button} Returns itself to allow chaining.
 	 */
 	render: function() {
@@ -5299,6 +5436,8 @@ var Button = wp.media.View.extend(/** @lends wp.media.view.Button.prototype */{
 		return this;
 	},
 	/**
+	 * Handles the click event.
+	 *
 	 * @param {Object} event
 	 */
 	click: function( event ) {
@@ -5490,9 +5629,12 @@ module.exports = EditImage;
  * @augments wp.Backbone.View
  * @augments Backbone.View
  */
-var Embed = wp.media.View.extend(/** @lends wp.media.view.Ember.prototype */{
+var Embed = wp.media.View.extend(/** @lends wp.media.view.Embed.prototype */{
 	className: 'media-embed',
 
+	/**
+	 * Initializes the embed view.
+	 */
 	initialize: function() {
 		/**
 		 * @member {wp.media.view.EmbedUrl}
@@ -5509,6 +5651,8 @@ var Embed = wp.media.View.extend(/** @lends wp.media.view.Ember.prototype */{
 	},
 
 	/**
+	 * Sets the settings for the embed view.
+	 *
 	 * @param {Object} view
 	 */
 	settings: function( view ) {
@@ -5519,6 +5663,9 @@ var Embed = wp.media.View.extend(/** @lends wp.media.view.Ember.prototype */{
 		this.views.add( view );
 	},
 
+	/**
+	 * Refreshes the embed view based on the type of embed.
+	 */
 	refresh: function() {
 		var type = this.model.get('type'),
 			constructor;
@@ -5538,6 +5685,9 @@ var Embed = wp.media.View.extend(/** @lends wp.media.view.Ember.prototype */{
 		}) );
 	},
 
+	/**
+	 * Toggles the loading state of the embed view.
+	 */
 	loading: function() {
 		this.$el.toggleClass( 'embed-loading', this.model.get('loading') );
 	}
@@ -6738,6 +6888,9 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 		}, this );
 	},
 
+	/**
+	 * Activates the frame.
+	 */
 	activate: function() {
 		// Hide menu items for states tied to particular media types if there are no items.
 		_.each( this.counts, function( type ) {
@@ -6747,6 +6900,12 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 		}, this );
 	},
 
+	/**
+	 * Handles the counts of media types.
+	 *
+	 * @param {wp.media.model.Attachments} model The attachment model that changed.
+	 * @param {string}                     attr  The attribute that changed on the model.
+	 */
 	mediaTypeCounts: function( model, attr ) {
 		if ( typeof this.counts[ attr ] !== 'undefined' && this.counts[ attr ].count < 1 ) {
 			this.counts[ attr ].count++;
@@ -6756,6 +6915,8 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 
 	// Menus.
 	/**
+	 * Handles the main menu for the frame.
+	 *
 	 * @param {wp.Backbone.View} view
 	 */
 	mainMenu: function( view ) {
@@ -6770,6 +6931,12 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 		});
 	},
 
+	/**
+	 * Handles the visibility of menu items for the frame.
+	 *
+	 * @param {string} state      The state to show or hide.
+	 * @param {string} visibility The visibility of the menu item, either 'show' or 'hide'.
+	 */
 	menuItemVisibility: function( state, visibility ) {
 		var menu = this.menu.get();
 		if ( visibility === 'hide' ) {
@@ -6779,6 +6946,8 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 		}
 	},
 	/**
+	 * Handles the gallery menu for the frame.
+	 *
 	 * @param {wp.Backbone.View} view
 	 */
 	galleryMenu: function( view ) {
@@ -6808,6 +6977,11 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 		});
 	},
 
+	/**
+	 * Handles the playlist menu for the frame.
+	 *
+	 * @param {wp.Backbone.View} view The menu view.
+	 */
 	playlistMenu: function( view ) {
 		var lastState = this.lastState(),
 			previous = lastState && lastState.id,
@@ -6835,6 +7009,11 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 		});
 	},
 
+	/**
+	 * Handles the video playlist menu for the frame.
+	 *
+	 * @param {wp.Backbone.View} view The menu view.
+	 */
 	videoPlaylistMenu: function( view ) {
 		var lastState = this.lastState(),
 			previous = lastState && lastState.id,
@@ -6863,6 +7042,9 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 	},
 
 	// Content.
+	/**
+	 * Handles the embed content for the frame.
+	 */
 	embedContent: function() {
 		var view = new wp.media.view.Embed({
 			controller: this,
@@ -6872,6 +7054,9 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 		this.content.set( view );
 	},
 
+	/**
+	 * Handles the edit selection content for the frame.
+	 */
 	editSelectionContent: function() {
 		var state = this.state(),
 			selection = state.get('selection'),
@@ -6908,6 +7093,9 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 		this.trigger( 'edit:selection', this );
 	},
 
+	/**
+	 * Handles the edit image content for the frame.
+	 */
 	editImageContent: function() {
 		var image = this.state().get('image'),
 			view = new wp.media.view.EditImage( { model: image, controller: this } ).render();
@@ -6922,7 +7110,9 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 	// Toolbars.
 
 	/**
-	 * @param {wp.Backbone.View} view
+	 * Handles the selection status toolbar for the frame
+	 *
+	 * @param {wp.Backbone.View} view The toolbar view.
 	 */
 	selectionStatusToolbar: function( view ) {
 		var editable = this.state().get('editable');
@@ -6941,7 +7131,9 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 	},
 
 	/**
-	 * @param {wp.Backbone.View} view
+	 * Handles the main insert toolbar for the frame.
+	 *
+	 * @param {wp.Backbone.View} view The toolbar view.
 	 */
 	mainInsertToolbar: function( view ) {
 		var controller = this;
@@ -6970,7 +7162,9 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 	},
 
 	/**
-	 * @param {wp.Backbone.View} view
+	 * Handles the main gallery toolbar for the frame.
+	 *
+	 * @param {wp.Backbone.View} view The toolbar view.
 	 */
 	mainGalleryToolbar: function( view ) {
 		var controller = this;
@@ -7002,6 +7196,11 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 		});
 	},
 
+	/**
+	 * Handles the main playlist toolbar for the frame.
+	 *
+	 * @param {wp.Backbone.View} view The toolbar view.
+	 */
 	mainPlaylistToolbar: function( view ) {
 		var controller = this;
 
@@ -7032,6 +7231,11 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 		});
 	},
 
+	/**
+	 * Handles the main video playlist toolbar for the frame.
+	 *
+	 * @param {wp.Backbone.View} view The toolbar view.
+	 */
 	mainVideoPlaylistToolbar: function( view ) {
 		var controller = this;
 
@@ -7062,6 +7266,11 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 		});
 	},
 
+	/**
+	 * Handles the featured image toolbar for the frame.
+	 *
+	 * @param {wp.media.view.Toolbar} toolbar The toolbar view.
+	 */
 	featuredImageToolbar: function( toolbar ) {
 		this.createSelectToolbar( toolbar, {
 			text:  l10n.setFeaturedImage,
@@ -7069,12 +7278,20 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 		});
 	},
 
+	/**
+	 * Handles the main embed toolbar for the frame.
+	 *
+	 * @param {wp.media.view.Toolbar} toolbar The toolbar view.
+	 */
 	mainEmbedToolbar: function( toolbar ) {
 		toolbar.view = new wp.media.view.Toolbar.Embed({
 			controller: this
 		});
 	},
 
+	/**
+	 * Handles the edit image toolbar for the frame.
+	 */
 	galleryEditToolbar: function() {
 		var editing = this.state().get('editing');
 		this.toolbar.set( new wp.media.view.Toolbar({
@@ -7087,6 +7304,8 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 					requires: { library: true, uploadingComplete: true },
 
 					/**
+					 * Handles the click event for the insert button.
+					 *
 					 * @fires wp.media.controller.State#update
 					 */
 					click: function() {
@@ -7105,6 +7324,9 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 		}) );
 	},
 
+	/**
+	 * Handles the add to gallery toolbar for the frame.
+	 */
 	galleryAddToolbar: function() {
 		this.toolbar.set( new wp.media.view.Toolbar({
 			controller: this,
@@ -7116,6 +7338,8 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 					requires: { selection: true },
 
 					/**
+					 * Handles the click event for the insert button.
+					 *
 					 * @fires wp.media.controller.State#reset
 					 */
 					click: function() {
@@ -7134,6 +7358,9 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 		}) );
 	},
 
+	/**
+	 * Handles the edit playlist toolbar for the frame.
+	 */
 	playlistEditToolbar: function() {
 		var editing = this.state().get('editing');
 		this.toolbar.set( new wp.media.view.Toolbar({
@@ -7146,6 +7373,8 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 					requires: { library: true },
 
 					/**
+					 * Handles the click event for the insert button.
+					 *
 					 * @fires wp.media.controller.State#update
 					 */
 					click: function() {
@@ -7164,6 +7393,9 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 		}) );
 	},
 
+	/**
+	 * Handles the add to playlist toolbar for the frame.
+	 */
 	playlistAddToolbar: function() {
 		this.toolbar.set( new wp.media.view.Toolbar({
 			controller: this,
@@ -7175,6 +7407,8 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 					requires: { selection: true },
 
 					/**
+					 * Handles the click event for the insert button.
+					 *
 					 * @fires wp.media.controller.State#reset
 					 */
 					click: function() {
@@ -7193,6 +7427,9 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 		}) );
 	},
 
+	/**
+	 * Handles the edit video playlist toolbar for the frame.
+	 */
 	videoPlaylistEditToolbar: function() {
 		var editing = this.state().get('editing');
 		this.toolbar.set( new wp.media.view.Toolbar({
@@ -7223,6 +7460,9 @@ Post = Select.extend(/** @lends wp.media.view.MediaFrame.Post.prototype */{
 		}) );
 	},
 
+	/**
+	 * Handles the add to video playlist toolbar for the frame.
+	 */
 	videoPlaylistAddToolbar: function() {
 		this.toolbar.set( new wp.media.view.Toolbar({
 			controller: this,
@@ -7501,6 +7741,8 @@ module.exports = Heading;
 var Iframe = wp.media.View.extend(/** @lends wp.media.view.Iframe.prototype */{
 	className: 'media-iframe',
 	/**
+	 * Renders the iframe view.
+	 *
 	 * @return {wp.media.view.Iframe} Returns itself to allow chaining.
 	 */
 	render: function() {
@@ -7754,6 +7996,8 @@ MediaFrame = Frame.extend(/** @lends wp.media.view.MediaFrame.prototype */{
 	},
 
 	/**
+	 * Initializes the media frame.
+	 *
 	 * @constructs
 	 */
 	initialize: function() {
@@ -7868,6 +8112,8 @@ MediaFrame = Frame.extend(/** @lends wp.media.view.MediaFrame.prototype */{
 	},
 
 	/**
+	 * Renders the media frame.
+	 *
 	 * @return {wp.media.view.MediaFrame} Returns itself to allow chaining.
 	 */
 	render: function() {
@@ -7881,6 +8127,8 @@ MediaFrame = Frame.extend(/** @lends wp.media.view.MediaFrame.prototype */{
 		return Frame.prototype.render.apply( this, arguments );
 	},
 	/**
+	 * Creates the title view.
+	 *
 	 * @param {Object} title
 	 * @this wp.media.controller.Region
 	 */
@@ -7891,6 +8139,8 @@ MediaFrame = Frame.extend(/** @lends wp.media.view.MediaFrame.prototype */{
 		});
 	},
 	/**
+	 * Creates the menu view.
+	 *
 	 * @param {Object} menu
 	 * @this wp.media.controller.Region
 	 */
@@ -7907,6 +8157,11 @@ MediaFrame = Frame.extend(/** @lends wp.media.view.MediaFrame.prototype */{
 		this.menuView = menu.view;
 	},
 
+	/**
+	 * Toggles the menu visibility.
+	 *
+	 * @param {JQuery.Event} event The click event.
+	 */
 	toggleMenu: function( event ) {
 		var menu = this.$el.find( '.media-menu' );
 
@@ -7915,6 +8170,8 @@ MediaFrame = Frame.extend(/** @lends wp.media.view.MediaFrame.prototype */{
 	},
 
 	/**
+	 * Creates the toolbar view.
+	 *
 	 * @param {Object} toolbar
 	 * @this wp.media.controller.Region
 	 */
@@ -7924,6 +8181,8 @@ MediaFrame = Frame.extend(/** @lends wp.media.view.MediaFrame.prototype */{
 		});
 	},
 	/**
+	 * Creates the router view.
+	 *
 	 * @param {Object} router
 	 * @this wp.media.controller.Region
 	 */
@@ -7940,6 +8199,8 @@ MediaFrame = Frame.extend(/** @lends wp.media.view.MediaFrame.prototype */{
 		this.routerView = router.view;
 	},
 	/**
+	 * Creates the iframe states.
+	 *
 	 * @param {Object} options
 	 */
 	createIframeStates: function( options ) {
@@ -7977,6 +8238,8 @@ MediaFrame = Frame.extend(/** @lends wp.media.view.MediaFrame.prototype */{
 	},
 
 	/**
+	 * Creates the iframe content view.
+	 *
 	 * @param {Object} content
 	 * @this wp.media.controller.Region
 	 */
@@ -7987,10 +8250,18 @@ MediaFrame = Frame.extend(/** @lends wp.media.view.MediaFrame.prototype */{
 		});
 	},
 
+	/**
+	 * Cleans up the iframe content view.
+	 */
 	iframeContentCleanup: function() {
 		this.$el.removeClass('hide-toolbar');
 	},
 
+	/**
+	 * Creates the iframe menu.
+	 *
+	 * @param {wp.media.view.Menu} view The menu view.
+	 */
 	iframeMenu: function( view ) {
 		var views = {};
 
@@ -8008,6 +8279,9 @@ MediaFrame = Frame.extend(/** @lends wp.media.view.MediaFrame.prototype */{
 		view.set( views );
 	},
 
+	/**
+	 * Hijacks the Thickbox close function to close the media modal.
+	 */
 	hijackThickbox: function() {
 		var frame = this;
 
@@ -8024,6 +8298,9 @@ MediaFrame = Frame.extend(/** @lends wp.media.view.MediaFrame.prototype */{
 		};
 	},
 
+	/**
+	 * Restores the Thickbox close function.
+	 */
 	restoreThickbox: function() {
 		if ( ! this._tb_remove ) {
 			return;
@@ -8037,6 +8314,8 @@ MediaFrame = Frame.extend(/** @lends wp.media.view.MediaFrame.prototype */{
 // Map some of the modal's methods to the frame.
 _.each(['open','close','attach','detach','escape'], function( method ) {
 	/**
+	 * Opens the media frame modal.
+	 *
 	 * @function open
 	 * @memberOf wp.media.view.MediaFrame
 	 * @instance
@@ -8044,6 +8323,8 @@ _.each(['open','close','attach','detach','escape'], function( method ) {
 	 * @return {wp.media.view.MediaFrame} Returns itself to allow chaining.
 	 */
 	/**
+	 * Closes the media frame modal.
+	 *
 	 * @function close
 	 * @memberOf wp.media.view.MediaFrame
 	 * @instance
@@ -8051,6 +8332,8 @@ _.each(['open','close','attach','detach','escape'], function( method ) {
 	 * @return {wp.media.view.MediaFrame} Returns itself to allow chaining.
 	 */
 	/**
+	 * Attaches the media frame to the DOM.
+	 *
 	 * @function attach
 	 * @memberOf wp.media.view.MediaFrame
 	 * @instance
@@ -8058,6 +8341,8 @@ _.each(['open','close','attach','detach','escape'], function( method ) {
 	 * @return {wp.media.view.MediaFrame} Returns itself to allow chaining.
 	 */
 	/**
+	 * Detaches the media frame from the DOM.
+	 *
 	 * @function detach
 	 * @memberOf wp.media.view.MediaFrame
 	 * @instance
@@ -8065,6 +8350,8 @@ _.each(['open','close','attach','detach','escape'], function( method ) {
 	 * @return {wp.media.view.MediaFrame} Returns itself to allow chaining.
 	 */
 	/**
+	 * Triggers the escape action on the media frame modal.
+	 *
 	 * @function escape
 	 * @memberOf wp.media.view.MediaFrame
 	 * @instance
@@ -8125,6 +8412,9 @@ MenuItem = wp.media.View.extend(/** @lends wp.media.view.MenuItem.prototype */{
 		}
 	},
 
+	/**
+	 * Handles the click event.
+	 */
 	click: function() {
 		var state = this.options.state;
 
@@ -8136,6 +8426,8 @@ MenuItem = wp.media.View.extend(/** @lends wp.media.view.MenuItem.prototype */{
 	},
 
 	/**
+	 * Renders the menu item.
+	 *
 	 * @return {wp.media.view.MenuItem} returns itself to allow chaining.
 	 */
 	render: function() {
@@ -8190,6 +8482,9 @@ Menu = PriorityList.extend(/** @lends wp.media.view.Menu.prototype */{
 		'aria-orientation': 'horizontal'
 	},
 
+	/**
+	 * Initializes the menu view.
+	 */
 	initialize: function() {
 		this._views = {};
 
@@ -8211,6 +8506,8 @@ Menu = PriorityList.extend(/** @lends wp.media.view.Menu.prototype */{
 	},
 
 	/**
+	 * Creates a view for the given options and id.
+	 *
 	 * @param {Object} options
 	 * @param {string} id
 	 * @return {wp.media.View} The view instance.
@@ -8221,6 +8518,9 @@ Menu = PriorityList.extend(/** @lends wp.media.view.Menu.prototype */{
 		return new this.ItemView( options ).render();
 	},
 
+	/**
+	 * Updates the menu when the state changes.
+	 */
 	ready: function() {
 		/**
 		 * call 'ready' directly on the parent class
@@ -8232,6 +8532,9 @@ Menu = PriorityList.extend(/** @lends wp.media.view.Menu.prototype */{
 		this.focusManager.setupAriaTabs();
 	},
 
+	/**
+	 * Sets the menu items.
+	 */
 	set: function() {
 		/**
 		 * call 'set' directly on the parent class
@@ -8240,6 +8543,9 @@ Menu = PriorityList.extend(/** @lends wp.media.view.Menu.prototype */{
 		this.visibility();
 	},
 
+	/**
+	 * Unsets the menu items.
+	 */
 	unset: function() {
 		/**
 		 * call 'unset' directly on the parent class
@@ -8248,6 +8554,9 @@ Menu = PriorityList.extend(/** @lends wp.media.view.Menu.prototype */{
 		this.visibility();
 	},
 
+	/**
+	 * Updates the menu visibility.
+	 */
 	visibility: function() {
 		var region = this.region,
 			view = this.controller[ region ].get(),
@@ -8262,7 +8571,9 @@ Menu = PriorityList.extend(/** @lends wp.media.view.Menu.prototype */{
 		}
 	},
 	/**
-	 * @param {string} id
+	 * Selects the menu item with the given id.
+	 *
+	 * @param {string} id The menu item id.
 	 */
 	select: function( id ) {
 		var view = this.get( id );
@@ -8278,10 +8589,18 @@ Menu = PriorityList.extend(/** @lends wp.media.view.Menu.prototype */{
 		this.focusManager.setupAriaTabs();
 	},
 
+	/**
+	 * Deselects the menu items.
+	 */
 	deselect: function() {
 		this.$el.children().removeClass('active');
 	},
 
+	/**
+	 * Hides the menu item with the given id.
+	 *
+	 * @param {string} id The menu item id.
+	 */
 	hide: function( id ) {
 		var view = this.get( id );
 
@@ -8292,6 +8611,11 @@ Menu = PriorityList.extend(/** @lends wp.media.view.Menu.prototype */{
 		view.$el.addClass('hidden');
 	},
 
+	/**
+	 * Shows the menu item with the given id.
+	 *
+	 * @param {string} id The menu item id.
+	 */
 	show: function( id ) {
 		var view = this.get( id );
 
@@ -8804,6 +9128,8 @@ Search = wp.media.View.extend(/** @lends wp.media.view.Search.prototype */{
 	},
 
 	/**
+	 * Renders the search input.
+	 *
 	 * @return {wp.media.view.Search} Returns itself to allow chaining.
 	 */
 	render: function() {
@@ -8811,6 +9137,11 @@ Search = wp.media.View.extend(/** @lends wp.media.view.Search.prototype */{
 		return this;
 	},
 
+	/**
+	 * Searches the media library.
+	 *
+	 * @param {JQuery.Event} event The input event.
+	 */
 	search: _.debounce( function( event ) {
 		var searchTerm = event.target.value.trim();
 
@@ -8946,17 +9277,27 @@ Settings = View.extend(/** @lends wp.media.view.Settings.prototype */{
 		'change textarea': 'updateHandler'
 	},
 
+	/**
+	 * Initializes the settings view.
+	 */
 	initialize: function() {
 		this.model = this.model || new Backbone.Model();
 		this.listenTo( this.model, 'change', this.updateChanges );
 	},
 
+	/**
+	 * Prepares the data for rendering.
+	 *
+	 * @return {Object} The data to be used in the template.
+	 */
 	prepare: function() {
 		return _.defaults({
 			model: this.model.toJSON()
 		}, this.options );
 	},
 	/**
+	 * Renders the settings view.
+	 *
 	 * @return {wp.media.view.Settings} Returns itself to allow chaining.
 	 */
 	render: function() {
@@ -8966,6 +9307,8 @@ Settings = View.extend(/** @lends wp.media.view.Settings.prototype */{
 		return this;
 	},
 	/**
+	 * Updates the selected value for a setting.
+	 *
 	 * @param {string} key
 	 */
 	update: function( key ) {
@@ -9013,6 +9356,8 @@ Settings = View.extend(/** @lends wp.media.view.Settings.prototype */{
 		}
 	},
 	/**
+	 * Updates the model when a setting is changed.
+	 *
 	 * @param {Object} event
 	 */
 	updateHandler: function( event ) {
@@ -9042,6 +9387,11 @@ Settings = View.extend(/** @lends wp.media.view.Settings.prototype */{
 		}
 	},
 
+	/**
+	 * Updates the view when the model changes.
+	 *
+	 * @param {Backbone.Model} model The model that changed.
+	 */
 	updateChanges: function( model ) {
 		if ( model.hasChanged() ) {
 			_( model.changed ).chain().keys().each( this.update, this );
@@ -9075,6 +9425,9 @@ AttachmentDisplay = Settings.extend(/** @lends wp.media.view.Settings.Attachment
 	className: 'attachment-display-settings',
 	template:  wp.template('attachment-display-settings'),
 
+	/**
+	 * Initializes the attachment display settings view.
+	 */
 	initialize: function() {
 		var attachment = this.options.attachment;
 
@@ -9090,6 +9443,9 @@ AttachmentDisplay = Settings.extend(/** @lends wp.media.view.Settings.Attachment
 		}
 	},
 
+	/**
+	 * Disposes of the attachment display settings view.
+	 */
 	dispose: function() {
 		var attachment = this.options.attachment;
 		if ( attachment ) {
@@ -9101,6 +9457,8 @@ AttachmentDisplay = Settings.extend(/** @lends wp.media.view.Settings.Attachment
 		Settings.prototype.dispose.apply( this, arguments );
 	},
 	/**
+	 * Renders the attachment display settings view.
+	 *
 	 * @return {wp.media.view.AttachmentDisplay} Returns itself to allow chaining.
 	 */
 	render: function() {
@@ -9119,6 +9477,9 @@ AttachmentDisplay = Settings.extend(/** @lends wp.media.view.Settings.Attachment
 		return this;
 	},
 
+	/**
+	 * Updates the linkTo setting.
+	 */
 	updateLinkTo: function() {
 		var linkTo = this.model.get('link'),
 			$input = this.$('.link-to-custom'),
@@ -9420,6 +9781,9 @@ Toolbar = View.extend(/** @lends wp.media.view.Toolbar.prototype */{
 	tagName:   'div',
 	className: 'media-toolbar',
 
+	/**
+	 * Initializes the toolbar view.
+	 */
 	initialize: function() {
 		var state = this.controller.state(),
 			selection = this.selection = state.get('selection'),
@@ -9454,6 +9818,8 @@ Toolbar = View.extend(/** @lends wp.media.view.Toolbar.prototype */{
 		}
 	},
 	/**
+	 * Disposes of the toolbar view.
+	 *
 	 * @return {wp.media.view.Toolbar} Returns itself to allow chaining
 	 */
 	dispose: function() {
@@ -9470,11 +9836,16 @@ Toolbar = View.extend(/** @lends wp.media.view.Toolbar.prototype */{
 		return View.prototype.dispose.apply( this, arguments );
 	},
 
+	/**
+	 * Prepares the data for rendering.
+	 */
 	ready: function() {
 		this.refresh();
 	},
 
 	/**
+	 * Sets a view by its ID.
+	 *
 	 * @param {string} id
 	 * @param {Backbone.View|Object} view
 	 * @param {Object} [options={}]
@@ -9520,6 +9891,8 @@ Toolbar = View.extend(/** @lends wp.media.view.Toolbar.prototype */{
 		return this._views[ id ];
 	},
 	/**
+	 * Unsets a view by its ID.
+	 *
 	 * @param {string} id
 	 * @param {Object} options
 	 * @return {wp.media.view.Toolbar} Returns itself to allow chaining.
@@ -9536,6 +9909,9 @@ Toolbar = View.extend(/** @lends wp.media.view.Toolbar.prototype */{
 		return this;
 	},
 
+	/**
+	 * Refreshes the toolbar view.
+	 */
 	refresh: function() {
 		var state = this.controller.state(),
 			library = state.get('library'),
@@ -10418,6 +10794,11 @@ module.exports = UploaderWindow;
  * @augments Backbone.View
  */
 var View = wp.Backbone.View.extend(/** @lends wp.media.View.prototype */{
+	/**
+	 * Constructor for the media view.
+	 *
+	 * @param {Object} [options] Options for the view.
+	 */
 	constructor: function( options ) {
 		if ( options && options.controller ) {
 			this.controller = options.controller;
@@ -10425,6 +10806,8 @@ var View = wp.Backbone.View.extend(/** @lends wp.media.View.prototype */{
 		wp.Backbone.View.apply( this, arguments );
 	},
 	/**
+	 * Disposes of the media view.
+	 *
 	 * @todo The internal comment mentions this might have been a stop-gap
 	 *       before Backbone 0.9.8 came out. Figure out if Backbone core takes
 	 *       care of this in Backbone.View now.
@@ -10455,6 +10838,8 @@ var View = wp.Backbone.View.extend(/** @lends wp.media.View.prototype */{
 		return this;
 	},
 	/**
+	 * Removes the media view.
+	 *
 	 * @return {wp.media.View} Returns itself to allow chaining.
 	 */
 	remove: function() {
