@@ -2072,18 +2072,46 @@ var wp;
   // packages/rich-text/build-module/subscribe-owned-listener.mjs
   var import_compose3 = __toESM(require_compose(), 1);
   var { subscribeDelegatedListener: subscribeDelegatedListener3 } = unlock(import_compose3.privateApis);
+  var registries = /* @__PURE__ */ new WeakMap();
   function subscribeOwnedListener(element, eventType, callback, capture = false) {
-    return subscribeDelegatedListener3(
-      element.ownerDocument,
-      eventType,
-      (event) => {
-        if (!element.contains(event.target) && !ownsSelection(element)) {
-          return;
-        }
-        callback(event);
-      },
-      capture
-    );
+    const { ownerDocument } = element;
+    let byEvent = registries.get(ownerDocument);
+    if (!byEvent) {
+      byEvent = /* @__PURE__ */ new Map();
+      registries.set(ownerDocument, byEvent);
+    }
+    const key = capture ? `${eventType}:capture` : eventType;
+    let elements = byEvent.get(key);
+    if (!elements) {
+      elements = /* @__PURE__ */ new WeakMap();
+      byEvent.set(key, elements);
+      subscribeDelegatedListener3(
+        ownerDocument,
+        eventType,
+        (event) => {
+          const { defaultView, activeElement } = ownerDocument;
+          const anchorNode = defaultView?.getSelection()?.anchorNode;
+          for (let node = anchorNode ?? activeElement; node; node = node.parentNode) {
+            const callbacks = elements.get(node);
+            if (callbacks && ownsSelection(node)) {
+              for (const cb of callbacks) {
+                cb(event);
+              }
+            }
+          }
+        },
+        capture
+      );
+    }
+    let set = elements.get(element);
+    if (!set) {
+      set = /* @__PURE__ */ new Set();
+      elements.set(element, set);
+    }
+    set.add(callback);
+    return () => {
+      set.delete(callback);
+    };
   }
 
   // packages/rich-text/build-module/hook/event-listeners/format-boundaries.mjs
@@ -2216,18 +2244,6 @@ var wp;
   ]);
   var EMPTY_ACTIVE_FORMATS2 = [];
   var PLACEHOLDER_ATTR_NAME = "data-rich-text-placeholder";
-  function fixPlaceholderSelection(defaultView) {
-    const selection = defaultView.getSelection();
-    const { anchorNode, anchorOffset } = selection;
-    if (anchorNode.nodeType !== anchorNode.ELEMENT_NODE) {
-      return;
-    }
-    const targetNode = anchorNode.childNodes[anchorOffset];
-    if (!targetNode || targetNode.nodeType !== targetNode.ELEMENT_NODE || !targetNode.hasAttribute(PLACEHOLDER_ATTR_NAME)) {
-      return;
-    }
-    selection.collapseToStart();
-  }
   var input_and_selection_default = (props) => (element) => {
     const { ownerDocument } = element;
     const { defaultView } = ownerDocument;
@@ -2274,6 +2290,9 @@ var wp;
       }
       const { start, end, text } = createRecord();
       const oldRecord = record.current;
+      if (text.length === 0) {
+        applyRecord({ ...oldRecord, start, end });
+      }
       selectionSnapshot = {
         anchorNode: selection.anchorNode,
         anchorOffset: selection.anchorOffset,
@@ -2287,9 +2306,6 @@ var wp;
         return;
       }
       if (start === oldRecord.start && end === oldRecord.end) {
-        if (oldRecord.text.length === 0 && start === 0) {
-          fixPlaceholderSelection(defaultView);
-        }
         return;
       }
       const newValue = {
@@ -2336,6 +2352,7 @@ var wp;
             selection.collapse(element, 0);
           }
         }
+        window.queueMicrotask(handleSelectionChange);
         return;
       }
       if (!isSelected) {
@@ -2375,8 +2392,8 @@ var wp;
       "focusin",
       onFocus
     );
-    const unsubscribeSelectionChange = subscribeDelegatedListener4(
-      ownerDocument,
+    const unsubscribeSelectionChange = subscribeOwnedListener(
+      element,
       "selectionchange",
       handleSelectionChange
     );
@@ -2387,8 +2404,8 @@ var wp;
       "cut",
       "paste"
     ].map(
-      (eventType) => subscribeDelegatedListener4(
-        ownerDocument,
+      (eventType) => subscribeOwnedListener(
+        element,
         eventType,
         handleSelectionChange,
         true
@@ -2490,9 +2507,15 @@ var wp;
         "pointerup",
         onPointerUp
       );
+      const unsubscribePointerCancel = subscribeDelegatedListener6(
+        defaultView,
+        "pointercancel",
+        onPointerUp
+      );
       return () => {
         unsubscribePointerDown();
         unsubscribePointerUp();
+        unsubscribePointerCancel();
       };
     };
   }

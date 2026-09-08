@@ -80,17 +80,17 @@ var require_keyboard_shortcuts = __commonJS({
   }
 });
 
+// package-external:@wordpress/keycodes
+var require_keycodes = __commonJS({
+  "package-external:@wordpress/keycodes"(exports, module) {
+    module.exports = window.wp.keycodes;
+  }
+});
+
 // package-external:@wordpress/primitives
 var require_primitives = __commonJS({
   "package-external:@wordpress/primitives"(exports, module) {
     module.exports = window.wp.primitives;
-  }
-});
-
-// package-external:@wordpress/private-apis
-var require_private_apis = __commonJS({
-  "package-external:@wordpress/private-apis"(exports, module) {
-    module.exports = window.wp.privateApis;
   }
 });
 
@@ -2531,15 +2531,22 @@ var import_element2 = __toESM(require_element(), 1);
 var import_i18n = __toESM(require_i18n(), 1);
 var import_components = __toESM(require_components(), 1);
 var import_keyboard_shortcuts = __toESM(require_keyboard_shortcuts(), 1);
+var import_keycodes = __toESM(require_keycodes(), 1);
 
 // packages/icons/build-module/icon/index.mjs
 var import_element = __toESM(require_element(), 1);
 var icon_default = (0, import_element.forwardRef)(
-  ({ icon, size = 24, ...props }, ref) => {
+  ({ icon, size = 24, style, ...props }, ref) => {
+    const intrinsicStyle = icon.props.style;
+    const mergedStyle = intrinsicStyle || style ? { ...intrinsicStyle, ...style } : void 0;
     return (0, import_element.cloneElement)(icon, {
       width: size,
       height: size,
       ...props,
+      // Merge styles so the icon's intrinsic style (e.g. `fill: none` on
+      // stroke-based icons) is preserved unless the consumer overrides
+      // the same property explicitly.
+      ...mergedStyle ? { style: mergedStyle } : {},
       ref
     });
   }
@@ -2548,27 +2555,17 @@ var icon_default = (0, import_element.forwardRef)(
 // packages/icons/build-module/library/search.mjs
 var import_primitives = __toESM(require_primitives(), 1);
 var import_jsx_runtime8 = __toESM(require_jsx_runtime(), 1);
-var search_default = /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_primitives.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_primitives.Path, { d: "M13 5c-3.3 0-6 2.7-6 6 0 1.4.5 2.7 1.3 3.7l-3.8 3.8 1.1 1.1 3.8-3.8c1 .8 2.3 1.3 3.7 1.3 3.3 0 6-2.7 6-6S16.3 5 13 5zm0 10.5c-2.5 0-4.5-2-4.5-4.5s2-4.5 4.5-4.5 4.5 2 4.5 4.5-2 4.5-4.5 4.5z" }) });
-
-// packages/workflow/build-module/components/workflow-menu.mjs
-import { executeAbility, store as abilitiesStore } from "@wordpress/abilities";
-
-// packages/workflow/build-module/lock-unlock.mjs
-var import_private_apis = __toESM(require_private_apis(), 1);
-var { lock, unlock } = (0, import_private_apis.__dangerousOptInToUnstableAPIsOnlyForCoreModules)(
-  "I acknowledge private features are not for use in themes or plugins and doing so will break in the next version of WordPress.",
-  "@wordpress/workflows"
-);
+var search_default = /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_primitives.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", style: { fill: "none" }, stroke: "currentColor", strokeWidth: "1.5", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_primitives.Path, { d: "M5 19L9.28769 14.7123M18.25 11C18.25 13.8995 15.8995 16.25 13 16.25C10.1005 16.25 7.75 13.8995 7.75 11C7.75 8.10051 10.1005 5.75 13 5.75C15.8995 5.75 18.25 8.10051 18.25 11Z", vectorEffect: "non-scaling-stroke" }) });
 
 // packages/workflow/build-module/components/workflow-menu.mjs
 var import_jsx_runtime9 = __toESM(require_jsx_runtime(), 1);
+import { executeAbility, store as abilitiesStore } from "@wordpress/abilities";
 if (typeof document !== "undefined" && true && !document.head.querySelector("style[data-wp-hash='846895dde0']")) {
   const style = document.createElement("style");
   style.setAttribute("data-wp-hash", "846895dde0");
   style.appendChild(document.createTextNode(":root{--wp-block-synced-color:#7a00df;--wp-block-synced-color--rgb:122,0,223;--wp-bound-block-color:var(--wp-block-synced-color);--wp-editor-canvas-background:#ddd;--wp-admin-theme-color:#007cba;--wp-admin-theme-color--rgb:0,124,186;--wp-admin-theme-color-darker-10:#006ba1;--wp-admin-theme-color-darker-10--rgb:0,107,160.5;--wp-admin-theme-color-darker-20:#005a87;--wp-admin-theme-color-darker-20--rgb:0,90,135;--wp-admin-border-width-focus:2px}@media (-webkit-min-device-pixel-ratio:2),(min-resolution:192dpi){:root{--wp-admin-border-width-focus:1.5px}}.workflows-workflow-menu{border-radius:4px;margin:auto;max-width:400px;position:relative;top:calc(5% + 64px);width:calc(100% - 32px)}@media (min-width:600px){.workflows-workflow-menu{top:calc(10% + 64px)}}.workflows-workflow-menu .components-modal__content{margin:0;padding:0}.workflows-workflow-menu__overlay{align-items:start;display:block}.workflows-workflow-menu__header{padding:0 16px}.workflows-workflow-menu__header-search-icon:dir(ltr){transform:scaleX(-1)}.workflows-workflow-menu__container{will-change:transform}.workflows-workflow-menu__container:focus{outline:none}.workflows-workflow-menu__container [cmdk-input]{border:none;border-radius:0;color:#1e1e1e;font-size:15px;line-height:28px;margin:0;outline:none;padding:16px 4px;width:100%}.workflows-workflow-menu__container [cmdk-input]::placeholder{color:#757575}.workflows-workflow-menu__container [cmdk-input]:focus{box-shadow:none;outline:none}.workflows-workflow-menu__container [cmdk-item]{align-items:center;border-radius:2px;color:#1e1e1e;cursor:var(--wpds-cursor-control,pointer);display:flex;font-size:13px}.workflows-workflow-menu__container [cmdk-item]:active,.workflows-workflow-menu__container [cmdk-item][aria-selected=true]{background:var(--wp-admin-theme-color);color:#fff}.workflows-workflow-menu__container [cmdk-item][aria-disabled=true]{color:#949494;cursor:not-allowed}.workflows-workflow-menu__container [cmdk-item]>div{min-height:40px;padding:4px 4px 4px 16px}.workflows-workflow-menu__container [cmdk-root]>[cmdk-list]{max-height:376px;overflow:auto}.workflows-workflow-menu__container [cmdk-root]>[cmdk-list] [cmdk-list-sizer]>[cmdk-group]:last-child [cmdk-group-items]:not(:empty){padding-bottom:8px}.workflows-workflow-menu__container [cmdk-root]>[cmdk-list] [cmdk-list-sizer]>[cmdk-group]>[cmdk-group-items]:not(:empty){padding:0 8px}.workflows-workflow-menu__container [cmdk-empty]{align-items:center;color:#1e1e1e;display:flex;justify-content:center;padding:8px 0 32px;white-space:pre-wrap}.workflows-workflow-menu__container [cmdk-loading]{padding:16px}.workflows-workflow-menu__container [cmdk-list-sizer]{position:relative}.workflows-workflow-menu__item span{display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.workflows-workflow-menu__item mark{background:unset;color:inherit;font-weight:var(--wpds-typography-font-weight-emphasis,600)}.workflows-workflow-menu__output{padding:16px}.workflows-workflow-menu__output-header{border-bottom:1px solid #ddd;margin-bottom:16px;padding-bottom:8px}.workflows-workflow-menu__output-header h3{color:#1e1e1e;font-size:16px;font-weight:var(--wpds-typography-font-weight-emphasis,600);margin:0 0 4px}.workflows-workflow-menu__output-hint{color:#757575;font-size:12px;margin:0}.workflows-workflow-menu__output-content{max-height:400px;overflow:auto}.workflows-workflow-menu__output-content pre{background:#f0f0f0;border-radius:2px;color:#1e1e1e;font-size:12px;line-height:1.5;margin:0;padding:12px;white-space:pre-wrap;word-break:break-word}.workflows-workflow-menu__output-error{background:#e0e0e0;border:1px solid #9e1313;border-radius:2px;color:#cc1818;padding:12px}.workflows-workflow-menu__output-error p{font-size:13px;margin:0}.workflows-workflow-menu__executing{color:#757575;font-size:14px;padding:24px 16px}"));
   document.head.appendChild(style);
 }
-var { withIgnoreIMEEvents } = unlock(import_components.privateApis);
 var EMPTY_ARRAY = [];
 var inputLabel = (0, import_i18n.__)("Run abilities and workflows");
 function WorkflowInput({ isOpen, search, setSearch, abilities }) {
@@ -2633,7 +2630,7 @@ function WorkflowMenu() {
   (0, import_keyboard_shortcuts.useShortcut)(
     "core/workflows",
     /** @type {React.KeyboardEventHandler} */
-    withIgnoreIMEEvents((event) => {
+    (0, import_keycodes.withIgnoreIMEEvents)((event) => {
       if (event.defaultPrevented) {
         return;
       }
@@ -2705,7 +2702,7 @@ function WorkflowMenu() {
         "div",
         {
           className: "workflows-workflow-menu__container",
-          onKeyDown: withIgnoreIMEEvents(onContainerKeyDown),
+          onKeyDown: (0, import_keycodes.withIgnoreIMEEvents)(onContainerKeyDown),
           ref: containerRef,
           tabIndex: -1,
           role: "presentation",

@@ -1158,7 +1158,7 @@ var wp;
         }
         render() {
           return (
-            // @ts-ignore
+            // @ts-expect-error `LibraryManagedAttributes` cannot see the injected timeout props.
             /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
               OriginalComponent,
               {
@@ -2032,7 +2032,7 @@ var wp;
   ViewportMatchWidthContext.displayName = "ViewportMatchWidthContext";
   var useViewportMatch = (breakpoint, operator = ">=", view = typeof window !== "undefined" ? window : void 0) => {
     const simulatedWidth = (0, import_element21.useContext)(ViewportMatchWidthContext);
-    const mediaQuery = !simulatedWidth && `(${CONDITIONS[operator]}: ${BREAKPOINTS[breakpoint]}px)`;
+    const mediaQuery = !simulatedWidth && `screen and (${CONDITIONS[operator]}: ${BREAKPOINTS[breakpoint]}px)`;
     const mediaQueryResult = useMediaQuery(mediaQuery || void 0, view);
     if (simulatedWidth) {
       return OPERATOR_EVALUATORS[operator](
@@ -2402,8 +2402,12 @@ var wp;
   var import_keycodes2 = __toESM(require_keycodes(), 1);
   var DEFAULT_INIT_WINDOW_SIZE = 30;
   function useFixedWindowList(elementRef, itemHeight, totalItems, options) {
-    const initWindowSize = options?.initWindowSize ?? DEFAULT_INIT_WINDOW_SIZE;
-    const useWindowing = options?.useWindowing ?? true;
+    const {
+      windowOverscan,
+      useWindowing = true,
+      initWindowSize = DEFAULT_INIT_WINDOW_SIZE,
+      expandedState
+    } = options ?? {};
     const [fixedListWindow, setFixedListWindow] = (0, import_element28.useState)(
       {
         visibleItems: initWindowSize,
@@ -2414,117 +2418,109 @@ var wp;
         }
       }
     );
+    const visibleItemsRef = (0, import_element28.useRef)(initWindowSize);
+    const isFirstMeasurementRef = (0, import_element28.useRef)(true);
+    const measureWindow = useEvent((initRender) => {
+      const scrollContainer = (0, import_dom3.getScrollContainer)(elementRef.current);
+      if (!scrollContainer) {
+        return;
+      }
+      const visibleItems = Math.ceil(
+        scrollContainer.clientHeight / itemHeight
+      );
+      visibleItemsRef.current = visibleItems;
+      const isFirstMeasurement = isFirstMeasurementRef.current;
+      isFirstMeasurementRef.current = false;
+      const overscan = initRender ? visibleItems : windowOverscan ?? visibleItems;
+      const firstViewableIndex = Math.floor(
+        scrollContainer.scrollTop / itemHeight
+      );
+      const start = Math.max(0, firstViewableIndex - overscan);
+      const end = Math.min(
+        totalItems - 1,
+        firstViewableIndex + visibleItems + overscan
+      );
+      setFixedListWindow((lastWindow) => {
+        if (lastWindow.start <= start && lastWindow.end >= end) {
+          return lastWindow;
+        }
+        if (isFirstMeasurement && lastWindow.start <= firstViewableIndex && lastWindow.end >= firstViewableIndex + visibleItems) {
+          return lastWindow;
+        }
+        return {
+          visibleItems,
+          start,
+          end,
+          itemInView: (index) => {
+            return start <= index && index <= end;
+          }
+        };
+      });
+    });
+    const handleKeyDown = useEvent(
+      (event, scrollContainer) => {
+        switch (event.keyCode) {
+          case import_keycodes2.HOME: {
+            return scrollContainer.scrollTo({ top: 0 });
+          }
+          case import_keycodes2.END: {
+            return scrollContainer.scrollTo({
+              top: totalItems * itemHeight
+            });
+          }
+          case import_keycodes2.PAGEUP: {
+            return scrollContainer.scrollTo({
+              top: scrollContainer.scrollTop - visibleItemsRef.current * itemHeight
+            });
+          }
+          case import_keycodes2.PAGEDOWN: {
+            return scrollContainer.scrollTo({
+              top: scrollContainer.scrollTop + visibleItemsRef.current * itemHeight
+            });
+          }
+        }
+      }
+    );
     (0, import_element28.useLayoutEffect)(() => {
       if (!useWindowing) {
         return;
       }
-      const scrollContainer = (0, import_dom3.getScrollContainer)(elementRef.current);
-      const measureWindow = (initRender) => {
-        if (!scrollContainer) {
-          return;
-        }
-        const visibleItems = Math.ceil(
-          scrollContainer.clientHeight / itemHeight
-        );
-        const windowOverscan = initRender ? visibleItems : options?.windowOverscan ?? visibleItems;
-        const firstViewableIndex = Math.floor(
-          scrollContainer.scrollTop / itemHeight
-        );
-        const start = Math.max(0, firstViewableIndex - windowOverscan);
-        const end = Math.min(
-          totalItems - 1,
-          firstViewableIndex + visibleItems + windowOverscan
-        );
-        setFixedListWindow((lastWindow) => {
-          const nextWindow = {
-            visibleItems,
-            start,
-            end,
-            itemInView: (index) => {
-              return start <= index && index <= end;
-            }
-          };
-          if (lastWindow.start !== nextWindow.start || lastWindow.end !== nextWindow.end || lastWindow.visibleItems !== nextWindow.visibleItems) {
-            return nextWindow;
-          }
-          return lastWindow;
-        });
-      };
       measureWindow(true);
-      const debounceMeasureList = debounce(() => {
-        measureWindow();
-      }, 16);
-      scrollContainer?.addEventListener("scroll", debounceMeasureList);
-      scrollContainer?.ownerDocument?.defaultView?.addEventListener(
-        "resize",
-        debounceMeasureList
-      );
-      scrollContainer?.ownerDocument?.defaultView?.addEventListener(
-        "resize",
-        debounceMeasureList
-      );
-      return () => {
-        scrollContainer?.removeEventListener(
-          "scroll",
-          debounceMeasureList
-        );
-        scrollContainer?.ownerDocument?.defaultView?.removeEventListener(
-          "resize",
-          debounceMeasureList
-        );
-      };
     }, [
+      useWindowing,
+      measureWindow,
       itemHeight,
-      elementRef,
       totalItems,
-      options?.expandedState,
-      options?.windowOverscan,
-      useWindowing
+      windowOverscan,
+      expandedState
     ]);
     (0, import_element28.useLayoutEffect)(() => {
       if (!useWindowing) {
         return;
       }
       const scrollContainer = (0, import_dom3.getScrollContainer)(elementRef.current);
-      const handleKeyDown = (event) => {
-        switch (event.keyCode) {
-          case import_keycodes2.HOME: {
-            return scrollContainer?.scrollTo({ top: 0 });
-          }
-          case import_keycodes2.END: {
-            return scrollContainer?.scrollTo({
-              top: totalItems * itemHeight
-            });
-          }
-          case import_keycodes2.PAGEUP: {
-            return scrollContainer?.scrollTo({
-              top: scrollContainer.scrollTop - fixedListWindow.visibleItems * itemHeight
-            });
-          }
-          case import_keycodes2.PAGEDOWN: {
-            return scrollContainer?.scrollTo({
-              top: scrollContainer.scrollTop + fixedListWindow.visibleItems * itemHeight
-            });
-          }
-        }
-      };
-      scrollContainer?.ownerDocument?.defaultView?.addEventListener(
-        "keydown",
-        handleKeyDown
-      );
+      if (!scrollContainer) {
+        return;
+      }
+      const { defaultView } = scrollContainer.ownerDocument;
+      const onMeasure = () => measureWindow();
+      const onKeyDown = (event) => handleKeyDown(event, scrollContainer);
+      scrollContainer.addEventListener("scroll", onMeasure);
+      defaultView?.addEventListener("resize", onMeasure);
+      defaultView?.addEventListener("keydown", onKeyDown);
       return () => {
-        scrollContainer?.ownerDocument?.defaultView?.removeEventListener(
-          "keydown",
-          handleKeyDown
-        );
+        scrollContainer.removeEventListener("scroll", onMeasure);
+        defaultView?.removeEventListener("resize", onMeasure);
+        defaultView?.removeEventListener("keydown", onKeyDown);
       };
     }, [
-      totalItems,
-      itemHeight,
-      elementRef,
-      fixedListWindow.visibleItems,
       useWindowing,
-      options?.expandedState
+      elementRef,
+      itemHeight,
+      totalItems,
+      expandedState,
+      measureWindow,
+      handleKeyDown
     ]);
     return [fixedListWindow, setFixedListWindow];
   }

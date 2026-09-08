@@ -1,3 +1,14 @@
+:where(.wp-block-navigation-overlay-close) {
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-style: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  text-transform: inherit;
+}
+
 .wp-block-navigation-overlay-close {
   display: inline-flex;
   align-items: center;

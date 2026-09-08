@@ -271,6 +271,21 @@ var wp;
     if (rects.length > 1) {
       return null;
     }
+    if (rects.length === 1 && startContainer.nodeType === startContainer.TEXT_NODE && range.startOffset > 0 && range.startOffset < /** @type {Text} */
+    startContainer.length) {
+      assertIsDefined(ownerDocument, "ownerDocument");
+      const measure = (start, end) => {
+        const charRange = ownerDocument.createRange();
+        charRange.setStart(startContainer, start);
+        charRange.setEnd(startContainer, end);
+        return charRange.getBoundingClientRect();
+      };
+      const before = measure(range.startOffset - 1, range.startOffset);
+      const after = measure(range.startOffset, range.startOffset + 1);
+      if (before.bottom <= after.top) {
+        return null;
+      }
+    }
     let rect = rects[0];
     if (!rect || rect.height === 0) {
       assertIsDefined(ownerDocument, "ownerDocument");
@@ -981,7 +996,11 @@ var wp;
               allowEmpty
             } = schema[tag];
             if (children && !allowEmpty && isEmpty(node)) {
-              remove(node);
+              if (isPhrasingContent(node) && node.hasChildNodes()) {
+                unwrap(node);
+              } else {
+                remove(node);
+              }
               return;
             }
             if (node.hasAttributes()) {

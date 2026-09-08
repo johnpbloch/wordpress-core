@@ -444,7 +444,7 @@ function resolveDeps(load, seen) {
   if (!imports.length) {
     resolvedSource += source;
   } else {
-    let pushStringTo = function(originalIndex) {
+    let pushStringTo2 = function(originalIndex) {
       while (dynamicImportEndStack.length && dynamicImportEndStack[dynamicImportEndStack.length - 1] < originalIndex) {
         const dynamicImportEnd = dynamicImportEndStack.pop();
         resolvedSource += `${source.slice(
@@ -456,6 +456,7 @@ function resolveDeps(load, seen) {
       resolvedSource += source.slice(lastIndex, originalIndex);
       lastIndex = originalIndex;
     };
+    var pushStringTo = pushStringTo2;
     let lastIndex = 0;
     let depIndex = 0;
     const dynamicImportEndStack = [];
@@ -485,7 +486,7 @@ function resolveDeps(load, seen) {
             );
           }
         }
-        pushStringTo(start - 1);
+        pushStringTo2(start - 1);
         resolvedSource += `/*${source.slice(
           start - 1,
           statementEnd
@@ -498,7 +499,7 @@ function resolveDeps(load, seen) {
       } else if (dynamicImportIndex === -2) {
         throw Error("The import.meta property is not supported.");
       } else {
-        pushStringTo(statementStart);
+        pushStringTo2(statementStart);
         resolvedSource += `wpInteractivityRouterImport(`;
         dynamicImportEndStack.push(statementEnd - 1);
         lastIndex = start;
@@ -509,7 +510,7 @@ function resolveDeps(load, seen) {
 ;import{u$_}from'${load.shellUrl}';try{u$_({${exports.filter((e) => e.ln).map(({ s, e, ln }) => `${source.slice(s, e)}:${ln}`).join(",")}})}catch(_){};
 `;
     }
-    pushStringTo(source.length);
+    pushStringTo2(source.length);
   }
   let hasSourceURL = false;
   resolvedSource = resolvedSource.replace(

@@ -88,6 +88,13 @@ var wp;
     }
   });
 
+  // package-external:@wordpress/keycodes
+  var require_keycodes = __commonJS({
+    "package-external:@wordpress/keycodes"(exports, module) {
+      module.exports = window.wp.keycodes;
+    }
+  });
+
   // package-external:@wordpress/primitives
   var require_primitives = __commonJS({
     "package-external:@wordpress/primitives"(exports, module) {
@@ -2570,15 +2577,22 @@ For more information, see https://radix-ui.com/primitives/docs/components/${titl
   var import_i18n = __toESM(require_i18n(), 1);
   var import_components = __toESM(require_components(), 1);
   var import_keyboard_shortcuts = __toESM(require_keyboard_shortcuts(), 1);
+  var import_keycodes = __toESM(require_keycodes(), 1);
 
   // packages/icons/build-module/icon/index.mjs
   var import_element = __toESM(require_element(), 1);
   var icon_default = (0, import_element.forwardRef)(
-    ({ icon, size = 24, ...props }, ref) => {
+    ({ icon, size = 24, style, ...props }, ref) => {
+      const intrinsicStyle = icon.props.style;
+      const mergedStyle = intrinsicStyle || style ? { ...intrinsicStyle, ...style } : void 0;
       return (0, import_element.cloneElement)(icon, {
         width: size,
         height: size,
         ...props,
+        // Merge styles so the icon's intrinsic style (e.g. `fill: none` on
+        // stroke-based icons) is preserved unless the consumer overrides
+        // the same property explicitly.
+        ...mergedStyle ? { style: mergedStyle } : {},
         ref
       });
     }
@@ -2587,12 +2601,12 @@ For more information, see https://radix-ui.com/primitives/docs/components/${titl
   // packages/icons/build-module/library/arrow-right.mjs
   var import_primitives = __toESM(require_primitives(), 1);
   var import_jsx_runtime8 = __toESM(require_jsx_runtime(), 1);
-  var arrow_right_default = /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_primitives.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_primitives.Path, { d: "m14.5 6.5-1 1 3.7 3.7H4v1.6h13.2l-3.7 3.7 1 1 5.6-5.5z" }) });
+  var arrow_right_default = /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_primitives.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", style: { fill: "none" }, stroke: "currentColor", strokeWidth: "1.5", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_primitives.Path, { d: "M4 12L19 12M14 17L19 12L14 7", vectorEffect: "non-scaling-stroke" }) });
 
   // packages/icons/build-module/library/search.mjs
   var import_primitives2 = __toESM(require_primitives(), 1);
   var import_jsx_runtime9 = __toESM(require_jsx_runtime(), 1);
-  var search_default = /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_primitives2.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_primitives2.Path, { d: "M13 5c-3.3 0-6 2.7-6 6 0 1.4.5 2.7 1.3 3.7l-3.8 3.8 1.1 1.1 3.8-3.8c1 .8 2.3 1.3 3.7 1.3 3.3 0 6-2.7 6-6S16.3 5 13 5zm0 10.5c-2.5 0-4.5-2-4.5-4.5s2-4.5 4.5-4.5 4.5 2 4.5 4.5-2 4.5-4.5 4.5z" }) });
+  var search_default = /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_primitives2.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", style: { fill: "none" }, stroke: "currentColor", strokeWidth: "1.5", children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_primitives2.Path, { d: "M5 19L9.28769 14.7123M18.25 11C18.25 13.8995 15.8995 16.25 13 16.25C10.1005 16.25 7.75 13.8995 7.75 11C7.75 8.10051 10.1005 5.75 13 5.75C15.8995 5.75 18.25 8.10051 18.25 11Z", vectorEffect: "non-scaling-stroke" }) });
 
   // packages/commands/build-module/store/index.mjs
   var import_data3 = __toESM(require_data(), 1);
@@ -2908,10 +2922,9 @@ For more information, see https://radix-ui.com/primitives/docs/components/${titl
 
   // packages/commands/build-module/components/command-menu.mjs
   var import_jsx_runtime10 = __toESM(require_jsx_runtime(), 1);
-  var { withIgnoreIMEEvents } = unlock(import_components.privateApis);
   var ITEM_ID_PREFIX = "command-palette-item-";
   var inputLabel = (0, import_i18n.__)("Search commands and settings");
-  var CATEGORY_ICONS = {
+  var CATEGORY_FALLBACK_ICONS = {
     view: arrow_right_default
   };
   var CATEGORY_LABELS = {
@@ -2927,6 +2940,7 @@ For more information, see https://radix-ui.com/primitives/docs/components/${titl
   function CommandItem({ command, search, category, valuePrefix }) {
     const { close: close2 } = (0, import_data5.useDispatch)(store);
     const commandCategory = category ?? command.category;
+    const icon = command.icon ?? CATEGORY_FALLBACK_ICONS[commandCategory];
     const label = command.searchLabel ?? command.label;
     const value = valuePrefix ? `${valuePrefix}${command.name}` : label;
     return /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
@@ -2944,10 +2958,10 @@ For more information, see https://radix-ui.com/primitives/docs/components/${titl
           {
             alignment: "left",
             className: clsx_default("commands-command-menu__item", {
-              "has-icon": CATEGORY_ICONS[commandCategory] || command.icon
+              "has-icon": !!icon
             }),
             children: [
-              CATEGORY_ICONS[commandCategory] ? /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(icon_default, { icon: CATEGORY_ICONS[commandCategory] }) : isValidIcon(command.icon) && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(icon_default, { icon: command.icon }),
+              isValidIcon(icon) && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(icon_default, { icon }),
               /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "commands-command-menu__item-label", children: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
                 import_components.TextHighlight,
                 {
@@ -3138,7 +3152,7 @@ For more information, see https://radix-ui.com/primitives/docs/components/${titl
     (0, import_keyboard_shortcuts.useShortcut)(
       "core/commands",
       /** @type {React.KeyboardEventHandler} */
-      withIgnoreIMEEvents((event) => {
+      (0, import_keycodes.withIgnoreIMEEvents)((event) => {
         if (event.defaultPrevented) {
           return;
         }

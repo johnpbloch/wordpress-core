@@ -70,7 +70,8 @@ var wp;
     isKeyboardEvent: () => isKeyboardEvent,
     modifiers: () => modifiers,
     rawShortcut: () => rawShortcut,
-    shortcutAriaLabel: () => shortcutAriaLabel
+    shortcutAriaLabel: () => shortcutAriaLabel,
+    withIgnoreIMEEvents: () => withIgnoreIMEEvents
   });
   var import_i18n = __toESM(require_i18n(), 1);
 
@@ -84,6 +85,20 @@ var wp;
     }
     const { platform } = _window.navigator;
     return platform.indexOf("Mac") !== -1 || ["iPad", "iPhone"].includes(platform);
+  }
+
+  // packages/keycodes/build-module/with-ignore-ime-events.mjs
+  function withIgnoreIMEEvents(handler) {
+    return (event) => {
+      const { isComposing } = "nativeEvent" in event ? event.nativeEvent : event;
+      if (isComposing || // Workaround for Mac Safari where the final Enter/Backspace of an IME composition
+      // is `isComposing=false`, even though it's technically still part of the composition.
+      // These can only be detected by keyCode.
+      event.keyCode === 229) {
+        return;
+      }
+      handler(event);
+    };
   }
 
   // packages/keycodes/build-module/index.mjs

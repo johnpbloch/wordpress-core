@@ -116,11 +116,11 @@
   display: flex;
 }
 .block-directory-block-ratings svg {
-  fill: #1e1e1e;
+  color: #1e1e1e;
   margin-left: -4px;
 }
 .block-directory-block-ratings .block-directory-block-ratings__star-empty {
-  fill: #ccc;
+  color: #ccc;
 }
 
 .block-directory-compact-list {
@@ -169,9 +169,7 @@
   height: auto;
   padding: 12px;
   margin: 0;
-  -webkit-appearance: none;
-     -moz-appearance: none;
-          appearance: none;
+  appearance: none;
   background: none;
   border: 0;
   text-align: left;

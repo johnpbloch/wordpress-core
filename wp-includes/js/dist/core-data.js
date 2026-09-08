@@ -386,6 +386,13 @@ var wp;
     }
   });
 
+  // package-external:@wordpress/notices
+  var require_notices = __commonJS({
+    "package-external:@wordpress/notices"(exports, module) {
+      module.exports = window.wp.notices;
+    }
+  });
+
   // package-external:@wordpress/html-entities
   var require_html_entities = __commonJS({
     "package-external:@wordpress/html-entities"(exports, module) {
@@ -414,6 +421,20 @@ var wp;
     }
   });
 
+  // package-external:@wordpress/primitives
+  var require_primitives = __commonJS({
+    "package-external:@wordpress/primitives"(exports, module) {
+      module.exports = window.wp.primitives;
+    }
+  });
+
+  // package-external:@wordpress/components
+  var require_components = __commonJS({
+    "package-external:@wordpress/components"(exports, module) {
+      module.exports = window.wp.components;
+    }
+  });
+
   // packages/core-data/build-module/index.mjs
   var index_exports = {};
   __export(index_exports, {
@@ -433,7 +454,7 @@ var wp;
     useEntityRecords: () => useEntityRecords,
     useResourcePermissions: () => use_resource_permissions_default
   });
-  var import_data15 = __toESM(require_data(), 1);
+  var import_data20 = __toESM(require_data(), 1);
 
   // packages/core-data/build-module/reducer.mjs
   var import_es65 = __toESM(require_es6(), 1);
@@ -496,6 +517,56 @@ var wp;
   }
   var get_normalized_comma_separable_default = getNormalizedCommaSeparable;
 
+  // packages/core-data/build-module/utils/set-nested-value.mjs
+  function setNestedValue(object, path, value) {
+    if (!object || typeof object !== "object") {
+      return object;
+    }
+    const normalizedPath = Array.isArray(path) ? path : path.split(".");
+    normalizedPath.reduce((acc, key, idx) => {
+      if (acc[key] === void 0) {
+        if (Number.isInteger(normalizedPath[idx + 1])) {
+          acc[key] = [];
+        } else {
+          acc[key] = {};
+        }
+      }
+      if (idx === normalizedPath.length - 1) {
+        acc[key] = value;
+      }
+      return acc[key];
+    }, object);
+    return object;
+  }
+
+  // packages/core-data/build-module/utils/get-filtered-item.mjs
+  var filteredItemCache = /* @__PURE__ */ new WeakMap();
+  function getFilteredItem(item, _fields) {
+    const fields = get_normalized_comma_separable_default(_fields) ?? [];
+    const fieldsKey = fields.join(",");
+    let itemCache = filteredItemCache.get(item);
+    if (itemCache) {
+      const filtered = itemCache.get(fieldsKey);
+      if (filtered !== void 0) {
+        return filtered;
+      }
+    } else if (item !== null && typeof item === "object") {
+      itemCache = /* @__PURE__ */ new Map();
+      filteredItemCache.set(item, itemCache);
+    }
+    const filteredItem = {};
+    for (let f = 0; f < fields.length; f++) {
+      const field = fields[f].split(".");
+      let value = item;
+      field.forEach((fieldName) => {
+        value = value?.[fieldName];
+      });
+      setNestedValue(filteredItem, field, value);
+    }
+    itemCache?.set(fieldsKey, filteredItem);
+    return filteredItem;
+  }
+
   // packages/core-data/build-module/utils/if-matching-action.mjs
   var ifMatchingAction = (isMatch) => (reducer) => (state, action) => {
     if (state === void 0 || isMatch(action)) {
@@ -534,28 +605,6 @@ var wp;
     };
   }
   var with_weak_map_cache_default = withWeakMapCache;
-
-  // packages/core-data/build-module/utils/set-nested-value.mjs
-  function setNestedValue(object, path, value) {
-    if (!object || typeof object !== "object") {
-      return object;
-    }
-    const normalizedPath = Array.isArray(path) ? path : path.split(".");
-    normalizedPath.reduce((acc, key, idx) => {
-      if (acc[key] === void 0) {
-        if (Number.isInteger(normalizedPath[idx + 1])) {
-          acc[key] = [];
-        } else {
-          acc[key] = {};
-        }
-      }
-      if (idx === normalizedPath.length - 1) {
-        acc[key] = value;
-      }
-      return acc[key];
-    }, object);
-    return object;
-  }
 
   // packages/core-data/build-module/utils/get-nested-value.mjs
   function getNestedValue(object, path, defaultValue) {
@@ -640,16 +689,39 @@ var wp;
     LOCAL_UNDO_IGNORED_ORIGIN,
     retrySyncConnection
   } = unlock(import_sync.privateApis);
+  var CRDT_AUTOSAVE_SNAPSHOT_KEY = "crdt_snapshot";
   var syncManager;
   function getSyncManager() {
     if (syncManager) {
       return syncManager;
+    }
+    if (!globalThis.window?.__experimentalEnableRealTimeCollaboration) {
+      return void 0;
     }
     syncManager = createSyncManager();
     return syncManager;
   }
   function hasSyncManager() {
     return Boolean(syncManager);
+  }
+  function getEntitySnapshot(kind, name, recordId) {
+    if (!hasSyncManager()) {
+      return void 0;
+    }
+    return getSyncManager()?.getEntitySnapshot(
+      `${kind}/${name}`,
+      `${recordId}`
+    );
+  }
+  function entityContainsSnapshot(kind, name, recordId, encodedSnapshot) {
+    if (!hasSyncManager()) {
+      return false;
+    }
+    return getSyncManager()?.entityContainsSnapshot(
+      `${kind}/${name}`,
+      `${recordId}`,
+      encodedSnapshot
+    ) ?? false;
   }
 
   // packages/core-data/build-module/utils/save-crdt-doc.mjs
@@ -685,6 +757,16 @@ var wp;
         saveCRDTDocQueues.delete(room);
       }
     }
+  }
+
+  // packages/core-data/build-module/utils/get-pagination-meta.mjs
+  function getPaginationMeta(headers) {
+    const totalItems = parseInt(headers.get("X-WP-Total") ?? "");
+    const totalPages = parseInt(headers.get("X-WP-TotalPages") ?? "");
+    return {
+      totalItems: Number.isFinite(totalItems) ? totalItems : null,
+      totalPages: Number.isFinite(totalPages) ? totalPages : null
+    };
   }
 
   // packages/core-data/build-module/queried-data/actions.mjs
@@ -1007,16 +1089,47 @@ var wp;
       return value === collaboratorInfo2[key];
     });
   }
-  function generateCollaboratorInfo(currentCollaborator) {
-    const { avatar_urls, id, name, slug } = currentCollaborator;
-    return {
-      avatar_urls,
-      // eslint-disable-line camelcase
+  function hasValidAvatarUrls(value) {
+    if ("object" !== typeof value || null === value || Array.isArray(value)) {
+      return false;
+    }
+    return ["24", "48", "96"].every(
+      (size) => !(size in value) || "string" === typeof value[size]
+    );
+  }
+  function isCollaboratorInfo(value) {
+    if ("object" !== typeof value || null === value) {
+      return false;
+    }
+    return "id" in value && "name" in value && "slug" in value && "browserType" in value && "enteredAt" in value && (null === value.id || "number" === typeof value.id && Number.isInteger(value.id) && value.id > 0) && "string" === typeof value.name && "" !== value.name.trim() && "string" === typeof value.slug && (!("avatar_urls" in value) || hasValidAvatarUrls(value.avatar_urls)) && "string" === typeof value.browserType && "number" === typeof value.enteredAt && Number.isFinite(value.enteredAt);
+  }
+  function generateCollaboratorInfo(currentCollaborator, clientId) {
+    const presentationInfo = {
       browserType: getBrowserName(),
-      enteredAt: Date.now(),
-      id,
-      name,
-      slug
+      enteredAt: Date.now()
+    };
+    if ("object" === typeof currentCollaborator && currentCollaborator) {
+      const user = currentCollaborator;
+      if ("id" in user && "name" in user) {
+        const collaboratorInfo = {
+          ...presentationInfo,
+          ..."avatar_urls" in user && hasValidAvatarUrls(user.avatar_urls) ? { avatar_urls: user.avatar_urls } : {},
+          id: user.id,
+          name: user.name,
+          slug: "slug" in user && "string" === typeof user.slug ? user.slug : ""
+        };
+        if (isCollaboratorInfo(collaboratorInfo) && null !== collaboratorInfo.id) {
+          return collaboratorInfo;
+        }
+      }
+    }
+    return {
+      ...presentationInfo,
+      id: null,
+      // Keep shared awareness data language-neutral. The editor localizes this
+      // fallback name for the viewer when it is displayed.
+      name: "Anonymous User",
+      slug: `anonymous-${clientId}`
     };
   }
   function getRecordValue(obj, key) {
@@ -1303,9 +1416,15 @@ var wp;
      * Set the current collaborator info in the local state.
      */
     async setCurrentCollaboratorInfo() {
-      const currentUser2 = await (0, import_data.resolveSelect)(STORE_NAME).getCurrentUser();
-      const collaboratorInfo = generateCollaboratorInfo(currentUser2);
-      this.setLocalStateField("collaboratorInfo", collaboratorInfo);
+      let currentUser2;
+      try {
+        currentUser2 = await (0, import_data.resolveSelect)(STORE_NAME).getCurrentUser();
+      } catch {
+      }
+      this.setLocalStateField(
+        "collaboratorInfo",
+        generateCollaboratorInfo(currentUser2, this.clientID)
+      );
     }
   };
   var baseEqualityFieldChecks = {
@@ -1375,9 +1494,9 @@ var wp;
     return null;
   }
   function usePostContentBlocks() {
-    return (0, import_data2.useSelect)((select4) => {
+    return (0, import_data2.useSelect)((select5) => {
       const { getBlocksByName, getClientIdsTree } = unlock(
-        select4(import_block_editor.store)
+        select5(import_block_editor.store)
       );
       const [postContentClientId] = getBlocksByName("core/post-content");
       return getClientIdsTree(postContentClientId ?? "");
@@ -1551,30 +1670,30 @@ var wp;
         cursorPosition
       };
     } else if (isSelectionInOneBlock) {
-      const cursorStartPosition2 = getCursorPosition(
+      const cursorStartPosition = getCursorPosition(
         selectionStart,
         yBlocks
       );
-      const cursorEndPosition2 = getCursorPosition(selectionEnd, yBlocks);
-      if (!cursorStartPosition2 || !cursorEndPosition2) {
+      const cursorEndPosition = getCursorPosition(selectionEnd, yBlocks);
+      if (!cursorStartPosition || !cursorEndPosition) {
         return noSelection;
       }
       return {
         type: "selection-in-one-block",
-        cursorStartPosition: cursorStartPosition2,
-        cursorEndPosition: cursorEndPosition2,
+        cursorStartPosition,
+        cursorEndPosition,
         selectionDirection
       };
     }
-    const cursorStartPosition = getCursorPosition(selectionStart, yBlocks);
-    const cursorEndPosition = getCursorPosition(selectionEnd, yBlocks);
-    if (!cursorStartPosition || !cursorEndPosition) {
+    const startEndpoint = getSelectionEndpoint(selectionStart, yBlocks);
+    const endEndpoint = getSelectionEndpoint(selectionEnd, yBlocks);
+    if (!startEndpoint || !endEndpoint) {
       return noSelection;
     }
     return {
       type: "selection-in-multiple-blocks",
-      cursorStartPosition,
-      cursorEndPosition,
+      startEndpoint,
+      endEndpoint,
       selectionDirection
     };
   }
@@ -1601,6 +1720,18 @@ var wp;
       absoluteOffset: selection.offset,
       attributeKey: selection.attributeKey
     };
+  }
+  function getSelectionEndpoint(selection, blocks) {
+    const cursorPosition = getCursorPosition(selection, blocks);
+    if (cursorPosition) {
+      return { type: "cursor", cursorPosition };
+    }
+    const path = getBlockPathForLocalClientId(selection.clientId);
+    const blockPosition = path ? createRelativePositionForBlockPath(path, blocks) : null;
+    if (blockPosition) {
+      return { type: "whole-block", blockPosition };
+    }
+    return null;
   }
   function getBlockPathForLocalClientId(clientId) {
     const { getBlockIndex, getBlockRootClientId, getBlockName } = (0, import_data3.select)(import_block_editor2.store);
@@ -1679,12 +1810,12 @@ var wp;
           selection2.cursorEndPosition
         ) && selection1.selectionDirection === selection2.selectionDirection;
       case "selection-in-multiple-blocks":
-        return areCursorPositionsEqual(
-          selection1.cursorStartPosition,
-          selection2.cursorStartPosition
-        ) && areCursorPositionsEqual(
-          selection1.cursorEndPosition,
-          selection2.cursorEndPosition
+        return areEndpointsEqual(
+          selection1.startEndpoint,
+          selection2.startEndpoint
+        ) && areEndpointsEqual(
+          selection1.endEndpoint,
+          selection2.endEndpoint
         ) && selection1.selectionDirection === selection2.selectionDirection;
       case "whole-block":
         return import_sync7.Y.compareRelativePositions(
@@ -1694,6 +1825,21 @@ var wp;
       default:
         return false;
     }
+  }
+  function areEndpointsEqual(ep1, ep2) {
+    if (ep1.type !== ep2.type) {
+      return false;
+    }
+    if (ep1.type === "cursor" && ep2.type === "cursor") {
+      return areCursorPositionsEqual(
+        ep1.cursorPosition,
+        ep2.cursorPosition
+      );
+    }
+    return import_sync7.Y.compareRelativePositions(
+      ep1.blockPosition,
+      ep2.blockPosition
+    );
   }
   function areCursorPositionsEqual(cursorPosition1, cursorPosition2) {
     const isRelativePositionEqual = import_sync7.Y.compareRelativePositions(
@@ -1864,6 +2010,13 @@ var wp;
           attributeKey: null
         };
       }
+      if (selection.type === SelectionType.SelectionInMultipleBlocks) {
+        return {
+          richTextOffset: null,
+          localClientId: null,
+          attributeKey: null
+        };
+      }
       const cursorPos = "cursorPosition" in selection ? selection.cursorPosition : selection.cursorStartPosition;
       const absolutePosition = import_sync9.Y.createAbsolutePositionFromRelativePosition(
         cursorPos.relativePosition,
@@ -1910,15 +2063,15 @@ var wp;
         ])
       );
       const collaboratorMapData = new Map(
-        Array.from(this.getSeenStates().entries()).map(
-          ([clientId, collaboratorState]) => [
-            String(clientId),
-            {
-              name: collaboratorState.collaboratorInfo.name,
-              wpUserId: collaboratorState.collaboratorInfo.id
-            }
-          ]
-        )
+        Array.from(this.getSeenStates().entries()).filter(
+          ([, collaboratorState]) => isCollaboratorInfo(collaboratorState.collaboratorInfo)
+        ).map(([clientId, collaboratorState]) => [
+          String(clientId),
+          {
+            name: collaboratorState.collaboratorInfo.name,
+            wpUserId: collaboratorState.collaboratorInfo.id
+          }
+        ])
       );
       const serializableClientItems = {};
       ydoc.store.clients.forEach((structs, clientId) => {
@@ -3181,7 +3334,7 @@ var wp;
       plural: "comments",
       label: (0, import_i18n.__)("Comment"),
       supportsPagination: true,
-      syncConfig: defaultCollectionSyncConfig
+      ...globalThis.window?.__experimentalEnableRealTimeCollaboration ? { syncConfig: defaultCollectionSyncConfig } : {}
     },
     {
       name: "menu",
@@ -3255,14 +3408,6 @@ var wp;
       supportsPagination: false
     },
     {
-      label: (0, import_i18n.__)("Registered Templates"),
-      name: "registeredTemplate",
-      kind: "root",
-      baseURL: "/wp/v2/registered-templates",
-      key: "id",
-      supportsPagination: false
-    },
-    {
       label: (0, import_i18n.__)("Font Collections"),
       name: "fontCollection",
       kind: "root",
@@ -3324,7 +3469,7 @@ var wp;
         newEdits.title = "";
       }
     }
-    if (persistedRecord) {
+    if (window.__experimentalEnableRealTimeCollaboration && persistedRecord) {
       const objectType = `postType/${name}`;
       const objectId = persistedRecord.id;
       const serializedDoc = await getSyncManager()?.createPersistedCRDTDoc(
@@ -3342,7 +3487,7 @@ var wp;
   };
   async function loadPostTypeEntities() {
     const postTypesPromise = (0, import_api_fetch2.default)({ path: "/wp/v2/types?context=view" });
-    const taxonomiesPromise = window._wpCollaborationEnabled ? (0, import_api_fetch2.default)({ path: "/wp/v2/taxonomies?context=view" }) : Promise.resolve({});
+    const taxonomiesPromise = window.__experimentalEnableRealTimeCollaboration ? (0, import_api_fetch2.default)({ path: "/wp/v2/taxonomies?context=view" }) : Promise.resolve({});
     const [postTypes, taxonomies] = await Promise.all([
       postTypesPromise,
       taxonomiesPromise
@@ -3385,10 +3530,15 @@ var wp;
         getTitle: (record) => record?.title?.rendered || record?.title || (isTemplate ? capitalCase(record.slug ?? "") : String(record.id)),
         __unstablePrePersist: (persistedRecord, edits) => prePersistPostType(persistedRecord, edits, name, isTemplate),
         __unstable_rest_base: postType.rest_base,
-        supportsPagination: true,
+        // The templates controller returns the whole collection and never
+        // paginates.
+        supportsPagination: !isTemplate,
         getRevisionsUrl: (parentId, revisionId) => `/${namespace}/${postType.rest_base}/${parentId}/revisions${revisionId ? "/" + revisionId : ""}`,
-        revisionKey: isTemplate && !window?.__experimentalTemplateActivate ? "wp_id" : DEFAULT_ENTITY_KEY
+        revisionKey: isTemplate ? "wp_id" : DEFAULT_ENTITY_KEY
       };
+      if (!window.__experimentalEnableRealTimeCollaboration) {
+        return entity2;
+      }
       entity2.syncConfig = {
         // Save a CRDT document with this entity
         supportsPersistence: true,
@@ -3456,7 +3606,9 @@ var wp;
         getTitle: (record) => record?.name,
         supportsPagination: true
       };
-      entity2.syncConfig = defaultSyncConfig;
+      if (window.__experimentalEnableRealTimeCollaboration) {
+        entity2.syncConfig = defaultSyncConfig;
+      }
       return entity2;
     });
   }
@@ -3633,6 +3785,27 @@ var wp;
       meta: action.meta
     };
   });
+  function removeQueryItems(queryItems, removedItems) {
+    const itemIds = queryItems.itemIds.filter(
+      (itemId) => !removedItems[itemId]
+    );
+    const removedCount = queryItems.itemIds.length - itemIds.length;
+    if (removedCount === 0) {
+      return queryItems;
+    }
+    const nextQueryItems = { ...queryItems, itemIds };
+    if (Number.isFinite(queryItems.meta?.totalItems)) {
+      nextQueryItems.meta = {
+        ...queryItems.meta,
+        totalItems: Math.max(
+          0,
+          queryItems.meta.totalItems - removedCount
+        ),
+        totalPages: null
+      };
+    }
+    return nextQueryItems;
+  }
   var queries = (state = {}, action) => {
     switch (action.type) {
       case "RECEIVE_ITEMS":
@@ -3650,12 +3823,10 @@ var wp;
                 Object.entries(contextQueries).map(
                   ([query, queryItems]) => [
                     query,
-                    {
-                      ...queryItems,
-                      itemIds: queryItems.itemIds.filter(
-                        (queryId) => !removedItems[queryId]
-                      )
-                    }
+                    removeQueryItems(
+                      queryItems,
+                      removedItems
+                    )
                   ]
                 )
               )
@@ -4219,6 +4390,7 @@ var wp;
     getEditorSettings: () => getEditorSettings,
     getEntityRecordPermissions: () => getEntityRecordPermissions,
     getEntityRecordsPermissions: () => getEntityRecordsPermissions,
+    getEntitySyncConnectionStatus: () => getEntitySyncConnectionStatus,
     getHomePage: () => getHomePage,
     getNavigationFallbackId: () => getNavigationFallbackId,
     getPostsPageId: () => getPostsPageId,
@@ -4269,24 +4441,24 @@ var wp;
     return state.navigationFallbackId;
   }
   var getBlockPatternsForPostType = (0, import_data8.createRegistrySelector)(
-    (select4) => (0, import_data8.createSelector)(
-      (state, postType) => select4(STORE_NAME).getBlockPatterns().filter(
+    (select5) => (0, import_data8.createSelector)(
+      (state, postType) => select5(STORE_NAME).getBlockPatterns().filter(
         ({ postTypes }) => !postTypes || Array.isArray(postTypes) && postTypes.includes(postType)
       ),
-      () => [select4(STORE_NAME).getBlockPatterns()]
+      () => [select5(STORE_NAME).getBlockPatterns()]
     )
   );
   var getEntityRecordsPermissions = (0, import_data8.createRegistrySelector)(
-    (select4) => (0, import_data8.createSelector)(
+    (select5) => (0, import_data8.createSelector)(
       (state, kind, name, ids) => {
         const normalizedIds = Array.isArray(ids) ? ids : [ids];
         return normalizedIds.map((id) => ({
-          delete: select4(STORE_NAME).canUser("delete", {
+          delete: select5(STORE_NAME).canUser("delete", {
             kind,
             name,
             id
           }),
-          update: select4(STORE_NAME).canUser("update", {
+          update: select5(STORE_NAME).canUser("update", {
             kind,
             name,
             id
@@ -4313,9 +4485,9 @@ var wp;
     return value.toString();
   }
   var getHomePage = (0, import_data8.createRegistrySelector)(
-    (select4) => (0, import_data8.createSelector)(
+    (select5) => (0, import_data8.createSelector)(
       () => {
-        const siteData = select4(STORE_NAME).getEntityRecord(
+        const siteData = select5(STORE_NAME).getEntityRecord(
           "root",
           "__unstableBase"
         );
@@ -4326,7 +4498,7 @@ var wp;
         if (homepageId) {
           return { postType: "page", postId: homepageId };
         }
-        const frontPageTemplateId = select4(
+        const frontPageTemplateId = select5(
           STORE_NAME
         ).getDefaultTemplateId({
           slug: "front-page"
@@ -4353,21 +4525,21 @@ var wp;
       ]
     )
   );
-  var getPostsPageId = (0, import_data8.createRegistrySelector)((select4) => () => {
-    const siteData = select4(STORE_NAME).getEntityRecord(
+  var getPostsPageId = (0, import_data8.createRegistrySelector)((select5) => () => {
+    const siteData = select5(STORE_NAME).getEntityRecord(
       "root",
       "__unstableBase"
     );
     return siteData?.show_on_front === "page" ? normalizePageId(siteData.page_for_posts) : null;
   });
   var getTemplateId = (0, import_data8.createRegistrySelector)(
-    (select4) => (state, postType, postId) => {
-      const homepage = unlock(select4(STORE_NAME)).getHomePage();
+    (select5) => (state, postType, postId) => {
+      const homepage = unlock(select5(STORE_NAME)).getHomePage();
       if (!homepage) {
         return;
       }
       if (postType === "page" && postType === homepage?.postType && postId.toString() === homepage?.postId) {
-        const templates = select4(STORE_NAME).getEntityRecords(
+        const templates = select5(STORE_NAME).getEntityRecords(
           "postType",
           "wp_template",
           {
@@ -4382,7 +4554,7 @@ var wp;
           return id;
         }
       }
-      const editedEntity = select4(STORE_NAME).getEditedEntityRecord(
+      const editedEntity = select5(STORE_NAME).getEditedEntityRecord(
         "postType",
         postType,
         postId
@@ -4390,15 +4562,15 @@ var wp;
       if (!editedEntity) {
         return;
       }
-      const postsPageId = unlock(select4(STORE_NAME)).getPostsPageId();
+      const postsPageId = unlock(select5(STORE_NAME)).getPostsPageId();
       if (postType === "page" && postsPageId === postId.toString()) {
-        return select4(STORE_NAME).getDefaultTemplateId({
+        return select5(STORE_NAME).getDefaultTemplateId({
           slug: "home"
         });
       }
       const currentTemplateSlug = editedEntity.template;
       if (currentTemplateSlug) {
-        const currentTemplate = select4(STORE_NAME).getEntityRecords("postType", "wp_template", {
+        const currentTemplate = select5(STORE_NAME).getEntityRecords("postType", "wp_template", {
           per_page: -1
         })?.find(({ slug }) => slug === currentTemplateSlug);
         if (currentTemplate) {
@@ -4411,7 +4583,7 @@ var wp;
       } else {
         slugToCheck = postType === "page" ? "page" : `single-${postType}`;
       }
-      return select4(STORE_NAME).getDefaultTemplateId({
+      return select5(STORE_NAME).getDefaultTemplateId({
         slug: slugToCheck
       });
     }
@@ -4446,12 +4618,15 @@ var wp;
     }
     return coalesced;
   }
+  function getEntitySyncConnectionStatus(state, kind, name, recordId) {
+    return state.syncConnectionStatuses?.[`${kind}/${name}:${recordId}`];
+  }
 
   // packages/core-data/build-module/selectors.mjs
   var EMPTY_OBJECT2 = {};
   var isRequestingEmbedPreview = (0, import_data9.createRegistrySelector)(
-    (select4) => (state, url) => {
-      return select4(STORE_NAME).isResolving("getEmbedPreview", [
+    (select5) => (state, url) => {
+      return select5(STORE_NAME).isResolving("getEmbedPreview", [
         url
       ]);
     }
@@ -4506,61 +4681,41 @@ var wp;
       (config) => config.kind === kind && config.name === name
     );
   }
-  var getEntityRecord = (0, import_data9.createSelector)(
-    ((state, kind, name, key, query) => {
-      logEntityDeprecation(kind, name, "getEntityRecord");
-      const queriedState = state.entities.records?.[kind]?.[name]?.queriedData;
-      if (!queriedState) {
+  var getEntityRecord = ((state, kind, name, recordId, query) => {
+    logEntityDeprecation(kind, name, "getEntityRecord");
+    const queriedState = state.entities.records?.[kind]?.[name]?.queriedData;
+    if (!queriedState) {
+      return void 0;
+    }
+    const context = query?.context ?? "default";
+    if (!query || !query._fields) {
+      if (!queriedState.itemIsComplete[context]?.[recordId]) {
         return void 0;
       }
-      const context = query?.context ?? "default";
-      if (!query || !query._fields) {
-        if (!queriedState.itemIsComplete[context]?.[key]) {
-          return void 0;
-        }
-        return queriedState.items[context][key];
-      }
-      const item = queriedState.items[context]?.[key];
-      if (!item) {
-        return item;
-      }
-      const filteredItem = {};
-      const fields = get_normalized_comma_separable_default(query._fields) ?? [];
-      for (let f = 0; f < fields.length; f++) {
-        const field = fields[f].split(".");
-        let value = item;
-        field.forEach((fieldName) => {
-          value = value?.[fieldName];
-        });
-        setNestedValue(filteredItem, field, value);
-      }
-      return filteredItem;
-    }),
-    (state, kind, name, recordId, query) => {
-      const context = query?.context ?? "default";
-      const queriedState = state.entities.records?.[kind]?.[name]?.queriedData;
-      return [
-        queriedState?.items[context]?.[recordId],
-        queriedState?.itemIsComplete[context]?.[recordId]
-      ];
+      return queriedState.items[context][recordId];
     }
-  );
+    const item = queriedState.items[context]?.[recordId];
+    if (!item) {
+      return item;
+    }
+    return getFilteredItem(item, query._fields);
+  });
   getEntityRecord.__unstableNormalizeArgs = (args) => {
     const newArgs = [...args];
     const recordKey = newArgs?.[2];
     newArgs[2] = isNumericID(recordKey) ? Number(recordKey) : recordKey;
     return newArgs;
   };
-  function hasEntityRecord(state, kind, name, key, query) {
+  function hasEntityRecord(state, kind, name, recordId, query) {
     const queriedState = state.entities.records?.[kind]?.[name]?.queriedData;
     if (!queriedState) {
       return false;
     }
     const context = query?.context ?? "default";
     if (!query || !query._fields) {
-      return !!queriedState.itemIsComplete[context]?.[key];
+      return !!queriedState.itemIsComplete[context]?.[recordId];
     }
-    const item = queriedState.items[context]?.[key];
+    const item = queriedState.items[context]?.[recordId];
     if (!item) {
       return false;
     }
@@ -4578,32 +4733,32 @@ var wp;
     }
     return true;
   }
-  function __experimentalGetEntityRecordNoResolver(state, kind, name, key) {
-    return getEntityRecord(state, kind, name, key);
+  function __experimentalGetEntityRecordNoResolver(state, kind, name, recordId) {
+    return getEntityRecord(state, kind, name, recordId);
   }
   var getRawEntityRecord = (0, import_data9.createSelector)(
-    (state, kind, name, key) => {
+    (state, kind, name, recordId) => {
       logEntityDeprecation(kind, name, "getRawEntityRecord");
       const record = getEntityRecord(
         state,
         kind,
         name,
-        key
+        recordId
       );
       const config = getEntityConfig(state, kind, name);
       if (!record || !config?.rawAttributes?.length) {
         return record;
       }
       return Object.fromEntries(
-        Object.keys(record).map((_key) => {
-          if (config.rawAttributes.includes(_key)) {
-            const rawValue = record[_key]?.raw;
+        Object.keys(record).map((key) => {
+          if (config.rawAttributes.includes(key)) {
+            const rawValue = record[key]?.raw;
             return [
-              _key,
-              rawValue !== void 0 ? rawValue : record[_key]
+              key,
+              rawValue !== void 0 ? rawValue : record[key]
             ];
           }
-          return [_key, record[_key]];
+          return [key, record[key]];
         })
       );
     },
@@ -4734,7 +4889,7 @@ var wp;
   );
   function getEntityRecordEdits(state, kind, name, recordId) {
     logEntityDeprecation(kind, name, "getEntityRecordEdits");
-    return state.entities.records?.[kind]?.[name]?.edits?.[recordId];
+    return state.entities.records?.[kind]?.[name]?.edits?.[String(recordId)];
   }
   var getEntityRecordNonTransientEdits = (0, import_data9.createSelector)(
     (state, kind, name, recordId) => {
@@ -4753,7 +4908,7 @@ var wp;
     },
     (state, kind, name, recordId) => [
       state.entities.config,
-      state.entities.records?.[kind]?.[name]?.edits?.[recordId]
+      state.entities.records?.[kind]?.[name]?.edits?.[String(recordId)]
     ]
   );
   function hasEditsForEntityRecord(state, kind, name, recordId) {
@@ -4781,7 +4936,7 @@ var wp;
         state.entities.config,
         state.entities.records?.[kind]?.[name]?.queriedData.items[context]?.[recordId],
         state.entities.records?.[kind]?.[name]?.queriedData.itemIsComplete[context]?.[recordId],
-        state.entities.records?.[kind]?.[name]?.edits?.[recordId]
+        state.entities.records?.[kind]?.[name]?.edits?.[String(recordId)]
       ];
     }
   );
@@ -4792,15 +4947,15 @@ var wp;
   }
   function isSavingEntityRecord(state, kind, name, recordId) {
     logEntityDeprecation(kind, name, "isSavingEntityRecord");
-    return state.entities.records?.[kind]?.[name]?.saving?.[recordId]?.pending ?? false;
+    return state.entities.records?.[kind]?.[name]?.saving?.[String(recordId)]?.pending ?? false;
   }
   function isDeletingEntityRecord(state, kind, name, recordId) {
     logEntityDeprecation(kind, name, "isDeletingEntityRecord");
-    return state.entities.records?.[kind]?.[name]?.deleting?.[recordId]?.pending ?? false;
+    return state.entities.records?.[kind]?.[name]?.deleting?.[String(recordId)]?.pending ?? false;
   }
   function getLastEntitySaveError(state, kind, name, recordId) {
     logEntityDeprecation(kind, name, "getLastEntitySaveError");
-    return state.entities.records?.[kind]?.[name]?.saving?.[recordId]?.error;
+    return state.entities.records?.[kind]?.[name]?.saving?.[String(recordId)]?.error;
   }
   function getLastEntityDeleteError(state, kind, name, recordId) {
     logEntityDeprecation(kind, name, "getLastEntityDeleteError");
@@ -4884,8 +5039,8 @@ var wp;
     );
   }
   var hasFetchedAutosaves = (0, import_data9.createRegistrySelector)(
-    (select4) => (state, postType, postId) => {
-      return select4(STORE_NAME).hasFinishedResolution("getAutosaves", [
+    (select5) => (state, postType, postId) => {
+      return select5(STORE_NAME).hasFinishedResolution("getAutosaves", [
         postType,
         postId
       ]);
@@ -4966,45 +5121,25 @@ var wp;
     }
     return true;
   }
-  var getRevision = (0, import_data9.createSelector)(
-    (state, kind, name, recordKey, revisionKey, query) => {
-      logEntityDeprecation(kind, name, "getRevision");
-      const queriedState = state.entities.records?.[kind]?.[name]?.revisions?.[recordKey];
-      if (!queriedState) {
+  var getRevision = (state, kind, name, recordKey, revisionKey, query) => {
+    logEntityDeprecation(kind, name, "getRevision");
+    const queriedState = state.entities.records?.[kind]?.[name]?.revisions?.[recordKey];
+    if (!queriedState) {
+      return void 0;
+    }
+    const context = query?.context ?? "default";
+    if (!query || !query._fields) {
+      if (!queriedState.itemIsComplete[context]?.[revisionKey]) {
         return void 0;
       }
-      const context = query?.context ?? "default";
-      if (!query || !query._fields) {
-        if (!queriedState.itemIsComplete[context]?.[revisionKey]) {
-          return void 0;
-        }
-        return queriedState.items[context][revisionKey];
-      }
-      const item = queriedState.items[context]?.[revisionKey];
-      if (!item) {
-        return item;
-      }
-      const filteredItem = {};
-      const fields = get_normalized_comma_separable_default(query._fields) ?? [];
-      for (let f = 0; f < fields.length; f++) {
-        const field = fields[f].split(".");
-        let value = item;
-        field.forEach((fieldName) => {
-          value = value?.[fieldName];
-        });
-        setNestedValue(filteredItem, field, value);
-      }
-      return filteredItem;
-    },
-    (state, kind, name, recordKey, revisionKey, query) => {
-      const context = query?.context ?? "default";
-      const queriedState = state.entities.records?.[kind]?.[name]?.revisions?.[recordKey];
-      return [
-        queriedState?.items?.[context]?.[revisionKey],
-        queriedState?.itemIsComplete?.[context]?.[revisionKey]
-      ];
+      return queriedState.items[context][revisionKey];
     }
-  );
+    const item = queriedState.items[context]?.[revisionKey];
+    if (!item) {
+      return item;
+    }
+    return getFilteredItem(item, query._fields);
+  };
 
   // packages/core-data/build-module/actions.mjs
   var actions_exports = {};
@@ -5038,6 +5173,7 @@ var wp;
     saveEntityRecord: () => saveEntityRecord,
     undo: () => undo
   });
+  var import_es66 = __toESM(require_es6(), 1);
   var import_api_fetch4 = __toESM(require_api_fetch(), 1);
   var import_url3 = __toESM(require_url(), 1);
   var import_deprecated3 = __toESM(require_deprecated(), 1);
@@ -5227,6 +5363,37 @@ var wp;
   function addTitleToAutoDraft(record) {
     return record.status === "auto-draft" ? { ...record, title: "" } : record;
   }
+  function getServerMutatedMetaFields(updatedMeta, persistedMeta, syncedMeta) {
+    const baseline = { ...persistedMeta, ...syncedMeta };
+    return Object.fromEntries(
+      Object.entries(updatedMeta ?? {}).filter(([key, value]) => {
+        if (key === POST_META_KEY_FOR_CRDT_DOC_PERSISTENCE) {
+          return false;
+        }
+        return !(0, import_es66.default)(value, baseline[key]);
+      })
+    );
+  }
+  function getServerMutatedFields(updatedRecord, persistedRecord, syncedChanges) {
+    return Object.fromEntries(
+      Object.entries(updatedRecord).flatMap(([key, value]) => {
+        if (key === "meta") {
+          const serverMutatedMeta = getServerMutatedMetaFields(
+            value,
+            persistedRecord.meta,
+            syncedChanges.meta
+          );
+          return Object.keys(serverMutatedMeta).length ? [[key, serverMutatedMeta]] : [];
+        }
+        const baseline = key in syncedChanges ? syncedChanges[key] : persistedRecord[key];
+        const wasServerMutated = !(0, import_es66.default)(
+          getRawValue(value) ?? value,
+          getRawValue(baseline) ?? baseline
+        );
+        return wasServerMutated ? [[key, value]] : [];
+      })
+    );
+  }
   function receiveUserQuery(queryID, users2) {
     return {
       type: "RECEIVE_USER_QUERY",
@@ -5342,10 +5509,7 @@ var wp;
         recordId
       });
       let hasError = false;
-      let { baseURL } = entityConfig;
-      if (kind === "postType" && name === "wp_template" && (recordId && typeof recordId === "string" && !/^\d+$/.test(recordId) || !window?.__experimentalTemplateActivate)) {
-        baseURL = baseURL.slice(0, baseURL.lastIndexOf("/")) + "/templates";
-      }
+      const { baseURL } = entityConfig;
       try {
         let path = `${baseURL}/${recordId}`;
         if (query) {
@@ -5380,17 +5544,17 @@ var wp;
       dispatch3.__unstableReleaseStoreLock(lock2);
     }
   };
-  var editEntityRecord = (kind, name, recordId, edits, options = {}) => ({ select: select4, dispatch: dispatch3 }) => {
+  var editEntityRecord = (kind, name, recordId, edits, options = {}) => ({ select: select5, dispatch: dispatch3 }) => {
     logEntityDeprecation(kind, name, "editEntityRecord");
-    const entityConfig = select4.getEntityConfig(kind, name);
+    const entityConfig = select5.getEntityConfig(kind, name);
     if (!entityConfig) {
       throw new Error(
         `The entity being edited (${kind}, ${name}) does not have a loaded config.`
       );
     }
     const { mergedEdits = {} } = entityConfig;
-    const record = select4.getRawEntityRecord(kind, name, recordId);
-    const editedRecord = select4.getEditedEntityRecord(
+    const record = select5.getRawEntityRecord(kind, name, recordId);
+    const editedRecord = select5.getEditedEntityRecord(
       kind,
       name,
       recordId
@@ -5421,7 +5585,7 @@ var wp;
       );
     }
     if (!options.undoIgnore) {
-      select4.getUndoManager().addRecord(
+      select5.getUndoManager().addRecord(
         [
           {
             id: { kind, name, recordId },
@@ -5442,15 +5606,15 @@ var wp;
       ...edit
     });
   };
-  var clearEntityRecordEdits = (kind, name, recordId) => ({ select: select4, dispatch: dispatch3 }) => {
-    const entityConfig = select4.getEntityConfig(kind, name);
+  var clearEntityRecordEdits = (kind, name, recordId) => ({ select: select5, dispatch: dispatch3 }) => {
+    const entityConfig = select5.getEntityConfig(kind, name);
     logEntityDeprecation(kind, name, "clearEntityRecordEdits");
     if (!entityConfig) {
       throw new Error(
         `The entity being edited (${kind}, ${name}) does not have a loaded config.`
       );
     }
-    const currentEdits = select4.getEntityRecordEdits(
+    const currentEdits = select5.getEntityRecordEdits(
       kind,
       name,
       recordId
@@ -5473,8 +5637,8 @@ var wp;
       edits: clearedEdits
     });
   };
-  var undo = () => ({ select: select4, dispatch: dispatch3 }) => {
-    const undoRecord = select4.getUndoManager().undo();
+  var undo = () => ({ select: select5, dispatch: dispatch3 }) => {
+    const undoRecord = select5.getUndoManager().undo();
     if (!undoRecord) {
       return;
     }
@@ -5483,8 +5647,8 @@ var wp;
       record: undoRecord
     });
   };
-  var redo = () => ({ select: select4, dispatch: dispatch3 }) => {
-    const redoRecord = select4.getUndoManager().redo();
+  var redo = () => ({ select: select5, dispatch: dispatch3 }) => {
+    const redoRecord = select5.getUndoManager().redo();
     if (!redoRecord) {
       return;
     }
@@ -5493,10 +5657,10 @@ var wp;
       record: redoRecord
     });
   };
-  var __unstableCreateUndoLevel = () => ({ select: select4 }) => {
-    select4.getUndoManager().addRecord();
+  var __unstableCreateUndoLevel = () => ({ select: select5 }) => {
+    select5.getUndoManager().addRecord();
   };
-  var saveEntityRecord = (kind, name, record, options = {}) => async ({ select: select4, resolveSelect: resolveSelect2, dispatch: dispatch3 }) => {
+  var saveEntityRecord = (kind, name, record, options = {}) => async ({ select: select5, resolveSelect: resolveSelect2, dispatch: dispatch3 }) => {
     const {
       isAutosave = false,
       __unstableFetch = import_api_fetch4.default,
@@ -5523,7 +5687,7 @@ var wp;
       for (const [key, value] of Object.entries(record)) {
         if (typeof value === "function") {
           const evaluatedValue = value(
-            select4.getEditedEntityRecord(kind, name, recordId)
+            select5.getEditedEntityRecord(kind, name, recordId)
           );
           dispatch3.editEntityRecord(
             kind,
@@ -5547,13 +5711,18 @@ var wp;
       let updatedRecord;
       let error;
       let hasError = false;
-      let { baseURL } = entityConfig;
-      if (kind === "postType" && name === "wp_template" && (recordId && typeof recordId === "string" && !/^\d+$/.test(recordId) || !window?.__experimentalTemplateActivate)) {
-        baseURL = baseURL.slice(0, baseURL.lastIndexOf("/")) + "/templates";
-      }
+      const { baseURL } = entityConfig;
       try {
         const path = `${baseURL}${recordId ? "/" + recordId : ""}`;
-        const persistedRecord = !isNewRecord ? select4.getRawEntityRecord(kind, name, recordId) : {};
+        const persistedRecord = !isNewRecord ? select5.getRawEntityRecord(kind, name, recordId) : {};
+        if (entityConfig.syncConfig && !__unstableSkipSyncUpdate && !isNewRecord && persistedRecord) {
+          getSyncManager()?.update(
+            `${kind}/${name}`,
+            recordId,
+            record,
+            LOCAL_UNDO_IGNORED_ORIGIN
+          );
+        }
         if (isAutosave) {
           const merged = { ...persistedRecord, ...record };
           const data = [
@@ -5576,6 +5745,15 @@ var wp;
               status: merged.status === "auto-draft" ? "draft" : void 0
             }
           );
+          if (entityConfig.syncConfig) {
+            const crdtSnapshot = getSyncManager()?.getEntitySnapshot(
+              `${kind}/${name}`,
+              recordId
+            );
+            if (crdtSnapshot) {
+              data[CRDT_AUTOSAVE_SNAPSHOT_KEY] = crdtSnapshot;
+            }
+          }
           updatedRecord = await __unstableFetch({
             path: `${path}/autosaves`,
             method: "POST",
@@ -5640,13 +5818,25 @@ var wp;
             updatedRecord,
             void 0,
             true,
-            edits
+            record
           );
           if (entityConfig.syncConfig) {
+            let syncChanges;
+            if (__unstableSkipSyncUpdate) {
+              syncChanges = {};
+            } else if (isNewRecord || !persistedRecord) {
+              syncChanges = updatedRecord;
+            } else {
+              syncChanges = getServerMutatedFields(
+                updatedRecord,
+                persistedRecord,
+                record
+              );
+            }
             getSyncManager()?.update(
               `${kind}/${name}`,
               recordId,
-              __unstableSkipSyncUpdate ? {} : updatedRecord,
+              syncChanges,
               LOCAL_UNDO_IGNORED_ORIGIN,
               { isSave: true }
             );
@@ -5707,9 +5897,9 @@ var wp;
     ]);
     return results;
   };
-  var saveEditedEntityRecord = (kind, name, recordId, options) => async ({ select: select4, dispatch: dispatch3, resolveSelect: resolveSelect2 }) => {
+  var saveEditedEntityRecord = (kind, name, recordId, options) => async ({ select: select5, dispatch: dispatch3, resolveSelect: resolveSelect2 }) => {
     logEntityDeprecation(kind, name, "saveEditedEntityRecord");
-    if (!select4.hasEditsForEntityRecord(kind, name, recordId)) {
+    if (!select5.hasEditsForEntityRecord(kind, name, recordId)) {
       return;
     }
     const configs = await resolveSelect2.getEntitiesConfig(kind);
@@ -5720,7 +5910,7 @@ var wp;
       return;
     }
     const entityIdKey = entityConfig.key || DEFAULT_ENTITY_KEY;
-    const edits = select4.getEntityRecordNonTransientEdits(
+    const edits = select5.getEntityRecordNonTransientEdits(
       kind,
       name,
       recordId
@@ -5728,16 +5918,16 @@ var wp;
     const record = { [entityIdKey]: recordId, ...edits };
     return await dispatch3.saveEntityRecord(kind, name, record, options);
   };
-  var __experimentalSaveSpecifiedEntityEdits = (kind, name, recordId, itemsToSave, options) => async ({ select: select4, dispatch: dispatch3, resolveSelect: resolveSelect2 }) => {
+  var __experimentalSaveSpecifiedEntityEdits = (kind, name, recordId, itemsToSave, options) => async ({ select: select5, dispatch: dispatch3, resolveSelect: resolveSelect2 }) => {
     logEntityDeprecation(
       kind,
       name,
       "__experimentalSaveSpecifiedEntityEdits"
     );
-    if (!select4.hasEditsForEntityRecord(kind, name, recordId)) {
+    if (!select5.hasEditsForEntityRecord(kind, name, recordId)) {
       return;
     }
-    const edits = select4.getEntityRecordNonTransientEdits(
+    const edits = select5.getEntityRecordNonTransientEdits(
       kind,
       name,
       recordId
@@ -5830,10 +6020,15 @@ var wp;
     receiveEditorSettings: () => receiveEditorSettings,
     receiveRegisteredPostMeta: () => receiveRegisteredPostMeta,
     receiveViewConfig: () => receiveViewConfig,
+    saveDirtyEntities: () => saveDirtyEntities,
     setCollaborationSupported: () => setCollaborationSupported,
     setSyncConnectionStatus: () => setSyncConnectionStatus
   });
   var import_api_fetch5 = __toESM(require_api_fetch(), 1);
+  var import_notices = __toESM(require_notices(), 1);
+  var import_block_editor5 = __toESM(require_block_editor(), 1);
+  var import_html_entities = __toESM(require_html_entities(), 1);
+  var import_i18n2 = __toESM(require_i18n(), 1);
   function receiveRegisteredPostMeta(postType, registeredPostMeta2) {
     return {
       type: "RECEIVE_REGISTERED_POST_META",
@@ -5962,6 +6157,132 @@ var wp;
       status
     };
   }
+  var saveDirtyEntities = ({
+    onSave,
+    dirtyEntityRecords = [],
+    entitiesToSkip = [],
+    close,
+    successNoticeContent
+  } = {}) => ({ registry }) => {
+    const PUBLISH_ON_SAVE_ENTITIES = [
+      { kind: "postType", name: "wp_navigation" }
+    ];
+    const saveNoticeId = "site-editor-save-success";
+    const homeUrl = registry.select(STORE_NAME).getEntityRecord("root", "__unstableBase")?.home;
+    registry.dispatch(import_notices.store).removeNotice(saveNoticeId);
+    const entitiesToSave = dirtyEntityRecords.filter(
+      ({ kind, name, key, property }) => {
+        return !entitiesToSkip.some(
+          (elt) => elt.kind === kind && elt.name === name && elt.key === key && elt.property === property
+        );
+      }
+    );
+    close?.(entitiesToSave);
+    const siteItemsToSave = [];
+    const pendingSavedRecords = [];
+    entitiesToSave.forEach(({ kind, name, key, property }) => {
+      if ("root" === kind && "site" === name) {
+        siteItemsToSave.push(property);
+      } else {
+        if (PUBLISH_ON_SAVE_ENTITIES.some(
+          (typeToPublish) => typeToPublish.kind === kind && typeToPublish.name === name
+        )) {
+          registry.dispatch(STORE_NAME).editEntityRecord(kind, name, key, {
+            status: "publish"
+          });
+        }
+        pendingSavedRecords.push(
+          registry.dispatch(STORE_NAME).saveEditedEntityRecord(kind, name, key, {
+            throwOnError: true
+          }).catch(ensureError)
+        );
+      }
+    });
+    if (siteItemsToSave.length) {
+      pendingSavedRecords.push(
+        registry.dispatch(STORE_NAME).__experimentalSaveSpecifiedEntityEdits(
+          "root",
+          "site",
+          void 0,
+          siteItemsToSave,
+          {
+            throwOnError: true
+          }
+        ).catch(ensureError)
+      );
+    }
+    registry.dispatch(import_block_editor5.store).__unstableMarkLastChangeAsPersistent();
+    return Promise.all(pendingSavedRecords).then(async (values) => {
+      if (onSave) {
+        await onSave();
+      }
+      return values;
+    }).then((values) => {
+      const errors = values.filter((v) => v instanceof Error);
+      if (errors.length) {
+        const firstMessage = errors.find(
+          (e) => e.message
+        )?.message;
+        registry.dispatch(import_notices.store).createErrorNotice(
+          (0, import_html_entities.decodeEntities)(
+            firstMessage || (0, import_i18n2.__)("Saving failed.")
+          ),
+          {
+            type: "snackbar",
+            id: saveNoticeId
+          }
+        );
+      } else {
+        registry.dispatch(import_notices.store).createSuccessNotice(
+          successNoticeContent || (0, import_i18n2.__)("Site updated."),
+          {
+            type: "snackbar",
+            id: saveNoticeId,
+            actions: [
+              {
+                label: (0, import_i18n2.__)("View site"),
+                url: homeUrl,
+                openInNewTab: true
+              }
+            ]
+          }
+        );
+      }
+    }).catch(
+      (error) => registry.dispatch(import_notices.store).createErrorNotice(
+        (0, import_html_entities.decodeEntities)(
+          error?.message || (0, import_i18n2.__)("Saving failed.")
+        ),
+        {
+          type: "snackbar",
+          id: saveNoticeId
+        }
+      )
+    );
+    function ensureError(error) {
+      if (error instanceof Error) {
+        return error;
+      }
+      let message;
+      if (!error) {
+      } else if (typeof error.message === "string") {
+        message = error.message;
+      } else if (typeof error === "string") {
+        message = error;
+      } else if (
+        // Only consider own method, lest we erroneously end up calling
+        // `Object#toString` at the end of the prototype chain, thereby
+        // returning `"[object Object]"`.
+        Object.hasOwn(error, "toString") && typeof error.toString === "function"
+      ) {
+        const result = error.toString();
+        if (typeof result === "string") {
+          message = result;
+        }
+      }
+      return new Error(message, { cause: error });
+    }
+  };
 
   // packages/core-data/build-module/resolvers.mjs
   var resolvers_exports = {};
@@ -5999,7 +6320,7 @@ var wp;
     getViewConfig: () => getViewConfig2
   });
   var import_url6 = __toESM(require_url(), 1);
-  var import_html_entities2 = __toESM(require_html_entities(), 1);
+  var import_html_entities3 = __toESM(require_html_entities(), 1);
   var import_api_fetch9 = __toESM(require_api_fetch(), 1);
 
   // packages/core-data/build-module/fetch/index.mjs
@@ -6008,8 +6329,8 @@ var wp;
   // packages/core-data/build-module/fetch/__experimental-fetch-link-suggestions.mjs
   var import_api_fetch6 = __toESM(require_api_fetch(), 1);
   var import_url4 = __toESM(require_url(), 1);
-  var import_html_entities = __toESM(require_html_entities(), 1);
-  var import_i18n2 = __toESM(require_i18n(), 1);
+  var import_html_entities2 = __toESM(require_html_entities(), 1);
+  var import_i18n3 = __toESM(require_i18n(), 1);
   async function fetchLinkSuggestions(search, searchOptions = {}, editorSettings2 = {}) {
     const searchOptionsToUse = searchOptions.isInitialSuggestions && searchOptions.initialSuggestionsSearchOptions ? {
       ...searchOptions,
@@ -6038,7 +6359,7 @@ var wp;
             return {
               id: result.id,
               url: result.url,
-              title: (0, import_html_entities.decodeEntities)(result.title || "") || (0, import_i18n2.__)("(no title)"),
+              title: (0, import_html_entities2.decodeEntities)(result.title || "") || (0, import_i18n3.__)("(no title)"),
               type: result.subtype || result.type,
               kind: "post-type"
             };
@@ -6062,7 +6383,7 @@ var wp;
             return {
               id: result.id,
               url: result.url,
-              title: (0, import_html_entities.decodeEntities)(result.title || "") || (0, import_i18n2.__)("(no title)"),
+              title: (0, import_html_entities2.decodeEntities)(result.title || "") || (0, import_i18n3.__)("(no title)"),
               type: result.subtype || result.type,
               kind: "taxonomy"
             };
@@ -6086,7 +6407,7 @@ var wp;
             return {
               id: result.id,
               url: result.url,
-              title: (0, import_html_entities.decodeEntities)(result.title || "") || (0, import_i18n2.__)("(no title)"),
+              title: (0, import_html_entities2.decodeEntities)(result.title || "") || (0, import_i18n3.__)("(no title)"),
               type: result.subtype || result.type,
               kind: "taxonomy"
             };
@@ -6108,7 +6429,7 @@ var wp;
             return {
               id: result.id,
               url: result.source_url,
-              title: (0, import_html_entities.decodeEntities)(result.title.rendered || "") || (0, import_i18n2.__)("(no title)"),
+              title: (0, import_html_entities2.decodeEntities)(result.title.rendered || "") || (0, import_i18n3.__)("(no title)"),
               type: result.type,
               kind: "media"
             };
@@ -6203,9 +6524,29 @@ var wp;
   }
 
   // packages/core-data/build-module/parsed-blocks-cache.mjs
-  var parsedBlocksCache = /* @__PURE__ */ new Map();
+  var import_data10 = __toESM(require_data(), 1);
+  var import_blocks5 = __toESM(require_blocks(), 1);
+  var caches = /* @__PURE__ */ new WeakMap();
   function getCacheKey(kind, name, id) {
     return `${kind}:${name}:${id}`;
+  }
+  function getBlockTypes2() {
+    return (0, import_data10.select)(import_blocks5.store).getBlockTypes();
+  }
+  function getCachedBlocks(kind, name, id, content) {
+    const cached = caches.get(getBlockTypes2())?.get(getCacheKey(kind, name, id));
+    if (cached && cached.content === content) {
+      return cached.blocks;
+    }
+  }
+  function setCachedBlocks(kind, name, id, content, blocks) {
+    const blockTypes = getBlockTypes2();
+    let cache3 = caches.get(blockTypes);
+    if (!cache3) {
+      cache3 = /* @__PURE__ */ new Map();
+      caches.set(blockTypes, cache3);
+    }
+    cache3.set(getCacheKey(kind, name, id), { content, blocks });
   }
 
   // packages/core-data/build-module/resolvers.mjs
@@ -6221,7 +6562,7 @@ var wp;
     const currentUser2 = await (0, import_api_fetch9.default)({ path: "/wp/v2/users/me" });
     dispatch3.receiveCurrentUser(currentUser2);
   };
-  var getEntityRecord2 = (kind, name, key = "", query) => async ({ select: select4, dispatch: dispatch3, registry, resolveSelect: resolveSelect2 }) => {
+  var getEntityRecord2 = (kind, name, key = "", query) => async ({ select: select5, dispatch: dispatch3, registry, resolveSelect: resolveSelect2 }) => {
     const configs = await resolveSelect2.getEntitiesConfig(kind);
     const entityConfig = configs.find(
       (config) => config.name === name && config.kind === kind
@@ -6247,7 +6588,7 @@ var wp;
         };
       }
       if (query !== void 0 && query._fields) {
-        const hasRecord = select4.hasEntityRecord(
+        const hasRecord = select5.hasEntityRecord(
           kind,
           name,
           key,
@@ -6257,10 +6598,7 @@ var wp;
           return;
         }
       }
-      let { baseURL } = entityConfig;
-      if (kind === "postType" && name === "wp_template" && (key && typeof key === "string" && !/^\d+$/.test(key) || !window?.__experimentalTemplateActivate)) {
-        baseURL = baseURL.slice(0, baseURL.lastIndexOf("/")) + "/templates";
-      }
+      const { baseURL } = entityConfig;
       const path = (0, import_url6.addQueryArgs)(baseURL + (key ? "/" + key : ""), {
         ...entityConfig.baseURLParams,
         ...query
@@ -6293,12 +6631,15 @@ var wp;
           recordWithTransients[propName] = transientConfig.read(recordWithTransients);
         });
         if (recordWithTransients.blocks && typeof recordWithTransients.content?.raw === "string") {
-          parsedBlocksCache.set(getCacheKey(kind, name, key), {
-            content: recordWithTransients.content.raw,
-            blocks: recordWithTransients.blocks
-          });
+          setCachedBlocks(
+            kind,
+            name,
+            key,
+            recordWithTransients.content.raw,
+            recordWithTransients.blocks
+          );
         }
-        const syncManager2 = select4?.isCollaborationSupported?.() === false ? void 0 : getSyncManager();
+        const syncManager2 = select5?.isCollaborationSupported?.() === false ? void 0 : getSyncManager();
         void syncManager2?.load(
           entityConfig.syncConfig,
           objectType,
@@ -6447,11 +6788,7 @@ var wp;
           ].join()
         };
       }
-      let { baseURL } = entityConfig;
-      const { combinedTemplates = true } = query;
-      if (kind === "postType" && name === "wp_template" && combinedTemplates) {
-        baseURL = baseURL.slice(0, baseURL.lastIndexOf("/")) + "/templates";
-      }
+      const { baseURL } = entityConfig;
       const path = (0, import_url6.addQueryArgs)(baseURL, {
         ...entityConfig.baseURLParams,
         ...query
@@ -6460,14 +6797,7 @@ var wp;
       if (entityConfig.supportsPagination && query.per_page !== -1) {
         const response = await (0, import_api_fetch9.default)({ path, parse: false });
         records = Object.values(await response.json());
-        meta = {
-          totalItems: parseInt(
-            response.headers.get("X-WP-Total")
-          ),
-          totalPages: parseInt(
-            response.headers.get("X-WP-TotalPages")
-          )
-        };
+        meta = getPaginationMeta(response.headers);
       } else if (query.per_page === -1 && query[RECEIVE_INTERMEDIATE_RESULTS] === true) {
         let page = 1;
         let totalPages;
@@ -6477,14 +6807,11 @@ var wp;
             parse: false
           });
           const pageRecords = Object.values(await response.json());
-          totalPages = parseInt(
-            response.headers.get("X-WP-TotalPages")
-          );
+          const pageMeta = getPaginationMeta(response.headers);
+          totalPages = pageMeta.totalPages ?? 1;
           if (!meta) {
             meta = {
-              totalItems: parseInt(
-                response.headers.get("X-WP-Total")
-              ),
+              totalItems: pageMeta.totalItems,
               totalPages: 1
             };
           }
@@ -6795,7 +7122,7 @@ var wp;
     );
     const mappedPatternCategories = patternCategories?.map((userCategory) => ({
       ...userCategory,
-      label: (0, import_html_entities2.decodeEntities)(userCategory.name),
+      label: (0, import_html_entities3.decodeEntities)(userCategory.name),
       name: userCategory.slug
     })) || [];
     dispatch3({
@@ -6803,7 +7130,7 @@ var wp;
       patternCategories: mappedPatternCategories
     });
   };
-  var getNavigationFallbackId2 = () => async ({ dispatch: dispatch3, select: select4, registry }) => {
+  var getNavigationFallbackId2 = () => async ({ dispatch: dispatch3, select: select5, registry }) => {
     const fallback = await (0, import_api_fetch9.default)({
       path: (0, import_url6.addQueryArgs)("/wp-block-editor/v1/navigation-fallback", {
         _embed: true
@@ -6815,7 +7142,7 @@ var wp;
       if (!record) {
         return;
       }
-      const existingFallbackEntityRecord = select4.getEntityRecord(
+      const existingFallbackEntityRecord = select5.getEntityRecord(
         "postType",
         "wp_navigation",
         fallback.id
@@ -6840,7 +7167,7 @@ var wp;
       path: (0, import_url6.addQueryArgs)("/wp/v2/templates/lookup", query)
     });
     await resolveSelect2.getEntitiesConfig("postType");
-    const id = window?.__experimentalTemplateActivate ? template?.wp_id || template?.id : template?.id;
+    const id = template?.id;
     registry.batch(() => {
       dispatch3.receiveDefaultTemplateId(query, id || "");
       if (id) {
@@ -6857,9 +7184,6 @@ var wp;
         ]);
       }
     });
-  };
-  getDefaultTemplateId2.shouldInvalidate = (action) => {
-    return action.type === "RECEIVE_ITEMS" && action.kind === "root" && action.name === "site" && !!action.persistedEdits;
   };
   var getRevisions2 = (kind, name, recordKey, query = {}) => async ({ dispatch: dispatch3, resolveSelect: resolveSelect2 }) => {
     const configs = await resolveSelect2.getEntitiesConfig(kind);
@@ -6902,9 +7226,9 @@ var wp;
       if (response) {
         if (isPaginated) {
           records = Object.values(await response.json());
-          meta.totalItems = parseInt(
-            response.headers.get("X-WP-Total")
-          );
+          meta.totalItems = getPaginationMeta(
+            response.headers
+          ).totalItems;
         } else {
           records = Object.values(response);
         }
@@ -6943,7 +7267,7 @@ var wp;
     }
   };
   getRevisions2.shouldInvalidate = (action, kind, name, recordKey) => action.type === "SAVE_ENTITY_RECORD_FINISH" && name === action.name && kind === action.kind && !action.error && recordKey === action.recordId;
-  var getRevision2 = (kind, name, recordKey, revisionKey, query) => async ({ select: select4, dispatch: dispatch3, resolveSelect: resolveSelect2 }) => {
+  var getRevision2 = (kind, name, recordKey, revisionKey, query) => async ({ select: select5, dispatch: dispatch3, resolveSelect: resolveSelect2 }) => {
     const configs = await resolveSelect2.getEntitiesConfig(kind);
     const entityConfig = configs.find(
       (config) => config.name === name && config.kind === kind
@@ -6976,7 +7300,7 @@ var wp;
       { exclusive: false }
     );
     try {
-      if (select4.hasRevision(kind, name, recordKey, revisionKey, query)) {
+      if (select5.hasRevision(kind, name, recordKey, revisionKey, query)) {
         return;
       }
       const path = (0, import_url6.addQueryArgs)(
@@ -7147,7 +7471,7 @@ var wp;
         node.locks = [...node.locks, lock2];
         return {
           ...state,
-          requests: state.requests.filter((r) => r !== request),
+          requests: state.requests.filter((r2) => r2 !== request),
           tree: newTree
         };
       }
@@ -7269,7 +7593,15 @@ var wp;
             [name]: id
           }
         },
-        ...revisionId !== void 0 && { revisionId }
+        ...revisionId !== void 0 && kind && {
+          revision: {
+            ...parent?.revision,
+            [kind]: {
+              ...parent?.revision?.[kind],
+              [name]: revisionId
+            }
+          }
+        }
       }),
       [parent, kind, name, id, revisionId]
     );
@@ -7277,7 +7609,7 @@ var wp;
   }
 
   // packages/core-data/build-module/hooks/use-entity-record.mjs
-  var import_data10 = __toESM(require_data(), 1);
+  var import_data11 = __toESM(require_data(), 1);
   var import_deprecated4 = __toESM(require_deprecated(), 1);
   var import_element3 = __toESM(require_element(), 1);
 
@@ -7317,7 +7649,7 @@ var wp;
   // packages/core-data/build-module/hooks/use-entity-record.mjs
   var EMPTY_OBJECT3 = {};
   function useEntityRecord(kind, name, recordId, options = { enabled: true }) {
-    const { editEntityRecord: editEntityRecord2, saveEditedEntityRecord: saveEditedEntityRecord2 } = (0, import_data10.useDispatch)(store);
+    const { editEntityRecord: editEntityRecord2, saveEditedEntityRecord: saveEditedEntityRecord2 } = (0, import_data11.useDispatch)(store);
     const mutations = (0, import_element3.useMemo)(
       () => ({
         edit: (record2, editOptions = {}) => editEntityRecord2(kind, name, recordId, record2, editOptions),
@@ -7328,8 +7660,8 @@ var wp;
       }),
       [editEntityRecord2, kind, name, recordId, saveEditedEntityRecord2]
     );
-    const { record, editedRecord, hasEdits, edits, ...resolution } = (0, import_data10.useSelect)(
-      (select4) => {
+    const { record, editedRecord, hasEdits, edits, ...resolution } = (0, import_data11.useSelect)(
+      (select5) => {
         if (!options.enabled) {
           return {
             record: null,
@@ -7339,7 +7671,7 @@ var wp;
             ...getResolutionStatus()
           };
         }
-        const storeSelectors = select4(store);
+        const storeSelectors = select5(store);
         const resolutionStatus = storeSelectors.getResolutionState(
           "getEntityRecord",
           [kind, name, recordId]
@@ -7390,13 +7722,13 @@ var wp;
   // packages/core-data/build-module/hooks/use-entity-records.mjs
   var import_url7 = __toESM(require_url(), 1);
   var import_deprecated5 = __toESM(require_deprecated(), 1);
-  var import_data11 = __toESM(require_data(), 1);
+  var import_data12 = __toESM(require_data(), 1);
   var import_element4 = __toESM(require_element(), 1);
   var EMPTY_ARRAY = [];
   function useEntityRecords(kind, name, queryArgs = {}, options = { enabled: true }) {
     const queryAsString = (0, import_url7.addQueryArgs)("", queryArgs);
-    const { records, totalItems, totalPages, ...rest } = (0, import_data11.useSelect)(
-      (select4) => {
+    const { records, totalItems, totalPages, ...rest } = (0, import_data12.useSelect)(
+      (select5) => {
         if (!options.enabled) {
           return {
             // Avoiding returning a new reference on every execution.
@@ -7406,7 +7738,7 @@ var wp;
             ...getResolutionStatus()
           };
         }
-        const storeSelectors = select4(store);
+        const storeSelectors = select5(store);
         const resolutionStatus = storeSelectors.getResolutionState(
           "getEntityRecords",
           [kind, name, queryArgs]
@@ -7447,8 +7779,8 @@ var wp;
     return useEntityRecords(kind, name, queryArgs, options);
   }
   function useEntityRecordsWithPermissions(kind, name, queryArgs = {}, options = { enabled: true }) {
-    const entityConfig = (0, import_data11.useSelect)(
-      (select4) => select4(store).getEntityConfig(kind, name),
+    const entityConfig = (0, import_data12.useSelect)(
+      (select5) => select5(store).getEntityConfig(kind, name),
       [kind, name]
     );
     const { records: data, ...ret } = useEntityRecords(
@@ -7472,15 +7804,15 @@ var wp;
     );
     const ids = (0, import_element4.useMemo)(
       () => data?.map(
-        // @ts-ignore
+        // @ts-expect-error `data` is `unknown[]`, so the callback signature does not line up.
         (record) => record[entityConfig?.key ?? "id"]
       ) ?? [],
       [data, entityConfig?.key]
     );
-    const permissions = (0, import_data11.useSelect)(
-      (select4) => {
+    const permissions = (0, import_data12.useSelect)(
+      (select5) => {
         const { getEntityRecordsPermissions: getEntityRecordsPermissions2 } = unlock(
-          select4(store)
+          select5(store)
         );
         return getEntityRecordsPermissions2(kind, name, ids);
       },
@@ -7488,7 +7820,7 @@ var wp;
     );
     const dataWithPermissions = (0, import_element4.useMemo)(
       () => data?.map((record, index) => ({
-        // @ts-ignore
+        // @ts-expect-error `record` is `unknown`, which cannot be spread.
         ...record,
         permissions: permissions[index]
       })) ?? [],
@@ -7502,7 +7834,7 @@ var wp;
   var import_warning = __toESM(require_warning(), 1);
 
   // packages/core-data/build-module/hooks/use-query-select.mjs
-  var import_data12 = __toESM(require_data(), 1);
+  var import_data13 = __toESM(require_data(), 1);
 
   // node_modules/memize/dist/index.js
   function memize(fn, options) {
@@ -7581,8 +7913,8 @@ var wp;
     "getCachedResolvers"
   ];
   function useQuerySelect(mapQuerySelect, deps) {
-    return (0, import_data12.useSelect)((select4, registry) => {
-      const resolve = (store2) => enrichSelectors(select4(store2));
+    return (0, import_data13.useSelect)((select5, registry) => {
+      const resolve = (store2) => enrichSelectors(select5(store2));
       return mapQuerySelect(resolve, registry);
     }, deps);
   }
@@ -7677,8 +8009,8 @@ var wp;
 
   // packages/core-data/build-module/hooks/use-entity-block-editor.mjs
   var import_element6 = __toESM(require_element(), 1);
-  var import_data13 = __toESM(require_data(), 1);
-  var import_blocks5 = __toESM(require_blocks(), 1);
+  var import_data14 = __toESM(require_data(), 1);
+  var import_blocks6 = __toESM(require_blocks(), 1);
 
   // packages/core-data/build-module/hooks/use-entity-id.mjs
   var import_element5 = __toESM(require_element(), 1);
@@ -7689,14 +8021,15 @@ var wp;
 
   // packages/core-data/build-module/footnotes/index.mjs
   var import_rich_text4 = __toESM(require_rich_text(), 1);
+  var import_warning2 = __toESM(require_warning(), 1);
 
   // packages/core-data/build-module/footnotes/get-rich-text-values-cached.mjs
-  var import_block_editor5 = __toESM(require_block_editor(), 1);
+  var import_block_editor6 = __toESM(require_block_editor(), 1);
   var unlockedApis;
   var cache = /* @__PURE__ */ new WeakMap();
   function getRichTextValuesCached(block) {
     if (!unlockedApis) {
-      unlockedApis = unlock(import_block_editor5.privateApis);
+      unlockedApis = unlock(import_block_editor6.privateApis);
     }
     if (!cache.has(block)) {
       const values = unlockedApis.getRichTextValues([block]);
@@ -7739,7 +8072,17 @@ var wp;
       return output;
     }
     const newOrder = getFootnotesOrder(blocks);
-    const footnotes = meta.footnotes ? JSON.parse(meta.footnotes) : [];
+    let parsed;
+    try {
+      parsed = JSON.parse(meta.footnotes || "[]");
+    } catch {
+    }
+    let footnotes = [];
+    if (Array.isArray(parsed)) {
+      footnotes = parsed;
+    } else {
+      (0, import_warning2.default)("Footnotes post meta is not a JSON array; ignoring it.");
+    }
     const currentOrder = footnotes.map((fn) => fn.id);
     if (currentOrder.join("") === newOrder.join("")) {
       return output;
@@ -7827,12 +8170,12 @@ var wp;
   function useEntityBlockEditor(kind, name, { id: _id } = {}) {
     const providerId = useEntityId(kind, name);
     const id = _id ?? providerId;
-    const { content, editedBlocks, meta } = (0, import_data13.useSelect)(
-      (select4) => {
+    const { content, editedBlocks, meta } = (0, import_data14.useSelect)(
+      (select5) => {
         if (!id) {
           return {};
         }
-        const { getEditedEntityRecord: getEditedEntityRecord3 } = select4(STORE_NAME);
+        const { getEditedEntityRecord: getEditedEntityRecord3 } = select5(STORE_NAME);
         const editedRecord = getEditedEntityRecord3(kind, name, id);
         return {
           editedBlocks: editedRecord.blocks,
@@ -7842,7 +8185,7 @@ var wp;
       },
       [kind, name, id]
     );
-    const { __unstableCreateUndoLevel: __unstableCreateUndoLevel2, editEntityRecord: editEntityRecord2 } = (0, import_data13.useDispatch)(STORE_NAME);
+    const { __unstableCreateUndoLevel: __unstableCreateUndoLevel2, editEntityRecord: editEntityRecord2 } = (0, import_data14.useDispatch)(STORE_NAME);
     const blocks = (0, import_element6.useMemo)(() => {
       if (!id) {
         return void 0;
@@ -7853,14 +8196,10 @@ var wp;
       if (!content || typeof content !== "string") {
         return EMPTY_ARRAY2;
       }
-      const cacheKey = getCacheKey(kind, name, id);
-      const cached = parsedBlocksCache.get(cacheKey);
-      let _blocks;
-      if (cached && cached.content === content) {
-        _blocks = cached.blocks;
-      } else {
-        _blocks = (0, import_blocks5.parse)(content);
-        parsedBlocksCache.set(cacheKey, { content, blocks: _blocks });
+      let _blocks = getCachedBlocks(kind, name, id, content);
+      if (!_blocks) {
+        _blocks = (0, import_blocks6.parse)(content);
+        setCachedBlocks(kind, name, id, content, _blocks);
       }
       return _blocks;
     }, [kind, name, id, editedBlocks, content]);
@@ -7873,7 +8212,7 @@ var wp;
         const { selection, ...rest } = options;
         const edits = {
           selection,
-          content: ({ blocks: blocksForSerialization = [] }) => (0, import_blocks5.__unstableSerializeAndClean)(blocksForSerialization),
+          content: ({ blocks: blocksForSerialization = [] }) => (0, import_blocks6.__unstableSerializeAndClean)(blocksForSerialization),
           ...updateFootnotesFromMeta(newBlocks, meta)
         };
         editEntityRecord2(kind, name, id, edits, {
@@ -7910,39 +8249,37 @@ var wp;
 
   // packages/core-data/build-module/hooks/use-entity-prop.mjs
   var import_element7 = __toESM(require_element(), 1);
-  var import_data14 = __toESM(require_data(), 1);
+  var import_data15 = __toESM(require_data(), 1);
+  var REVISION_QUERY = {
+    context: "edit",
+    _fields: "id,date,author,meta,title,excerpt,content.raw"
+  };
   function useEntityProp(kind, name, prop, _id) {
     const providerId = useEntityId(kind, name);
     const id = _id ?? providerId;
     const context = (0, import_element7.useContext)(EntityContext);
-    const revisionId = context?.revisionId;
-    const { value, fullValue } = (0, import_data14.useSelect)(
-      (select4) => {
+    const revisionId = String(id) === String(providerId) ? context?.revision?.[kind]?.[name] : void 0;
+    const { value, fullValue } = (0, import_data15.useSelect)(
+      (select5) => {
         if (revisionId) {
-          const revisions = select4(STORE_NAME).getRevisions(
+          const revision = select5(STORE_NAME).getRevision(
             kind,
             name,
             id,
-            {
-              per_page: -1,
-              context: "edit",
-              _fields: "id,date,author,meta,title.raw,excerpt.raw,content.raw"
-            }
+            revisionId,
+            REVISION_QUERY
           );
-          const entityConfig = select4(STORE_NAME).getEntityConfig(
-            kind,
-            name
-          );
-          const revKey = entityConfig?.revisionKey || DEFAULT_ENTITY_KEY;
-          const revision = revisions?.find(
-            (r) => r[revKey] === revisionId
-          );
-          return revision ? {
-            value: revision[prop]?.raw ?? revision[prop],
-            fullValue: revision[prop]
-          } : {};
+          const propValue = revision?.[prop];
+          if (propValue === void 0) {
+            return {};
+          }
+          const isRawAttribute = propValue !== null && typeof propValue === "object" && "raw" in propValue;
+          return {
+            value: isRawAttribute ? propValue.raw : propValue,
+            fullValue: propValue
+          };
         }
-        const { getEntityRecord: getEntityRecord3, getEditedEntityRecord: getEditedEntityRecord3 } = select4(STORE_NAME);
+        const { getEntityRecord: getEntityRecord3, getEditedEntityRecord: getEditedEntityRecord3 } = select5(STORE_NAME);
         const record = getEntityRecord3(kind, name, id);
         const editedRecord = getEditedEntityRecord3(kind, name, id);
         return record && editedRecord ? {
@@ -7952,7 +8289,7 @@ var wp;
       },
       [kind, name, id, prop, revisionId]
     );
-    const { editEntityRecord: editEntityRecord2 } = (0, import_data14.useDispatch)(STORE_NAME);
+    const { editEntityRecord: editEntityRecord2 } = (0, import_data15.useDispatch)(STORE_NAME);
     const setValue = (0, import_element7.useCallback)(
       (newValue) => {
         if (revisionId) {
@@ -7986,7 +8323,9 @@ var wp;
     isCurrentCollaboratorDisconnected: false
   };
   function getAwarenessState(awareness, newState) {
-    const activeCollaborators = newState ?? awareness.getCurrentState();
+    const activeCollaborators = (newState ?? awareness.getCurrentState()).filter(
+      (collaborator) => isCollaboratorInfo(collaborator.collaboratorInfo)
+    );
     return {
       activeCollaborators,
       resolveSelection: (selection, blocks) => awareness.convertSelectionStateToAbsolute(selection, blocks),
@@ -8146,10 +8485,683 @@ var wp;
     }, [lastPostSave, prevPostSave, activeCollaborators, callback]);
   }
 
+  // packages/icons/build-module/library/footer.mjs
+  var import_primitives = __toESM(require_primitives(), 1);
+  var import_jsx_runtime2 = __toESM(require_jsx_runtime(), 1);
+  var footer_default = /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_primitives.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_primitives.Path, { fillRule: "evenodd", d: "M18 5.5h-8v8h8.5V6a.5.5 0 00-.5-.5zm-9.5 8h-3V6a.5.5 0 01.5-.5h2.5v8zM6 4h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2z" }) });
+
+  // packages/icons/build-module/library/header.mjs
+  var import_primitives2 = __toESM(require_primitives(), 1);
+  var import_jsx_runtime3 = __toESM(require_jsx_runtime(), 1);
+  var header_default = /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_primitives2.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_primitives2.Path, { d: "M18.5 10.5H10v8h8a.5.5 0 00.5-.5v-7.5zm-10 0h-3V18a.5.5 0 00.5.5h2.5v-8zM6 4h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2z" }) });
+
+  // packages/icons/build-module/library/layout.mjs
+  var import_primitives3 = __toESM(require_primitives(), 1);
+  var import_jsx_runtime4 = __toESM(require_jsx_runtime(), 1);
+  var layout_default = /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_primitives3.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_primitives3.Path, { d: "M18 5.5H6a.5.5 0 00-.5.5v3h13V6a.5.5 0 00-.5-.5zm.5 5H10v8h8a.5.5 0 00.5-.5v-7.5zm-10 0h-3V18a.5.5 0 00.5.5h2.5v-8zM6 4h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2z" }) });
+
+  // packages/icons/build-module/library/navigation-overlay.mjs
+  var import_primitives4 = __toESM(require_primitives(), 1);
+  var import_jsx_runtime5 = __toESM(require_jsx_runtime(), 1);
+  var navigation_overlay_default = /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_primitives4.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_primitives4.Path, { d: "M18.5 10a1.5 1.5 0 0 1 1.5 1.5v7a1.5 1.5 0 0 1-1.5 1.5h-7a1.5 1.5 0 0 1-1.5-1.5v-7a1.5 1.5 0 0 1 1.5-1.5zM16 4a2 2 0 0 1 2 2v2h-1.5V6a.5.5 0 0 0-.5-.5H6a.5.5 0 0 0-.5.5v3H8v1.5H5.5V16a.5.5 0 0 0 .5.5h2V18H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" }) });
+
+  // packages/icons/build-module/library/sidebar.mjs
+  var import_primitives5 = __toESM(require_primitives(), 1);
+  var import_jsx_runtime6 = __toESM(require_jsx_runtime(), 1);
+  var sidebar_default = /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_primitives5.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_primitives5.Path, { d: "M18 5.5H6a.5.5 0 00-.5.5v3h13V6a.5.5 0 00-.5-.5zm.5 5H10v8h8a.5.5 0 00.5-.5v-7.5zM6 4h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2z" }) });
+
+  // packages/icons/build-module/library/symbol-filled.mjs
+  var import_primitives6 = __toESM(require_primitives(), 1);
+  var import_jsx_runtime7 = __toESM(require_jsx_runtime(), 1);
+  var symbol_filled_default = /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_primitives6.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_primitives6.Path, { d: "M21.3 10.8l-5.6-5.6c-.7-.7-1.8-.7-2.5 0l-5.6 5.6c-.7.7-.7 1.8 0 2.5l5.6 5.6c.3.3.8.5 1.2.5s.9-.2 1.2-.5l5.6-5.6c.8-.7.8-1.9.1-2.5zm-17.6 1L10 5.5l-1-1-6.3 6.3c-.7.7-.7 1.8 0 2.5L9 19.5l1.1-1.1-6.3-6.3c-.2 0-.2-.2-.1-.3z" }) });
+
+  // packages/core-data/build-module/utils/get-template-part-icon.mjs
+  function getTemplatePartIcon(areaOrIconName) {
+    if ("header" === areaOrIconName) {
+      return header_default;
+    } else if ("footer" === areaOrIconName) {
+      return footer_default;
+    } else if ("sidebar" === areaOrIconName) {
+      return sidebar_default;
+    } else if ("navigation-overlay" === areaOrIconName) {
+      return navigation_overlay_default;
+    }
+    return symbol_filled_default;
+  }
+
+  // packages/core-data/build-module/utils/get-template-info.mjs
+  var EMPTY_OBJECT4 = {};
+  var getTemplateInfo = (params) => {
+    if (!params) {
+      return EMPTY_OBJECT4;
+    }
+    const { templateTypes, templateAreas, template } = params;
+    const { description, slug, title, area } = template;
+    const { title: defaultTitle, description: defaultDescription } = Object.values(templateTypes).find((type) => type.slug === slug) ?? EMPTY_OBJECT4;
+    const templateTitle = typeof title === "string" ? title : title?.rendered;
+    const templateDescription = typeof description === "string" ? description : description?.raw;
+    const templateAreasWithIcon = templateAreas?.map((item) => ({
+      ...item,
+      icon: getTemplatePartIcon(item.icon)
+    }));
+    const templateIcon = templateAreasWithIcon?.find((item) => area === item.area)?.icon || layout_default;
+    return {
+      title: templateTitle && templateTitle !== slug ? templateTitle : defaultTitle || slug,
+      description: templateDescription || defaultDescription,
+      icon: templateIcon
+    };
+  };
+
+  // node_modules/clsx/dist/clsx.mjs
+  function r(e) {
+    var t, f, n = "";
+    if ("string" == typeof e || "number" == typeof e) n += e;
+    else if ("object" == typeof e) if (Array.isArray(e)) {
+      var o = e.length;
+      for (t = 0; t < o; t++) e[t] && (f = r(e[t])) && (n && (n += " "), n += f);
+    } else for (f in e) e[f] && (n && (n += " "), n += f);
+    return n;
+  }
+  function clsx() {
+    for (var e, t, f = 0, n = "", o = arguments.length; f < o; f++) (e = arguments[f]) && (t = r(e)) && (n && (n += " "), n += t);
+    return n;
+  }
+  var clsx_default = clsx;
+
+  // packages/core-data/build-module/components/entities-saved-states/index.mjs
+  var import_components3 = __toESM(require_components(), 1);
+  var import_i18n7 = __toESM(require_i18n(), 1);
+  var import_element10 = __toESM(require_element(), 1);
+  var import_compose4 = __toESM(require_compose(), 1);
+  var import_data19 = __toESM(require_data(), 1);
+
+  // packages/core-data/build-module/components/entities-saved-states/entity-type-list.mjs
+  var import_i18n6 = __toESM(require_i18n(), 1);
+  var import_data17 = __toESM(require_data(), 1);
+  var import_components2 = __toESM(require_components(), 1);
+
+  // packages/global-styles-engine/build-module/utils/get-global-styles-changes.mjs
+  var import_i18n4 = __toESM(require_i18n(), 1);
+  var import_blocks7 = __toESM(require_blocks(), 1);
+  var globalStylesChangesCache = /* @__PURE__ */ new Map();
+  var EMPTY_ARRAY3 = [];
+  var translationMap = {
+    caption: (0, import_i18n4.__)("Caption"),
+    link: (0, import_i18n4.__)("Link"),
+    button: (0, import_i18n4.__)("Button"),
+    heading: (0, import_i18n4.__)("Heading"),
+    h1: (0, import_i18n4.__)("H1"),
+    h2: (0, import_i18n4.__)("H2"),
+    h3: (0, import_i18n4.__)("H3"),
+    h4: (0, import_i18n4.__)("H4"),
+    h5: (0, import_i18n4.__)("H5"),
+    h6: (0, import_i18n4.__)("H6"),
+    "settings.color": (0, import_i18n4.__)("Color"),
+    "settings.typography": (0, import_i18n4.__)("Typography"),
+    "settings.shadow": (0, import_i18n4.__)("Shadow"),
+    "settings.layout": (0, import_i18n4.__)("Layout"),
+    "styles.color": (0, import_i18n4.__)("Colors"),
+    "styles.spacing": (0, import_i18n4.__)("Spacing"),
+    "styles.background": (0, import_i18n4.__)("Background"),
+    "styles.typography": (0, import_i18n4.__)("Typography"),
+    "styles.border": (0, import_i18n4.__)("Border"),
+    "styles.shadow": (0, import_i18n4.__)("Shadow"),
+    "styles.outline": (0, import_i18n4.__)("Outline"),
+    "styles.filter": (0, import_i18n4.__)("Filter"),
+    "styles.dimensions": (0, import_i18n4.__)("Dimensions")
+  };
+  var getBlockNames = memize(
+    () => (0, import_blocks7.getBlockTypes)().reduce(
+      (accumulator, {
+        name,
+        title
+      }) => {
+        accumulator[name] = title;
+        return accumulator;
+      },
+      {}
+    )
+  );
+  var isObject = (obj) => obj !== null && typeof obj === "object";
+  function getTranslation(key) {
+    if (translationMap[key]) {
+      return translationMap[key];
+    }
+    const keyArray = key.split(".");
+    if (keyArray?.[0] === "blocks") {
+      const blockName = getBlockNames()?.[keyArray[1]];
+      return blockName || keyArray[1];
+    }
+    if (keyArray?.[0] === "elements") {
+      return translationMap[keyArray[1]] || keyArray[1];
+    }
+    return void 0;
+  }
+  function deepCompare(changedObject, originalObject, parentPath = "") {
+    if (!isObject(changedObject) && !isObject(originalObject)) {
+      return changedObject !== originalObject ? parentPath.split(".").slice(0, 2).join(".") : void 0;
+    }
+    changedObject = isObject(changedObject) ? changedObject : {};
+    originalObject = isObject(originalObject) ? originalObject : {};
+    const allKeys = /* @__PURE__ */ new Set([
+      ...Object.keys(changedObject),
+      ...Object.keys(originalObject)
+    ]);
+    let diffs = [];
+    for (const key of allKeys) {
+      const path = parentPath ? parentPath + "." + key : key;
+      const changedPath = deepCompare(
+        changedObject[key],
+        originalObject[key],
+        path
+      );
+      if (changedPath) {
+        diffs = diffs.concat(changedPath);
+      }
+    }
+    return diffs;
+  }
+  var COMPARED_STYLE_KEYS = [
+    "background",
+    "color",
+    "typography",
+    "spacing",
+    "border",
+    "shadow",
+    "outline",
+    "filter",
+    "dimensions"
+  ];
+  function pickComparedStyles(config) {
+    return Object.fromEntries(
+      COMPARED_STYLE_KEYS.map((key) => [key, config?.styles?.[key]])
+    );
+  }
+  function getGlobalStylesChangelist(next, previous) {
+    const cacheKey = JSON.stringify({ next, previous });
+    if (globalStylesChangesCache.has(cacheKey)) {
+      return globalStylesChangesCache.get(cacheKey);
+    }
+    const changedValueTree = deepCompare(
+      {
+        styles: pickComparedStyles(next),
+        blocks: next?.styles?.blocks,
+        elements: next?.styles?.elements,
+        settings: next?.settings
+      },
+      {
+        styles: pickComparedStyles(previous),
+        blocks: previous?.styles?.blocks,
+        elements: previous?.styles?.elements,
+        settings: previous?.settings
+      }
+    );
+    if (!changedValueTree || Array.isArray(changedValueTree) && !changedValueTree.length) {
+      globalStylesChangesCache.set(cacheKey, []);
+      return [];
+    }
+    const changedValueArray = Array.isArray(changedValueTree) ? changedValueTree : [changedValueTree];
+    const result = [...new Set(changedValueArray)].reduce((acc, curr) => {
+      const translation = getTranslation(curr);
+      if (translation) {
+        acc.push([curr.split(".")[0], translation]);
+      }
+      return acc;
+    }, []);
+    globalStylesChangesCache.set(cacheKey, result);
+    return result;
+  }
+  function getGlobalStylesChanges(next, previous, options = {}) {
+    let changeList = getGlobalStylesChangelist(next, previous);
+    const changesLength = changeList.length;
+    const { maxResults } = options;
+    if (changesLength) {
+      if (!!maxResults && changesLength > maxResults) {
+        changeList = changeList.slice(0, maxResults);
+      }
+      return Object.entries(
+        changeList.reduce((acc, curr) => {
+          const group = acc[curr[0]] || [];
+          if (!group.includes(curr[1])) {
+            acc[curr[0]] = [...group, curr[1]];
+          }
+          return acc;
+        }, {})
+      ).map(([key, changeValues]) => {
+        const changeValuesLength = changeValues.length;
+        const joinedChangesValue = changeValues.join(
+          /* translators: Used between list items, there is a space after the comma. */
+          (0, import_i18n4.__)(", ")
+          // eslint-disable-line @wordpress/i18n-no-flanking-whitespace
+        );
+        switch (key) {
+          case "blocks": {
+            return (0, import_i18n4.sprintf)(
+              // translators: %s: a list of block names separated by a comma.
+              (0, import_i18n4._n)("%s block.", "%s blocks.", changeValuesLength),
+              joinedChangesValue
+            );
+          }
+          case "elements": {
+            return (0, import_i18n4.sprintf)(
+              // translators: %s: a list of element names separated by a comma.
+              (0, import_i18n4._n)("%s element.", "%s elements.", changeValuesLength),
+              joinedChangesValue
+            );
+          }
+          case "settings": {
+            return (0, import_i18n4.sprintf)(
+              // translators: %s: a list of theme.json setting labels separated by a comma.
+              (0, import_i18n4.__)("%s settings."),
+              joinedChangesValue
+            );
+          }
+          case "styles": {
+            return (0, import_i18n4.sprintf)(
+              // translators: %s: a list of theme.json top-level styles labels separated by a comma.
+              (0, import_i18n4.__)("%s styles."),
+              joinedChangesValue
+            );
+          }
+          default: {
+            return (0, import_i18n4.sprintf)(
+              // translators: %s: a list of global styles changes separated by a comma.
+              (0, import_i18n4.__)("%s."),
+              joinedChangesValue
+            );
+          }
+        }
+      });
+    }
+    return EMPTY_ARRAY3;
+  }
+
+  // packages/core-data/build-module/components/entities-saved-states/entity-record-item.mjs
+  var import_components = __toESM(require_components(), 1);
+  var import_i18n5 = __toESM(require_i18n(), 1);
+  var import_data16 = __toESM(require_data(), 1);
+  var import_html_entities4 = __toESM(require_html_entities(), 1);
+  var import_jsx_runtime8 = __toESM(require_jsx_runtime(), 1);
+  function EntityRecordItem({ record, checked, onChange }) {
+    const { name, kind, title, key } = record;
+    const { entityRecordTitle } = (0, import_data16.useSelect)(
+      (select5) => {
+        if ("postType" !== kind || "wp_template" !== name) {
+          return {
+            entityRecordTitle: title
+          };
+        }
+        const template = select5(STORE_NAME).getEditedEntityRecord(
+          kind,
+          name,
+          key
+        );
+        const { default_template_types: templateTypes = [] } = select5(STORE_NAME).getCurrentTheme() ?? {};
+        return {
+          entityRecordTitle: getTemplateInfo({
+            template,
+            templateTypes
+          }).title
+        };
+      },
+      [name, kind, title, key]
+    );
+    return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_jsx_runtime8.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_components.PanelRow, { children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
+      import_components.CheckboxControl,
+      {
+        label: (0, import_html_entities4.decodeEntities)(entityRecordTitle) || (0, import_i18n5.__)("Untitled"),
+        checked,
+        onChange,
+        className: "entities-saved-states__change-control"
+      }
+    ) }) });
+  }
+
+  // packages/core-data/build-module/components/entities-saved-states/entity-type-list.mjs
+  var import_jsx_runtime9 = __toESM(require_jsx_runtime(), 1);
+  function getEntityDescription(entity2, count) {
+    switch (entity2) {
+      case "site":
+        return 1 === count ? (0, import_i18n6.__)("This change will affect your whole site.") : (0, import_i18n6.__)("These changes will affect your whole site.");
+      case "wp_template":
+        return (0, import_i18n6.__)(
+          "This change will affect other parts of your site that use this template."
+        );
+      case "page":
+      case "post":
+        return (0, import_i18n6.__)("The following has been modified.");
+    }
+  }
+  function GlobalStylesDescription({ record }) {
+    const { editedRecord, savedRecord } = (0, import_data17.useSelect)(
+      (select5) => {
+        const { getEditedEntityRecord: getEditedEntityRecord3, getEntityRecord: getEntityRecord3 } = select5(STORE_NAME);
+        return {
+          editedRecord: getEditedEntityRecord3(
+            record.kind,
+            record.name,
+            record.key
+          ),
+          savedRecord: getEntityRecord3(
+            record.kind,
+            record.name,
+            record.key
+          )
+        };
+      },
+      [record.kind, record.name, record.key]
+    );
+    const globalStylesChanges = getGlobalStylesChanges(
+      editedRecord,
+      savedRecord,
+      {
+        maxResults: 10
+      }
+    );
+    return globalStylesChanges.length ? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("ul", { className: "entities-saved-states__changes", children: globalStylesChanges.map((change) => /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("li", { children: change }, change)) }) : null;
+  }
+  function EntityDescription({ record, count }) {
+    if ("globalStyles" === record?.name) {
+      return null;
+    }
+    const description = getEntityDescription(record?.name, count);
+    return description ? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_components2.PanelRow, { children: description }) : null;
+  }
+  function EntityTypeList({
+    list,
+    unselectedEntities,
+    setUnselectedEntities
+  }) {
+    const count = list.length;
+    const firstRecord = list[0];
+    const entityConfig = (0, import_data17.useSelect)(
+      (select5) => select5(STORE_NAME).getEntityConfig(
+        firstRecord.kind,
+        firstRecord.name
+      ),
+      [firstRecord.kind, firstRecord.name]
+    );
+    let entityLabel = entityConfig.label;
+    if (firstRecord?.name === "wp_template_part") {
+      entityLabel = 1 === count ? (0, import_i18n6.__)("Template Part") : (0, import_i18n6.__)("Template Parts");
+    }
+    return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(
+      import_components2.PanelBody,
+      {
+        title: entityLabel,
+        initialOpen: true,
+        className: "entities-saved-states__panel-body",
+        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(EntityDescription, { record: firstRecord, count }),
+          list.map((record) => {
+            return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
+              EntityRecordItem,
+              {
+                record,
+                checked: !unselectedEntities.some(
+                  (elt) => elt.kind === record.kind && elt.name === record.name && elt.key === record.key && elt.property === record.property
+                ),
+                onChange: (value) => setUnselectedEntities(record, value)
+              },
+              record.key || record.property
+            );
+          }),
+          "globalStyles" === firstRecord?.name && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(GlobalStylesDescription, { record: firstRecord })
+        ]
+      }
+    );
+  }
+
+  // packages/core-data/build-module/components/entities-saved-states/hooks/use-is-dirty.mjs
+  var import_data18 = __toESM(require_data(), 1);
+  var import_element9 = __toESM(require_element(), 1);
+  var useIsDirty = () => {
+    const { editedEntities, siteEdits, siteEntityConfig } = (0, import_data18.useSelect)(
+      (select5) => {
+        const {
+          __experimentalGetDirtyEntityRecords: __experimentalGetDirtyEntityRecords2,
+          getEntityRecordEdits: getEntityRecordEdits2,
+          getEntityConfig: getEntityConfig2
+        } = select5(STORE_NAME);
+        return {
+          editedEntities: __experimentalGetDirtyEntityRecords2(),
+          siteEdits: getEntityRecordEdits2("root", "site"),
+          siteEntityConfig: getEntityConfig2("root", "site")
+        };
+      },
+      []
+    );
+    const dirtyEntityRecords = (0, import_element9.useMemo)(() => {
+      const editedEntitiesWithoutSite = editedEntities.filter(
+        (record) => !(record.kind === "root" && record.name === "site")
+      );
+      const siteEntityLabels = siteEntityConfig?.meta?.labels ?? {};
+      const {
+        title: siteTitleEdit,
+        description: siteDescriptionEdit,
+        site_logo: siteLogoEdit,
+        site_icon: siteIconEdit,
+        ...otherSiteEdits
+      } = siteEdits ?? {};
+      const orderedSiteProperties = [
+        siteTitleEdit !== void 0 && "title",
+        siteDescriptionEdit !== void 0 && "description",
+        siteLogoEdit !== void 0 && "site_logo",
+        siteIconEdit !== void 0 && "site_icon",
+        ...Object.keys(otherSiteEdits)
+      ].filter(Boolean);
+      const editedSiteEntities = orderedSiteProperties.map(
+        (property) => ({
+          kind: "root",
+          name: "site",
+          title: siteEntityLabels[property] || property,
+          property
+        })
+      );
+      return [...editedEntitiesWithoutSite, ...editedSiteEntities];
+    }, [editedEntities, siteEdits, siteEntityConfig]);
+    const [unselectedEntities, _setUnselectedEntities] = (0, import_element9.useState)([]);
+    const setUnselectedEntities = ({ kind, name, key, property }, checked) => {
+      if (checked) {
+        _setUnselectedEntities(
+          unselectedEntities.filter(
+            (elt) => elt.kind !== kind || elt.name !== name || elt.key !== key || elt.property !== property
+          )
+        );
+      } else {
+        _setUnselectedEntities([
+          ...unselectedEntities,
+          { kind, name, key, property }
+        ]);
+      }
+    };
+    const isDirty = dirtyEntityRecords.length - unselectedEntities.length > 0;
+    return {
+      dirtyEntityRecords,
+      isDirty,
+      setUnselectedEntities,
+      unselectedEntities
+    };
+  };
+
+  // packages/core-data/build-module/components/entities-saved-states/index.mjs
+  var import_jsx_runtime10 = __toESM(require_jsx_runtime(), 1);
+  function EntitiesSavedStates({
+    close,
+    renderDialog,
+    variant
+  }) {
+    const isDirtyProps = useIsDirty();
+    return /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
+      EntitiesSavedStatesExtensible,
+      {
+        close,
+        renderDialog,
+        variant,
+        ...isDirtyProps
+      }
+    );
+  }
+  function EntitiesSavedStatesExtensible({
+    additionalPrompt = void 0,
+    close,
+    onSave = void 0,
+    saveEnabled: saveEnabledProp = void 0,
+    saveLabel = (0, import_i18n7.__)("Save"),
+    renderDialog,
+    dirtyEntityRecords,
+    isDirty,
+    setUnselectedEntities,
+    unselectedEntities,
+    variant = "default",
+    successNoticeContent
+  }) {
+    const saveButtonRef = (0, import_element10.useRef)();
+    const { saveDirtyEntities: saveDirtyEntities2 } = unlock((0, import_data19.useDispatch)(STORE_NAME));
+    const partitionedSavables = dirtyEntityRecords.reduce((acc, record) => {
+      const { name } = record;
+      if (!acc[name]) {
+        acc[name] = [];
+      }
+      acc[name].push(record);
+      return acc;
+    }, {});
+    const {
+      site: siteSavables,
+      wp_template: templateSavables,
+      wp_template_part: templatePartSavables,
+      ...contentSavables
+    } = partitionedSavables;
+    const sortedPartitionedSavables = [
+      siteSavables,
+      templateSavables,
+      templatePartSavables,
+      ...Object.values(contentSavables)
+    ].filter(Array.isArray);
+    const saveEnabled = saveEnabledProp ?? isDirty;
+    const dismissPanel = (0, import_element10.useCallback)(() => close(), [close]);
+    const [saveDialogRef, saveDialogProps] = (0, import_compose4.__experimentalUseDialog)({
+      onClose: () => dismissPanel()
+    });
+    const dialogLabelId = (0, import_compose4.useInstanceId)(
+      EntitiesSavedStatesExtensible,
+      "entities-saved-states__panel-label"
+    );
+    const dialogDescriptionId = (0, import_compose4.useInstanceId)(
+      EntitiesSavedStatesExtensible,
+      "entities-saved-states__panel-description"
+    );
+    const selectItemsToSaveDescription = !!dirtyEntityRecords.length ? (0, import_i18n7.__)("Select the items you want to save.") : void 0;
+    const isInline = variant === "inline";
+    const actionButtons = /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
+        import_components3.FlexItem,
+        {
+          isBlock: isInline ? false : true,
+          as: import_components3.Button,
+          variant: isInline ? "tertiary" : "secondary",
+          size: isInline ? void 0 : "compact",
+          onClick: dismissPanel,
+          children: (0, import_i18n7.__)("Cancel")
+        }
+      ),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
+        import_components3.FlexItem,
+        {
+          isBlock: isInline ? false : true,
+          as: import_components3.Button,
+          ref: saveButtonRef,
+          variant: "primary",
+          size: isInline ? void 0 : "compact",
+          disabled: !saveEnabled,
+          accessibleWhenDisabled: true,
+          onClick: () => saveDirtyEntities2({
+            onSave,
+            dirtyEntityRecords,
+            entitiesToSkip: unselectedEntities,
+            close,
+            successNoticeContent
+          }),
+          className: "entities-saved-states__save-button",
+          children: saveLabel
+        }
+      )
+    ] });
+    return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(
+      "div",
+      {
+        ref: renderDialog ? saveDialogRef : void 0,
+        ...renderDialog && saveDialogProps,
+        className: clsx_default("entities-saved-states__panel", {
+          "is-inline": isInline
+        }),
+        role: renderDialog ? "dialog" : void 0,
+        "aria-labelledby": renderDialog ? dialogLabelId : void 0,
+        "aria-describedby": renderDialog ? dialogDescriptionId : void 0,
+        children: [
+          !isInline && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_components3.Flex, { className: "entities-saved-states__panel-header", gap: 2, children: actionButtons }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "entities-saved-states__text-prompt", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "entities-saved-states__text-prompt--header-wrapper", children: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
+              "strong",
+              {
+                id: renderDialog ? dialogLabelId : void 0,
+                className: "entities-saved-states__text-prompt--header",
+                children: (0, import_i18n7.__)("Are you ready to save?")
+              }
+            ) }),
+            /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { id: renderDialog ? dialogDescriptionId : void 0, children: [
+              additionalPrompt,
+              /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "entities-saved-states__text-prompt--changes-count", children: isDirty ? (0, import_element10.createInterpolateElement)(
+                (0, import_i18n7.sprintf)(
+                  /* translators: %d: number of site changes waiting to be saved. */
+                  (0, import_i18n7._n)(
+                    "There is <strong>%d site change</strong> waiting to be saved.",
+                    "There are <strong>%d site changes</strong> waiting to be saved.",
+                    dirtyEntityRecords.length
+                  ),
+                  dirtyEntityRecords.length
+                ),
+                { strong: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("strong", {}) }
+              ) : selectItemsToSaveDescription })
+            ] })
+          ] }),
+          sortedPartitionedSavables.map((list) => {
+            return /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
+              EntityTypeList,
+              {
+                list,
+                unselectedEntities,
+                setUnselectedEntities
+              },
+              list[0].name
+            );
+          }),
+          isInline && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
+            import_components3.Flex,
+            {
+              direction: "row",
+              justify: "flex-end",
+              className: "entities-saved-states__panel-footer",
+              children: actionButtons
+            }
+          )
+        ]
+      }
+    );
+  }
+
   // packages/core-data/build-module/private-apis.mjs
   var lockedApis = {
+    EntitiesSavedStates,
+    EntitiesSavedStatesExtensible,
+    getTemplateInfo,
+    getTemplatePartIcon,
+    useEntitiesSavedStatesIsDirty: useIsDirty,
     useEntityRecordsWithPermissions,
     RECEIVE_INTERMEDIATE_RESULTS,
+    CRDT_AUTOSAVE_SNAPSHOT_KEY,
+    entityContainsSnapshot,
+    getEntitySnapshot,
     retrySyncConnection,
     useActiveCollaborators,
     useResolvedSelection,
@@ -8247,10 +9259,10 @@ var wp;
     },
     resolvers: { ...resolvers_exports, ...entityResolvers }
   });
-  var store = (0, import_data15.createReduxStore)(STORE_NAME, storeConfig());
+  var store = (0, import_data20.createReduxStore)(STORE_NAME, storeConfig());
   unlock(store).registerPrivateSelectors(private_selectors_exports);
   unlock(store).registerPrivateActions(private_actions_exports);
-  (0, import_data15.register)(store);
+  (0, import_data20.register)(store);
   return __toCommonJS(index_exports);
 })();
 (window.wp ||= {}).coreData = wp.coreData;

@@ -194,7 +194,8 @@ var wp;
       maxConcurrentUploads: DEFAULT_MAX_CONCURRENT_UPLOADS,
       maxConcurrentImageProcessing: DEFAULT_MAX_CONCURRENT_IMAGE_PROCESSING,
       retry: { ...DEFAULT_RETRY_SETTINGS }
-    }
+    },
+    failureCount: 0
   };
   function reducer(state = DEFAULT_STATE, action = { type: Type.Unknown }) {
     switch (action.type) {
@@ -235,9 +236,13 @@ var wp;
           ...state,
           queue: [...state.queue, action.item]
         };
-      case Type.Cancel:
+      case Type.Cancel: {
+        const cancelled = state.queue.find(
+          (item) => item.id === action.id
+        );
         return {
           ...state,
+          failureCount: cancelled && !cancelled.parentId ? state.failureCount + 1 : state.failureCount,
           queue: state.queue.map(
             (item) => item.id === action.id ? {
               ...item,
@@ -245,6 +250,7 @@ var wp;
             } : item
           )
         };
+      }
       case Type.RetryItem:
         return {
           ...state,
@@ -421,6 +427,7 @@ var wp;
     getAllItems: () => getAllItems,
     getBlobUrls: () => getBlobUrls,
     getFailedItems: () => getFailedItems,
+    getFailureCount: () => getFailureCount,
     getItem: () => getItem,
     getItemProgress: () => getItemProgress,
     getPendingImageProcessing: () => getPendingImageProcessing,
@@ -432,6 +439,9 @@ var wp;
   });
   function getAllItems(state) {
     return state.queue;
+  }
+  function getFailureCount(state) {
+    return state.failureCount;
   }
   function getItem(state, id) {
     return state.queue.find((item) => item.id === id);

@@ -130,6 +130,23 @@
   transform: translateX(-100%);
 }
 
+.customize-widgets-error-boundary {
+  font-family: var(--wpds-typography-font-family-body, -apple-system, system-ui, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif);
+  padding: var(--wpds-dimension-padding-md, 12px);
+}
+
+.customize-widgets-error-boundary__report {
+  max-height: 420px;
+  overflow: auto;
+  overflow-anchor: none;
+}
+
+.customize-widgets-error-boundary__report-section {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
 @media (min-width: 600px) {
   .customize-widgets-header {
     margin-bottom: 44px;

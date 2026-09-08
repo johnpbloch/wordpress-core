@@ -122,11 +122,6 @@
 .block-editor-block-icon.has-colors svg {
   fill: currentColor;
 }
-@media (forced-colors: active) {
-  .block-editor-block-icon.has-colors svg {
-    fill: CanvasText;
-  }
-}
 .block-editor-block-icon svg {
   min-width: 20px;
   min-height: 20px;
@@ -159,9 +154,6 @@ _::-webkit-full-page-media, _:future, :root [data-has-multi-selection=true] .blo
 .block-editor-block-list__layout {
   position: relative;
 }
-.block-editor-block-list__layout .block-editor-block-list__block.is-multi-selected:not(.is-partially-selected)::-moz-selection, .block-editor-block-list__layout .block-editor-block-list__block.is-multi-selected:not(.is-partially-selected) ::-moz-selection {
-  background: transparent;
-}
 .block-editor-block-list__layout .block-editor-block-list__block.is-multi-selected:not(.is-partially-selected)::selection, .block-editor-block-list__layout .block-editor-block-list__block.is-multi-selected:not(.is-partially-selected) ::selection {
   background: transparent;
 }
@@ -191,11 +183,15 @@ _::-webkit-full-page-media, _:future, :root [data-has-multi-selection=true] .blo
 }
 .block-editor-block-list__layout .block-editor-block-list__block.is-highlighted,
 .block-editor-block-list__layout .block-editor-block-list__block.is-highlighted ~ .is-multi-selected,
+.block-editor-block-list__layout .block-editor-block-list__block.is-hovered-draggable[draggable=true]:not(.is-multi-selected),
+.block-editor-block-list__layout .block-editor-block-list__block.is-hovered-draggable[data-draggable=true]:not(.is-multi-selected),
 .block-editor-block-list__layout .block-editor-block-list__block:not([contenteditable=true]):focus {
   outline: none;
 }
 .block-editor-block-list__layout .block-editor-block-list__block.is-highlighted::after,
 .block-editor-block-list__layout .block-editor-block-list__block.is-highlighted ~ .is-multi-selected::after,
+.block-editor-block-list__layout .block-editor-block-list__block.is-hovered-draggable[draggable=true]:not(.is-multi-selected)::after,
+.block-editor-block-list__layout .block-editor-block-list__block.is-hovered-draggable[data-draggable=true]:not(.is-multi-selected)::after,
 .block-editor-block-list__layout .block-editor-block-list__block:not([contenteditable=true]):focus::after {
   content: "";
   position: absolute;
@@ -231,7 +227,6 @@ _::-webkit-full-page-media, _:future, :root [data-has-multi-selection=true] .blo
 }
 .block-editor-block-list__layout [class^=components-] {
   -webkit-user-select: text;
-     -moz-user-select: text;
           user-select: text;
 }
 
@@ -264,7 +259,6 @@ _::-webkit-full-page-media, _:future, :root [data-has-multi-selection=true] .blo
 .block-editor-block-list__layout .block-editor-block-list__block.has-warning > * {
   pointer-events: none;
   -webkit-user-select: none;
-     -moz-user-select: none;
           user-select: none;
 }
 .block-editor-block-list__layout .block-editor-block-list__block.has-warning .block-editor-warning {
@@ -373,7 +367,7 @@ _::-webkit-full-page-media, _:future, :root [data-has-multi-selection=true] .blo
 .wp-block[data-align=right] > *,
 .wp-block.alignleft,
 .wp-block.alignright {
-  z-index: 21;
+  z-index: 9;
 }
 
 .wp-site-blocks > [data-align=left] {
@@ -525,9 +519,6 @@ _::-webkit-full-page-media, _:future, :root [data-has-multi-selection=true] .blo
 .block-editor-block-list__layout .is-dragging iframe {
   pointer-events: none;
 }
-.block-editor-block-list__layout .is-dragging::-moz-selection {
-  background: transparent !important;
-}
 .block-editor-block-list__layout .is-dragging::selection {
   background: transparent !important;
 }
@@ -575,7 +566,8 @@ _::-webkit-full-page-media, _:future, :root [data-has-multi-selection=true] .blo
 .block-editor-block-variation-picker__variations svg,
 .block-editor-block-variation-picker__skip svg,
 .wp-block-group-placeholder__variations svg {
-  fill: #949494 !important;
+  fill: #949494;
+  color: #949494 !important;
 }
 .block-editor-block-variation-picker__variations .components-button,
 .block-editor-block-variation-picker__skip .components-button,
@@ -590,7 +582,8 @@ _::-webkit-full-page-media, _:future, :root [data-has-multi-selection=true] .blo
 .block-editor-block-variation-picker__variations .components-button:hover svg,
 .block-editor-block-variation-picker__skip .components-button:hover svg,
 .wp-block-group-placeholder__variations .components-button:hover svg {
-  fill: var(--wp-admin-theme-color) !important;
+  fill: var(--wp-admin-theme-color);
+  color: var(--wp-admin-theme-color) !important;
 }
 .block-editor-block-variation-picker__variations > li,
 .block-editor-block-variation-picker__skip > li,
@@ -645,7 +638,7 @@ _::-webkit-full-page-media, _:future, :root [data-has-multi-selection=true] .blo
   border: none;
 }
 .is-layout-constrained.block-editor-block-list__block:not(.is-selected) > .block-list-appender:only-child:has(.block-editor-button-block-appender).is-drag-over .block-editor-inserter, .is-layout-flow.block-editor-block-list__block:not(.is-selected) > .block-list-appender:only-child:has(.block-editor-button-block-appender).is-drag-over .block-editor-inserter, .block-editor-block-list__block:not(.is-selected) > .is-layout-constrained.wp-block-group__inner-container > .block-list-appender:only-child:has(.block-editor-button-block-appender).is-drag-over .block-editor-inserter, .block-editor-block-list__block:not(.is-selected) > .is-layout-flow.wp-block-group__inner-container > .block-list-appender:only-child:has(.block-editor-button-block-appender).is-drag-over .block-editor-inserter {
-  visibility: visible;
+  opacity: 1;
 }
 .block-editor-block-list__block:not(.is-selected) > .block-editor-block-list__block > .block-list-appender:only-child:has(.block-editor-button-block-appender)::after {
   border: none;
@@ -904,12 +897,14 @@ figcaption.block-editor-rich-text__editable [data-rich-text-placeholder]::before
   padding: 0 2px;
 }
 
-.rich-text [contenteditable=false]::-moz-selection {
+.rich-text [contenteditable=false]::selection {
   background-color: transparent;
 }
 
-.rich-text [contenteditable=false]::selection {
-  background-color: transparent;
+.is-selected .non-breaking-space {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+  opacity: 0.8;
 }
 
 .block-editor-warning {

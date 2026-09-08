@@ -71,7 +71,7 @@
   max-width: 100%;
 }
 
-.wp-block-search__label {
+:where(.wp-block-search__label) {
   width: 100%;
 }
 
@@ -124,9 +124,7 @@
   min-width: 3rem;
   border: 1px solid #949494;
   text-decoration: unset !important;
-  -webkit-appearance: initial;
-     -moz-appearance: initial;
-          appearance: initial;
+  appearance: initial;
 }
 
 :where(.wp-block-search__button-inside .wp-block-search__inside-wrapper) {

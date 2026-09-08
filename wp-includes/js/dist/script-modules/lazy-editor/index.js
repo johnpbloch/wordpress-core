@@ -122,6 +122,12 @@ function useStylesId({ templateId } = {}) {
       ) : null;
       return {
         globalStylesId: coreDataSelect.__experimentalGetCurrentGlobalStylesId(),
+        /*
+         * `styles_id` is not part of the template REST schema, so it
+         * cannot come from the record type. It is read defensively in
+         * case a filtered response carries one; without it the hook
+         * falls back to the global styles ID below.
+         */
         stylesId: template?.styles_id
       };
     },
@@ -645,10 +651,13 @@ function getResolvedValue(ruleValue, tree) {
   }
   const resolvedValue = getResolvedRefValue(ruleValue, tree);
   if (typeof resolvedValue === "object" && resolvedValue !== null && "url" in resolvedValue && resolvedValue?.url) {
-    resolvedValue.url = getResolvedThemeFilePath(
-      resolvedValue.url,
-      tree?._links?.["wp:theme-file"]
-    );
+    return {
+      ...resolvedValue,
+      url: getResolvedThemeFilePath(
+        resolvedValue.url,
+        tree?._links?.["wp:theme-file"]
+      )
+    };
   }
   return resolvedValue;
 }
@@ -1017,9 +1026,11 @@ var BACKGROUND_BLOCK_DEFAULT_VALUES = {
   backgroundPosition: "50% 50%"
   // used only when backgroundSize is 'contain'.
 };
+function hasImageUrl(backgroundImage) {
+  return typeof backgroundImage === "object" && backgroundImage !== null && "url" in backgroundImage && !!backgroundImage.url;
+}
 function setBackgroundStyleDefaults(backgroundStyle) {
-  if (!backgroundStyle || // @ts-expect-error
-  !backgroundStyle?.backgroundImage?.url) {
+  if (!backgroundStyle || !hasImageUrl(backgroundStyle.backgroundImage)) {
     return;
   }
   let backgroundStylesWithDefaults;
@@ -1370,7 +1381,7 @@ function getPresetsSvgFilters(blockPresets = {}) {
       metadata.path,
       {}
     );
-    return ["default", "theme"].filter((origin) => presetByOrigin[origin]).flatMap(
+    return ["default", "theme", "custom"].filter((origin) => presetByOrigin[origin]).flatMap(
       (origin) => presetByOrigin[origin].map(
         (preset) => getDuotoneFilter(
           `wp-duotone-${preset.slug}`,
@@ -1592,7 +1603,8 @@ function getLayoutStyles({
   fallbackGapValue
 }) {
   let ruleset = "";
-  let gapValue = hasBlockGapSupport ? getGapCSSValue(style?.spacing?.blockGap) : "";
+  const blockGapValue = style?.spacing?.blockGap;
+  let gapValue = hasBlockGapSupport ? getGapCSSValue(blockGapValue) : "";
   if (hasFallbackGapSupport) {
     if (selector === ROOT_BLOCK_SELECTOR) {
       gapValue = !gapValue ? "0.5em" : gapValue;
@@ -1600,12 +1612,16 @@ function getLayoutStyles({
       gapValue = fallbackGapValue;
     }
   }
+  const rowGapValue = hasBlockGapSupport && blockGapValue && typeof blockGapValue !== "string" ? getGapCSSValue(blockGapValue.top) : gapValue;
   if (gapValue && layoutDefinitions) {
     Object.values(layoutDefinitions).forEach(
       ({ className, name, spacingStyles }) => {
         if (!hasBlockGapSupport && "flex" !== name && "grid" !== name) {
           return;
         }
+        const layoutGapValue = ["default", "constrained"].includes(
+          name
+        ) ? rowGapValue : gapValue;
         if (spacingStyles?.length) {
           spacingStyles.forEach((spacingStyle) => {
             const declarations = [];
@@ -1613,7 +1629,7 @@ function getLayoutStyles({
               Object.entries(spacingStyle.rules).forEach(
                 ([cssProperty, cssValue]) => {
                   declarations.push(
-                    `${cssProperty}: ${cssValue ? cssValue : gapValue}`
+                    `${cssProperty}: ${cssValue ? cssValue : layoutGapValue}`
                   );
                 }
               );
@@ -1777,6 +1793,20 @@ function getResponsiveStyleNodes(node, responsiveMediaQueries) {
     }
   );
 }
+function getElementStylesByName(styleNode, responsiveMediaQueries) {
+  const elementStylesByName = { ...styleNode?.elements ?? {} };
+  Object.keys(responsiveMediaQueries).forEach((breakpointKey) => {
+    Object.entries(styleNode?.[breakpointKey]?.elements ?? {}).forEach(
+      ([elementName, styles]) => {
+        elementStylesByName[elementName] = {
+          ...elementStylesByName[elementName] ?? {},
+          [breakpointKey]: styles
+        };
+      }
+    );
+  });
+  return elementStylesByName;
+}
 var getNodesWithStyles = (tree, blockSelectors) => {
   const nodes = [];
   if (!tree?.styles) {
@@ -1844,7 +1874,10 @@ var getNodesWithStyles = (tree, blockSelectors) => {
               });
             }
             Object.entries(
-              typedVariation?.elements ?? {}
+              getElementStylesByName(
+                typedVariation,
+                responsiveMediaQueries
+              )
             ).forEach(([element, elementStyles]) => {
               if (elementStyles && import_blocks.__EXPERIMENTAL_ELEMENTS[element]) {
                 variationNodesToAdd.push({
@@ -1897,7 +1930,10 @@ var getNodesWithStyles = (tree, blockSelectors) => {
                   styles: variationBlockStyleNodes
                 });
                 Object.entries(
-                  variationBlockStyles.elements ?? {}
+                  getElementStylesByName(
+                    variationBlockStyles,
+                    responsiveMediaQueries
+                  )
                 ).forEach(
                   ([
                     variationBlockElement,
@@ -1933,22 +1969,22 @@ var getNodesWithStyles = (tree, blockSelectors) => {
         });
       }
       nodes.push(...variationStyleNodesToAdd);
-      Object.entries(typedNode?.elements ?? {}).forEach(
-        ([elementName, value]) => {
-          if (typeof blockSelectors !== "string" && value && blockSelectors?.[blockName] && import_blocks.__EXPERIMENTAL_ELEMENTS[elementName]) {
-            nodes.push({
-              styles: value,
-              selector: blockSelectors[blockName]?.selector.split(",").map((sel) => {
-                const elementSelectors = import_blocks.__EXPERIMENTAL_ELEMENTS[elementName].split(",");
-                return elementSelectors.map(
-                  (elementSelector) => sel + " " + elementSelector
-                );
-              }).join(","),
-              elementName
-            });
-          }
+      Object.entries(
+        getElementStylesByName(typedNode, responsiveMediaQueries)
+      ).forEach(([elementName, value]) => {
+        if (typeof blockSelectors !== "string" && value && blockSelectors?.[blockName] && import_blocks.__EXPERIMENTAL_ELEMENTS[elementName]) {
+          nodes.push({
+            styles: value,
+            selector: blockSelectors[blockName]?.selector.split(",").map((sel) => {
+              const elementSelectors = import_blocks.__EXPERIMENTAL_ELEMENTS[elementName].split(",");
+              return elementSelectors.map(
+                (elementSelector) => sel + " " + elementSelector
+              );
+            }).join(","),
+            elementName
+          });
         }
-      );
+      });
       nodes.push(...variationNodesToAdd);
     }
   );
@@ -2319,10 +2355,8 @@ var getBlockSelectors = (blockTypes, variationInstanceId) => {
       }
     }
     const hasLayoutSupport = !!blockType?.supports?.layout || !!blockType?.supports?.__experimentalLayout;
-    const fallbackGapValue = (
-      // @ts-expect-error
-      blockType?.supports?.spacing?.blockGap?.__experimentalDefault
-    );
+    const blockGapSupport = blockType?.supports?.spacing?.blockGap;
+    const fallbackGapValue = typeof blockGapSupport === "object" && !Array.isArray(blockGapSupport) ? blockGapSupport.__experimentalDefault : void 0;
     const blockStyleVariations = getBlockStyles(name);
     const styleVariationSelectors = {};
     blockStyleVariations?.forEach((variation) => {
@@ -2478,6 +2512,7 @@ function generateGlobalStyles(config = {}, blockTypes = [], options = {}) {
 
 // packages/lazy-editor/build-module/hooks/use-editor-settings.mjs
 var import_core_data3 = __toESM(require_core_data(), 1);
+var import_blocks2 = __toESM(require_blocks(), 1);
 var import_element2 = __toESM(require_element(), 1);
 var import_data4 = __toESM(require_data(), 1);
 
@@ -2488,6 +2523,9 @@ var import_element = __toESM(require_element(), 1);
 function useUserGlobalStyles(id) {
   const { userGlobalStyles } = (0, import_data3.useSelect)(
     (select2) => {
+      if (id === void 0) {
+        return { userGlobalStyles: void 0 };
+      }
       const { getEntityRecord, getEditedEntityRecord, canUser } = select2(import_core_data2.store);
       const userCanEditGlobalStyles = canUser("update", {
         kind: "root",
@@ -2542,17 +2580,23 @@ var { unlock } = (0, import_private_apis.__dangerousOptInToUnstableAPIsOnlyForCo
 );
 
 // packages/lazy-editor/build-module/hooks/use-editor-settings.mjs
-function useEditorSettings({ stylesId }) {
-  const { editorSettings } = (0, import_data4.useSelect)(
+function useEditorSettings({
+  stylesId
+}) {
+  const { editorSettings, blockTypes } = (0, import_data4.useSelect)(
     (select2) => ({
       editorSettings: unlock(
         select2(import_core_data3.store)
-      ).getEditorSettings()
+      ).getEditorSettings(),
+      blockTypes: select2(import_blocks2.store).getBlockTypes()
     }),
     []
   );
   const { user: globalStyles } = useUserGlobalStyles(stylesId);
-  const [globalStylesCSS] = generateGlobalStyles(globalStyles);
+  const [globalStylesCSS] = (0, import_element2.useMemo)(
+    () => generateGlobalStyles(globalStyles, blockTypes),
+    [globalStyles, blockTypes]
+  );
   const hasEditorSettings = !!editorSettings;
   const styles = (0, import_element2.useMemo)(() => {
     if (!hasEditorSettings) {
@@ -2836,12 +2880,20 @@ function useEditorAssets() {
 
 // packages/lazy-editor/build-module/components/editor/index.mjs
 var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
-var { Editor: PrivateEditor, BackButton } = unlock(import_editor.privateApis);
+var {
+  Editor: PrivateEditor,
+  BackButton,
+  PreferencesModal,
+  ToolsMoreMenuGroup,
+  SiteExport
+} = unlock(import_editor.privateApis);
 function Editor({
   postType,
   postId,
   settings,
-  backButton
+  backButton,
+  onActionPerformed,
+  initialViewport
 }) {
   const homePage = (0, import_data6.useSelect)(
     (select2) => {
@@ -2878,7 +2930,17 @@ function Editor({
   const finalSettings = (0, import_element4.useMemo)(
     () => ({
       ...editorSettings,
-      ...settings
+      ...settings,
+      /*
+       * The theme's styles and the user's global styles, then whatever the
+       * host adds for the surface it is rendering into. Spelled out after
+       * the spread because `styles` is a list each source adds to: a host
+       * contributing its own must not drop everyone else's.
+       */
+      styles: [
+        ...editorSettings.styles ?? [],
+        ...settings?.styles ?? []
+      ]
     }),
     [editorSettings, settings]
   );
@@ -2896,7 +2958,7 @@ function Editor({
       }
     );
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
     PrivateEditor,
     {
       postType: resolvedPostType,
@@ -2904,7 +2966,13 @@ function Editor({
       templateId,
       settings: finalSettings,
       styles: finalSettings.styles,
-      children: backButton && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(BackButton, { children: backButton })
+      onActionPerformed,
+      initialViewport,
+      children: [
+        backButton && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(BackButton, { children: backButton }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PreferencesModal, {}),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToolsMoreMenuGroup, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SiteExport, {}) })
+      ]
     }
   );
 }
@@ -2914,7 +2982,7 @@ var import_i18n = __toESM(require_i18n(), 1);
 var import_element5 = __toESM(require_element(), 1);
 var import_block_editor = __toESM(require_block_editor(), 1);
 var import_editor2 = __toESM(require_editor(), 1);
-var import_blocks2 = __toESM(require_blocks(), 1);
+var import_blocks3 = __toESM(require_blocks(), 1);
 var import_jsx_runtime2 = __toESM(require_jsx_runtime(), 1);
 if (typeof document !== "undefined" && true && !document.head.querySelector("style[data-wp-hash='95327475c1']")) {
   const style = document.createElement("style");
@@ -2931,7 +2999,7 @@ function PreviewContent({
   const descriptionId = (0, import_element5.useId)();
   const backgroundColor = useStyle("color.background");
   const actualBlocks = (0, import_element5.useMemo)(() => {
-    return blocks ?? (0, import_blocks2.parse)(content, {
+    return blocks ?? (0, import_blocks3.parse)(content, {
       __unstableSkipMigrationLogs: true
     });
   }, [content, blocks]);

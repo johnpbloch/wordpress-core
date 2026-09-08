@@ -119,7 +119,6 @@
 .media-author-field__avatar img {
   width: 16px;
   height: 16px;
-  -o-object-fit: cover;
   object-fit: cover;
   opacity: 1;
   border-radius: 100%;
@@ -190,7 +189,6 @@
   display: block;
   width: 100%;
   height: 100%;
-  -o-object-fit: cover;
   object-fit: cover;
 }
 
