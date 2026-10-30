@@ -319,7 +319,7 @@ class WP_Block_Parser {
 	 * @param null|int $length How many bytes of document text to output.
 	 */
 	public function add_freeform( $length = null ) {
-		$length = $length ?? strlen( $this->document ) - $this->offset;
+		$length ??= strlen( $this->document ) - $this->offset;
 
 		if ( 0 === $length ) {
 			return;
@@ -415,7 +415,7 @@ class WP_Block_Parser {
 
 			if ( isset( $implicitly_closed ) ) {
 				$stack_top->block->innerContent[] = null;
-				$stack_top->block->innerBlocks[]  = $implicitly_closed;
+				$stack_top->block->innerBlocks[]  = (array) $implicitly_closed;
 			}
 
 			$implicitly_closed = $stack_top->block;
