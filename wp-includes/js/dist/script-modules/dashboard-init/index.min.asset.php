@@ -1,0 +1,1 @@
+<?php return array('dependencies' => array('react', 'wp-core-data', 'wp-data', 'wp-dom', 'wp-element', 'wp-i18n'), 'module_dependencies' => array(array('id' => '@wordpress/widget-primitives', 'import' => 'static')), 'version' => 'e8caf739ce241e22ead9');
