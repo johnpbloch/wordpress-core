@@ -1375,7 +1375,7 @@ if ( ! function_exists( 'check_admin_referer' ) ) :
 	 *                   2 if the nonce is valid and generated between 12-24 hours ago.
 	 *                   False if the nonce is invalid. Only possible when `$action` is -1,
 	 *                   as the function otherwise exits rather than returning false.
-	 * @phpstan-return ( $action is -1 ? int|false : int )
+	 * @phpstan-return ( $action is -1 ? 1|2|false : 1|2 )
 	 */
 	function check_admin_referer( $action = -1, $query_arg = '_wpnonce' ) {
 		if ( -1 === $action ) {
@@ -1422,7 +1422,7 @@ if ( ! function_exists( 'check_ajax_referer' ) ) :
 	 *                   2 if the nonce is valid and generated between 12-24 hours ago.
 	 *                   False if the nonce is invalid. Only possible when `$stop` is false,
 	 *                   as the function otherwise exits rather than returning false.
-	 * @phpstan-return ( $stop is true ? int : int|false )
+	 * @phpstan-return ( $stop is true ? 1|2 : 1|2|false )
 	 */
 	function check_ajax_referer( $action = -1, $query_arg = false, $stop = true ) {
 		if ( -1 === $action ) {
@@ -1930,8 +1930,11 @@ if ( ! function_exists( 'wp_notify_postauthor' ) ) :
 					$notify_message .= sprintf( __( 'Author: %1$s (IP address: %2$s, %3$s)' ), $comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
 					/* translators: %s: Note author email. */
 					$notify_message .= sprintf( __( 'Email: %s' ), $comment_author_email ) . "\r\n";
-					/* translators: %s: Note text. */
-					$notify_message .= sprintf( __( 'Note: %s' ), "\r\n" . ( empty( $comment_content ) ? __( 'resolved/reopened' ) : $comment_content ) ) . "\r\n\r\n";
+					$notify_message .= sprintf(
+						/* translators: %s: Note text. */
+						__( 'Note: %s' ),
+						"\r\n" . ( empty( $comment_content ) ? __( 'resolved/reopened' ) : $comment_content )
+					) . "\r\n\r\n";
 					$notify_message .= __( 'You can see all notes on this post here:' ) . "\r\n";
 					/* translators: Note notification email subject. 1: Site title, 2: Post title. */
 					$subject = sprintf( __( '[%1$s] Note: "%2$s"' ), $blogname, $post->post_title );
@@ -2503,6 +2506,8 @@ if ( ! function_exists( 'wp_verify_nonce' ) ) :
 	 * @return int|false 1 if the nonce is valid and generated between 0-12 hours ago,
 	 *                   2 if the nonce is valid and generated between 12-24 hours ago.
 	 *                   False if the nonce is invalid.
+	 *
+	 * @phpstan-return 1|2|false
 	 */
 	function wp_verify_nonce( $nonce, $action = -1 ) {
 		$nonce = (string) $nonce;
@@ -3042,6 +3047,8 @@ if ( ! function_exists( 'wp_rand' ) ) :
 	 * @param int $max Optional. Upper limit for the generated number.
 	 *                 Accepts positive integers. Defaults to 4294967295.
 	 * @return int A random non-negative number between min and max.
+	 *
+	 * @phpstan-return non-negative-int
 	 */
 	function wp_rand( $min = null, $max = null ) {
 		global $rnd_value;
@@ -3072,11 +3079,7 @@ if ( ! function_exists( 'wp_rand' ) ) :
 				$_max = max( $min, $max );
 				$_min = min( $min, $max );
 				$val  = random_int( $_min, $_max );
-				if ( false !== $val ) {
-					return absint( $val );
-				} else {
-					$use_random_int_functionality = false;
-				}
+				return absint( $val );
 			} catch ( Error $e ) {
 				$use_random_int_functionality = false;
 			} catch ( Exception $e ) {
@@ -3090,9 +3093,13 @@ if ( ! function_exists( 'wp_rand' ) ) :
 		 */
 		if ( strlen( $rnd_value ) < 8 ) {
 			if ( defined( 'WP_SETUP_CONFIG' ) ) {
+				/** @var string $seed */
 				static $seed = '';
 			} else {
 				$seed = get_transient( 'random_seed' );
+				if ( ! is_string( $seed ) ) {
+					$seed = '';
+				}
 			}
 			$rnd_value  = md5( uniqid( microtime() . mt_rand(), true ) . $seed );
 			$rnd_value .= sha1( $rnd_value );
